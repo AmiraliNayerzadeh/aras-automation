@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(mkdir -p public/assets/wowdash)",
+      "Bash(cp -r \"wowdash-bootstrap/Bootstarp html/wowdash-admin/assets/.\" public/assets/wowdash/)",
+      "Bash(cd \"/e/Projects/aras-automation\" && rm -rf public/assets/wowdash/sass && du -sh public/assets/wowdash)",
+      "Bash(npm uninstall *)",
+      "Bash(npm run *)",
+      "Bash(php -l database/seeders/RolePermissionSeeder.php)",
+      "Bash(php -l database/seeders/LookupTypeSeeder.php)",
+      "Bash(./vendor/bin/pint --test)"
     ]
   }
 }

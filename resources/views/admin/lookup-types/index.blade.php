@@ -3,7 +3,7 @@
         <h2 class="h4 fw-semibold mb-0">{{ __('app.lookup_values') }}</h2>
     </x-slot>
 
-    <div class="card">
+    <div class="card radius-12">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead>
@@ -21,7 +21,7 @@
                             <td><code>{{ $lookupType->code }}</code></td>
                             <td>{{ $lookupType->values_count }}</td>
                             <td class="text-end">
-                                <a href="{{ route('admin.lookup-types.edit', $lookupType) }}" class="btn btn-outline-secondary btn-sm">{{ __('app.view') }}</a>
+                                <a href="{{ route('admin.lookup-types.edit', $lookupType) }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">{{ __('app.view') }}</a>
                             </td>
                         </tr>
                     @endforeach

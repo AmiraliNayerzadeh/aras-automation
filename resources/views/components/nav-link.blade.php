@@ -1,9 +1,7 @@
 @props(['active'])
 
 @php
-$classes = ($active ?? false)
-            ? 'nav-link active'
-            : 'nav-link';
+$classes = ($active ?? false) ? 'active-page' : '';
 @endphp
 
 <a {{ $attributes->merge(['class' => $classes]) }}>

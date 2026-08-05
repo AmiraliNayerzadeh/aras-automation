@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Http\Middleware\SetLocale;
+use App\Models\Hr\LeaveRequest;
+use App\Models\Hr\MissionRequest;
 use App\Support\DashboardWidgetRegistry;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        Relation::morphMap([
+            'leave_request' => LeaveRequest::class,
+            'mission_request' => MissionRequest::class,
+        ]);
 
         Event::listen(function (Login $event) {
             if ($event->user->locale && in_array($event->user->locale, SetLocale::SUPPORTED_LOCALES, true)) {

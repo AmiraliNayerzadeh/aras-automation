@@ -3,7 +3,7 @@
         <h2 class="h4 fw-semibold mb-0">{{ __('app.edit') }} — {{ $branch->name }}</h2>
     </x-slot>
 
-    <div class="card">
+    <div class="card radius-12">
         <div class="card-body">
             <form method="POST" action="{{ route('admin.branches.update', $branch) }}">
                 @csrf

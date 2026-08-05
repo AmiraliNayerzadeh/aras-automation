@@ -3,7 +3,7 @@
         <h2 class="h4 fw-semibold mb-0">{{ $lookupType->name }}</h2>
     </x-slot>
 
-    <div class="card mb-4">
+    <div class="card radius-12 mb-24">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead>
@@ -23,7 +23,7 @@
                             <td>{{ $value->label['hy'] ?? '—' }}</td>
                             <td>{{ $value->label['fa'] ?? '—' }}</td>
                             <td>
-                                <span class="badge {{ $value->is_active ? 'text-bg-success' : 'text-bg-secondary' }}">
+                                <span class="badge text-sm fw-semibold px-16 py-6 radius-4 {{ $value->is_active ? 'text-success-600 bg-success-100' : 'text-neutral-600 bg-neutral-200' }}">
                                     {{ $value->is_active ? __('app.field_active') : __('app.field_inactive') }}
                                 </span>
                             </td>
@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card radius-12">
         <div class="card-header bg-body">{{ __('app.create_new') }}</div>
         <div class="card-body">
             <form method="POST" action="{{ route('admin.lookup-types.values.store', $lookupType) }}">
@@ -72,6 +72,6 @@
     </div>
 
     <div class="mt-3">
-        <a href="{{ route('admin.lookup-types.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('app.back') }}</a>
+        <a href="{{ route('admin.lookup-types.index') }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">{{ __('app.back') }}</a>
     </div>
 </x-app-layout>

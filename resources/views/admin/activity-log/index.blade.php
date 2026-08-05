@@ -3,7 +3,7 @@
         <h2 class="h4 fw-semibold mb-0">{{ __('app.nav_activity_log') }}</h2>
     </x-slot>
 
-    <div class="card">
+    <div class="card radius-12">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead>
@@ -20,7 +20,16 @@
                         <tr>
                             <td class="text-nowrap">{{ $activity->created_at->format('Y-m-d H:i') }}</td>
                             <td>{{ $activity->causer?->name ?? '—' }}</td>
-                            <td><span class="badge text-bg-light border">{{ $activity->event }}</span></td>
+                            @php
+                                $eventColor = match ($activity->event) {
+                                    'created' => 'text-success-600 bg-success-100',
+                                    'updated' => 'text-info-600 bg-info-100',
+                                    'deleted' => 'text-danger-600 bg-danger-100',
+                                    'restored' => 'text-primary-600 bg-primary-50',
+                                    default => 'text-neutral-600 bg-neutral-200',
+                                };
+                            @endphp
+                            <td><span class="badge text-sm fw-semibold px-16 py-6 radius-4 {{ $eventColor }}">{{ $activity->event }}</span></td>
                             <td>{{ class_basename($activity->subject_type) }} #{{ $activity->subject_id }}</td>
                             <td>{{ $activity->description }}</td>
                         </tr>

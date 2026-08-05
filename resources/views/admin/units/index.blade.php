@@ -3,12 +3,12 @@
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="h4 fw-semibold mb-0">{{ __('app.units') }}</h2>
             @can('organization.create')
-                <a href="{{ route('admin.units.create') }}" class="btn btn-dark btn-sm">{{ __('app.create_new') }}</a>
+                <a href="{{ route('admin.units.create') }}" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm">{{ __('app.create_new') }}</a>
             @endcan
         </div>
     </x-slot>
 
-    <div class="card">
+    <div class="card radius-12">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead>
@@ -27,19 +27,19 @@
                             <td>{{ $unit->code }}</td>
                             <td>{{ $unit->department->name }}</td>
                             <td>
-                                <span class="badge {{ $unit->is_active ? 'text-bg-success' : 'text-bg-secondary' }}">
+                                <span class="badge text-sm fw-semibold px-16 py-6 radius-4 {{ $unit->is_active ? 'text-success-600 bg-success-100' : 'text-neutral-600 bg-neutral-200' }}">
                                     {{ $unit->is_active ? __('app.field_active') : __('app.field_inactive') }}
                                 </span>
                             </td>
                             <td class="text-end">
                                 @can('organization.edit')
-                                    <a href="{{ route('admin.units.edit', $unit) }}" class="btn btn-outline-secondary btn-sm">{{ __('app.edit') }}</a>
+                                    <a href="{{ route('admin.units.edit', $unit) }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">{{ __('app.edit') }}</a>
                                 @endcan
                                 @can('organization.delete')
                                     <form action="{{ route('admin.units.destroy', $unit) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ __('app.confirm_delete') }}');">
                                         @csrf
                                         @method('delete')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('app.delete') }}</button>
+                                        <button type="submit" class="btn btn-outline-danger-600 radius-8 px-16 py-8 text-sm">{{ __('app.delete') }}</button>
                                     </form>
                                 @endcan
                             </td>

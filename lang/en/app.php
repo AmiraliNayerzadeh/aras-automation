@@ -5,12 +5,16 @@ return [
     'name' => 'Aras Automation',
 
     'nav_dashboard' => 'Dashboard',
+    'nav_hr' => 'Human Resources',
+    'nav_approvals' => 'My Approvals',
+    'nav_administration' => 'Administration',
     'nav_users' => 'Users',
     'nav_organization' => 'Organization',
     'nav_roles' => 'Roles & Permissions',
     'nav_settings' => 'Settings',
     'nav_activity_log' => 'Activity Log',
     'nav_profile' => 'Profile',
+    'logout' => 'Log Out',
 
     'save' => 'Save',
     'cancel' => 'Cancel',
@@ -25,6 +29,31 @@ return [
     'my_actions' => 'My Actions',
     'no_action_items' => 'No action items right now.',
     'birthday_banner' => '🎉 Today is :name\'s birthday!',
+
+    'stat_users' => 'Total Users',
+    'stat_companies' => 'Companies',
+    'stat_departments' => 'Departments',
+    'stat_active_users' => 'Active Users',
+
+    'inbox_title' => 'Approvals Inbox',
+    'inbox_empty' => 'Nothing waiting for your decision right now.',
+    'inbox_pending_approval' => ':count requests awaiting your approval',
+
+    'step_manager' => 'Direct Manager',
+    'step_hr' => 'Human Resources',
+    'step_ceo' => 'CEO',
+    'step_status_pending' => 'Awaiting decision',
+    'step_status_approved' => 'Approved',
+    'step_status_rejected' => 'Rejected',
+    'step_status_skipped' => 'Skipped',
+
+    'request_status_draft' => 'Draft',
+    'request_status_submitted' => 'Submitted',
+    'request_status_pending' => 'Pending',
+    'request_status_approved' => 'Approved',
+    'request_status_rejected' => 'Rejected',
+    'request_status_cancelled' => 'Cancelled',
+    'request_status_expired' => 'Expired',
 
     'field_name' => 'Name',
     'field_code' => 'Code',
@@ -70,5 +99,18 @@ return [
     'units' => 'Units',
     'positions' => 'Positions',
     'lookup_values' => 'Values',
+
+    'login_heading' => 'Sign in to your account',
+    'login_subheading' => 'Welcome back! Please enter your details.',
+    'register_heading' => 'Create your account',
+    'register_subheading' => 'Fill in your details to get started.',
+    'forgot_password_heading' => 'Forgot your password?',
+    'forgot_password_subheading' => 'No problem, we will email you a reset link.',
+    'reset_password_heading' => 'Set a new password',
+    'reset_password_subheading' => 'Choose a strong, new password for your account.',
+    'confirm_password_heading' => 'Confirm your password',
+    'confirm_password_subheading' => 'This is a secure area, please confirm your password to continue.',
+    'verify_email_heading' => 'Verify your email',
+    'verify_email_subheading' => 'We sent a verification link to your email address.',
 
 ];

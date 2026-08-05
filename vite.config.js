@@ -7,13 +7,12 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/css/app-rtl.css',
                 'resources/js/app.js',
             ],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                bunny('Inter', {
+                    weights: [400, 500, 600, 700],
                 }),
                 bunny('Vazirmatn', {
                     weights: [400, 500, 600, 700],

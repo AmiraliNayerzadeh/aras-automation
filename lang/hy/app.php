@@ -5,12 +5,16 @@ return [
     'name' => 'Aras Ավտոմատացում',
 
     'nav_dashboard' => 'Կառավարման վահանակ',
+    'nav_hr' => 'Մարդկային ռեսուրսներ',
+    'nav_approvals' => 'Իմ հաստատումները',
+    'nav_administration' => 'Կառավարում',
     'nav_users' => 'Օգտատերեր',
     'nav_organization' => 'Կազմակերպական կառուցվածք',
     'nav_roles' => 'Դերեր և թույլտվություններ',
     'nav_settings' => 'Կարգավորումներ',
     'nav_activity_log' => 'Գործողությունների պատմություն',
     'nav_profile' => 'Անձնական էջ',
+    'logout' => 'Ելք',
 
     'save' => 'Պահպանել',
     'cancel' => 'Չեղարկել',
@@ -25,6 +29,31 @@ return [
     'my_actions' => 'Իմ առաջադրանքները',
     'no_action_items' => 'Ներկայումս գործողություն պահանջող տարր չկա։',
     'birthday_banner' => '🎉 Այսօր :name-ի ծննդյան օրն է։',
+
+    'stat_users' => 'Օգտատերերի քանակ',
+    'stat_companies' => 'Ընկերություններ',
+    'stat_departments' => 'Բաժիններ',
+    'stat_active_users' => 'Ակտիվ օգտատերեր',
+
+    'inbox_title' => 'Հաստատումների արկղ',
+    'inbox_empty' => 'Ներկայումս ձեր որոշումը սպասող ոչինչ չկա։',
+    'inbox_pending_approval' => ':count հայտ սպասում է ձեր հաստատմանը',
+
+    'step_manager' => 'Անմիջական ղեկավար',
+    'step_hr' => 'Մարդկային ռեսուրսներ',
+    'step_ceo' => 'Գործադիր տնօրեն',
+    'step_status_pending' => 'Սպասում է որոշման',
+    'step_status_approved' => 'Հաստատված',
+    'step_status_rejected' => 'Մերժված',
+    'step_status_skipped' => 'Ինքնաշխատ բաց թողնված',
+
+    'request_status_draft' => 'Սևագիր',
+    'request_status_submitted' => 'Ուղարկված',
+    'request_status_pending' => 'Սպասման մեջ',
+    'request_status_approved' => 'Հաստատված',
+    'request_status_rejected' => 'Մերժված',
+    'request_status_cancelled' => 'Չեղարկված',
+    'request_status_expired' => 'Ժամկետանց',
 
     'field_name' => 'Անուն',
     'field_code' => 'Կոդ',
@@ -70,5 +99,18 @@ return [
     'units' => 'Ստորաբաժանումներ',
     'positions' => 'Պաշտոններ',
     'lookup_values' => 'Արժեքներ',
+
+    'login_heading' => 'Մուտք գործեք ձեր հաշիվ',
+    'login_subheading' => 'Բարի վերադարձ։ Խնդրում ենք մուտքագրել ձեր տվյալները։',
+    'register_heading' => 'Ստեղծեք ձեր հաշիվը',
+    'register_subheading' => 'Սկսելու համար լրացրեք ձեր տվյալները։',
+    'forgot_password_heading' => 'Մոռացե՞լ եք գաղտնաբառը',
+    'forgot_password_subheading' => 'Ոչինչ, մենք ձեզ կուղարկենք վերականգնման հղում։',
+    'reset_password_heading' => 'Սահմանեք նոր գաղտնաբառ',
+    'reset_password_subheading' => 'Ընտրեք ուժեղ նոր գաղտնաբառ ձեր հաշվի համար։',
+    'confirm_password_heading' => 'Հաստատեք գաղտնաբառը',
+    'confirm_password_subheading' => 'Սա պաշտպանված հատված է, խնդրում ենք հաստատել գաղտնաբառը՝ շարունակելու համար։',
+    'verify_email_heading' => 'Հաստատեք ձեր էլ. փոստը',
+    'verify_email_subheading' => 'Հաստատման հղում ուղարկվել է ձեր էլ. փոստի հասցեին։',
 
 ];

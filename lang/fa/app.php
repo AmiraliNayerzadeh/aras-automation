@@ -5,12 +5,16 @@ return [
     'name' => 'اتوماسیون آراس',
 
     'nav_dashboard' => 'داشبورد',
+    'nav_hr' => 'منابع انسانی',
+    'nav_approvals' => 'تاییدهای من',
+    'nav_administration' => 'مدیریت سیستم',
     'nav_users' => 'کاربران',
     'nav_organization' => 'ساختار سازمانی',
     'nav_roles' => 'نقش‌ها و دسترسی‌ها',
     'nav_settings' => 'تنظیمات',
     'nav_activity_log' => 'فعالیت‌ها',
     'nav_profile' => 'پروفایل',
+    'logout' => 'خروج',
 
     'save' => 'ذخیره',
     'cancel' => 'انصراف',
@@ -25,6 +29,31 @@ return [
     'my_actions' => 'کارهای نیازمند اقدام',
     'no_action_items' => 'در حال حاضر موردی برای اقدام وجود ندارد.',
     'birthday_banner' => '🎉 امروز تولد :name است!',
+
+    'stat_users' => 'تعداد کاربران',
+    'stat_companies' => 'شرکت‌ها',
+    'stat_departments' => 'دپارتمان‌ها',
+    'stat_active_users' => 'کاربران فعال',
+
+    'inbox_title' => 'صندوق تأییدها',
+    'inbox_empty' => 'در حال حاضر موردی برای تصمیم‌گیری شما وجود ندارد.',
+    'inbox_pending_approval' => ':count درخواست در انتظار تأیید شما',
+
+    'step_manager' => 'مدیر مستقیم',
+    'step_hr' => 'منابع انسانی',
+    'step_ceo' => 'مدیرعامل',
+    'step_status_pending' => 'در انتظار تصمیم',
+    'step_status_approved' => 'تأیید شده',
+    'step_status_rejected' => 'رد شده',
+    'step_status_skipped' => 'رد شده (خودکار)',
+
+    'request_status_draft' => 'پیش‌نویس',
+    'request_status_submitted' => 'ثبت‌شده',
+    'request_status_pending' => 'در انتظار تأیید',
+    'request_status_approved' => 'تأیید شده',
+    'request_status_rejected' => 'رد شده',
+    'request_status_cancelled' => 'لغو شده',
+    'request_status_expired' => 'منقضی شده',
 
     'field_name' => 'نام',
     'field_code' => 'کد',
@@ -70,5 +99,18 @@ return [
     'units' => 'واحدها',
     'positions' => 'سمت‌ها',
     'lookup_values' => 'مقادیر',
+
+    'login_heading' => 'ورود به حساب کاربری',
+    'login_subheading' => 'خوش آمدید! لطفاً اطلاعات خود را وارد کنید.',
+    'register_heading' => 'ایجاد حساب کاربری',
+    'register_subheading' => 'برای شروع، اطلاعات خود را وارد کنید.',
+    'forgot_password_heading' => 'رمز عبور خود را فراموش کرده‌اید؟',
+    'forgot_password_subheading' => 'مشکلی نیست، لینک بازیابی برای شما ایمیل می‌شود.',
+    'reset_password_heading' => 'تعیین رمز عبور جدید',
+    'reset_password_subheading' => 'یک رمز عبور جدید و قوی برای حساب خود انتخاب کنید.',
+    'confirm_password_heading' => 'تأیید رمز عبور',
+    'confirm_password_subheading' => 'این بخش امن سیستم است، لطفاً برای ادامه رمز عبور خود را تأیید کنید.',
+    'verify_email_heading' => 'تأیید ایمیل',
+    'verify_email_subheading' => 'یک لینک تأیید به آدرس ایمیل شما ارسال شد.',
 
 ];

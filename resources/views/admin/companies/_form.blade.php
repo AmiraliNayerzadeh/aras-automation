@@ -62,5 +62,5 @@
 
 <div class="mt-4 d-flex gap-2">
     <x-primary-button>{{ __('app.save') }}</x-primary-button>
-    <a href="{{ route('admin.companies.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('app.cancel') }}</a>
+    <a href="{{ route('admin.companies.index') }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">{{ __('app.cancel') }}</a>
 </div>

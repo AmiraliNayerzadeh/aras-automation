@@ -17,6 +17,8 @@ class RolePermissionSeeder extends Seeder
         'roles.manage',
         'settings.manage',
         'activitylog.view',
+        'leaves.create', 'leaves.view_all', 'leaves.approve', 'leaves.approve_any', 'leaves.cancel_any',
+        'missions.create', 'missions.view_all', 'missions.approve', 'missions.approve_any', 'missions.cancel_any',
     ];
 
     public function run(): void
@@ -35,14 +37,21 @@ class RolePermissionSeeder extends Seeder
             'users.view', 'users.create', 'users.edit', 'users.delete',
             'organization.view', 'organization.create', 'organization.edit', 'organization.delete',
             'roles.manage', 'settings.manage', 'activitylog.view',
+            'leaves.view_all', 'leaves.approve_any', 'leaves.cancel_any',
+            'missions.view_all', 'missions.approve_any', 'missions.cancel_any',
         ]);
 
         $hr = Role::findOrCreate('hr', 'web');
-        $hr->syncPermissions(['users.view', 'users.create', 'users.edit', 'organization.view']);
+        $hr->syncPermissions([
+            'users.view', 'users.create', 'users.edit', 'organization.view',
+            'leaves.view_all', 'leaves.create', 'leaves.approve',
+            'missions.view_all', 'missions.create', 'missions.approve',
+        ]);
 
         $warehouse = Role::findOrCreate('warehouse', 'web');
-        $warehouse->syncPermissions(['organization.view']);
+        $warehouse->syncPermissions(['organization.view', 'leaves.create', 'missions.create']);
 
-        Role::findOrCreate('employee', 'web');
+        $employee = Role::findOrCreate('employee', 'web');
+        $employee->syncPermissions(['leaves.create', 'leaves.approve', 'missions.create', 'missions.approve']);
     }
 }

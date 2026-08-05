@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization\Company;
+use App\Models\Organization\Department;
 use App\Models\User;
 use App\Support\DashboardWidgetRegistry;
 
@@ -15,9 +17,17 @@ class DashboardController extends Controller
             ->whereDay('date_of_birth', now()->day)
             ->get();
 
+        $stats = [
+            'users' => User::count(),
+            'companies' => Company::count(),
+            'departments' => Department::count(),
+            'active_users' => User::where('status', 'active')->count(),
+        ];
+
         return view('dashboard', [
             'birthdaysToday' => $birthdaysToday,
             'actionItems' => $widgets->resolve(),
+            'stats' => $stats,
         ]);
     }
 }

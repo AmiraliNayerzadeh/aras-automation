@@ -1,91 +1,113 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ $htmlDir ?? 'ltr' }}">
+<html lang="{{ app()->getLocale() }}" dir="{{ $htmlDir ?? 'ltr' }}" data-theme="light">
     <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Aras Automation') }}</title>
+
+        <link rel="icon" type="image/png" href="{{ asset('assets/wowdash/images/favicon.png') }}" sizes="16x16">
 
         @fonts
 
-        @if (($htmlDir ?? 'ltr') === 'rtl')
-            @vite(['resources/css/app-rtl.css', 'resources/js/app.js'])
-        @else
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @endif
+        <link rel="stylesheet" href="{{ asset('assets/wowdash/css/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/wowdash/css/lib/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/wowdash/css/style.css') }}">
+
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-            <div class="container-fluid">
-                <button class="btn btn-outline-light d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
-                    <i class="bi bi-list"></i>
-                </button>
+        <aside class="sidebar">
+            <button type="button" class="sidebar-close-btn">
+                <i class="ri-close-line"></i>
+            </button>
+            <div>
+                <a href="{{ route('dashboard') }}" class="sidebar-logo">
+                    <img src="{{ asset('assets/wowdash/images/logo.png') }}" alt="{{ config('app.name') }}" class="light-logo">
+                    <img src="{{ asset('assets/wowdash/images/logo-light.png') }}" alt="{{ config('app.name') }}" class="dark-logo">
+                    <img src="{{ asset('assets/wowdash/images/logo-icon.png') }}" alt="{{ config('app.name') }}" class="logo-icon">
+                </a>
+            </div>
+            <div class="sidebar-menu-area">
+                @include('layouts.navigation')
+            </div>
+        </aside>
 
-                <a class="navbar-brand" href="{{ route('dashboard') }}">{{ config('app.name', 'Aras Automation') }}</a>
-
-                <div class="d-flex align-items-center order-lg-last gap-2">
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button">
-                                {{ strtoupper(app()->getLocale()) }}
+        <main class="dashboard-main">
+            <div class="navbar-header">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-auto">
+                        <div class="d-flex flex-wrap align-items-center gap-4">
+                            <button type="button" class="sidebar-toggle">
+                                <i class="ri-menu-line icon text-2xl non-active"></i>
+                                <i class="ri-arrow-right-line icon text-2xl active"></i>
                             </button>
-                        </x-slot>
-
-                        <x-slot name="content">
-                            @foreach (['en' => 'English', 'hy' => 'Հայերեն', 'fa' => 'فارسی'] as $code => $label)
-                                <x-dropdown-link href="{{ route('locale.switch', $code) }}">{{ $label }}</x-dropdown-link>
-                            @endforeach
-                        </x-slot>
-                    </x-dropdown>
-
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button">
-                                {{ Auth::user()->name }}
+                            <button type="button" class="sidebar-mobile-toggle">
+                                <i class="ri-menu-line icon"></i>
                             </button>
-                        </x-slot>
+                        </div>
+                    </div>
 
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('app.nav_profile') }}
-                            </x-dropdown-link>
+                    <div class="col-auto">
+                        <div class="d-flex flex-wrap align-items-center gap-3">
+                            <div class="dropdown">
+                                <button class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center fw-semibold text-sm" type="button" data-bs-toggle="dropdown">
+                                    {{ strtoupper(app()->getLocale()) }}
+                                </button>
+                                <div class="dropdown-menu to-top dropdown-menu-sm">
+                                    @foreach (['en' => 'English', 'hy' => 'Հայերեն', 'fa' => 'فارسی'] as $code => $label)
+                                        <a href="{{ route('locale.switch', $code) }}" class="dropdown-item px-16 py-8 {{ app()->getLocale() === $code ? 'bg-primary-50 text-primary-600' : '' }}">{{ $label }}</a>
+                                    @endforeach
+                                </div>
+                            </div>
 
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-
-                                <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
+                            <div class="dropdown">
+                                <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
+                                    <img src="{{ asset('assets/wowdash/images/user.png') }}" alt="{{ Auth::user()->name }}" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                                </button>
+                                <div class="dropdown-menu to-top dropdown-menu-sm">
+                                    <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
+                                        <div>
+                                            <h6 class="text-lg text-primary-light fw-semibold mb-2">{{ Auth::user()->name }}</h6>
+                                            <span class="text-secondary-light fw-medium text-sm">{{ Auth::user()->email }}</span>
+                                        </div>
+                                    </div>
+                                    <ul class="to-top-list">
+                                        <li>
+                                            <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="{{ route('profile.edit') }}">
+                                                <i class="ri-user-line icon text-xl"></i> {{ __('app.nav_profile') }}
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3 w-100 border-0 bg-transparent text-start">
+                                                    <i class="ri-logout-box-line icon text-xl"></i> {{ __('app.logout') }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
 
-        <div class="d-flex">
-            <div class="offcanvas-lg offcanvas-start bg-body-tertiary border-end" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel" style="width: 15rem;">
-                <div class="offcanvas-header d-lg-none">
-                    <h5 class="offcanvas-title" id="sidebarLabel">{{ config('app.name', 'Aras Automation') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button>
-                </div>
-                <div class="offcanvas-body p-0">
-                    @include('layouts.navigation')
-                </div>
-            </div>
-
-            <main class="flex-fill p-3 p-lg-4" style="min-width: 0;">
+            <div class="dashboard-main-body">
                 @isset($header)
-                    <div class="mb-4">
+                    <div class="mb-24">
                         {{ $header }}
                     </div>
                 @endisset
 
                 {{ $slot }}
-            </main>
-        </div>
+            </div>
+        </main>
+
+        <script src="{{ asset('assets/wowdash/js/lib/jquery-3.7.1.min.js') }}"></script>
+        <script src="{{ asset('assets/wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ asset('assets/wowdash/js/app.js') }}"></script>
     </body>
 </html>

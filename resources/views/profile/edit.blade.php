@@ -6,19 +6,19 @@
     </x-slot>
 
     <div class="d-flex flex-column gap-3">
-        <div class="card">
+        <div class="card radius-12">
             <div class="card-body">
                 @include('profile.partials.update-profile-information-form')
             </div>
         </div>
 
-        <div class="card">
+        <div class="card radius-12">
             <div class="card-body">
                 @include('profile.partials.update-password-form')
             </div>
         </div>
 
-        <div class="card">
+        <div class="card radius-12">
             <div class="card-body">
                 @include('profile.partials.delete-user-form')
             </div>
