@@ -1,0 +1,6 @@
+@import 'bootstrap/dist/css/bootstrap.rtl.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+}

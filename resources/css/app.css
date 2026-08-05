@@ -1,0 +1,14 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+
+body {
+    font-family: 'Instrument Sans', sans-serif;
+}
+
+html[lang="fa"] body {
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+html[lang="hy"] body {
+    font-family: 'Noto Sans Armenian', sans-serif;
+}
