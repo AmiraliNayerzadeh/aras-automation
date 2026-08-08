@@ -7,6 +7,10 @@ return [
     'nav_dashboard' => 'Dashboard',
     'nav_hr' => 'Human Resources',
     'nav_approvals' => 'My Approvals',
+    'nav_orders' => 'Orders',
+    'nav_inventory' => 'Inventory',
+    'nav_tasks' => 'Tasks',
+    'nav_business_partners' => 'Business Partners',
     'nav_administration' => 'Administration',
     'nav_users' => 'Users',
     'nav_organization' => 'Organization',
@@ -38,6 +42,7 @@ return [
     'inbox_title' => 'Approvals Inbox',
     'inbox_empty' => 'Nothing waiting for your decision right now.',
     'inbox_pending_approval' => ':count requests awaiting your approval',
+    'task_due_soon' => 'Task due soon: :title (:date)',
 
     'step_manager' => 'Direct Manager',
     'step_hr' => 'Human Resources',
@@ -82,6 +87,13 @@ return [
     'field_value' => 'Value',
     'field_group' => 'Group',
     'field_key' => 'Key',
+    'field_category' => 'Category',
+    'field_file' => 'File',
+    'field_avatar' => 'Photo',
+    'field_appearance' => 'Appearance — Primary Color',
+    'field_sort_order' => 'Sort Order',
+
+    'documents' => 'Documents',
 
     'no_records' => 'No records found.',
     'create_new' => 'Add New',

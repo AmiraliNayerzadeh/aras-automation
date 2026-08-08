@@ -30,11 +30,11 @@ class SettingsService
      */
     public function all(): Collection
     {
-        return Cache::rememberForever(self::CACHE_KEY, function () {
+        return collect(Cache::rememberForever(self::CACHE_KEY, function () {
             return Setting::all()->mapWithKeys(
                 fn (Setting $setting) => [$setting->key => $this->cast($setting)]
-            );
-        });
+            )->all();
+        }));
     }
 
     protected function cast(Setting $setting): mixed

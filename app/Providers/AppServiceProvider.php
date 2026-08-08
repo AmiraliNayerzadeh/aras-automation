@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Http\Middleware\SetLocale;
 use App\Models\Hr\LeaveRequest;
 use App\Models\Hr\MissionRequest;
+use App\Models\Orders\OrderStageLog;
+use App\Models\Tasks\Task;
+use App\Models\User;
 use App\Support\DashboardWidgetRegistry;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -32,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'leave_request' => LeaveRequest::class,
             'mission_request' => MissionRequest::class,
+            'user' => User::class,
+            'order_stage_log' => OrderStageLog::class,
+            'task' => Task::class,
         ]);
 
         Event::listen(function (Login $event) {

@@ -1,0 +1,66 @@
+<?php
+
+return [
+    'title_index' => 'سفارش‌ها',
+    'title_create' => 'سفارش جدید',
+    'title_edit' => 'ویرایش سفارش',
+    'title_detail' => 'جزئیات سفارش',
+
+    'field_type' => 'نوع سفارش',
+    'type_internal' => 'داخلی',
+    'type_external' => 'خارجی',
+
+    'field_order_number' => 'شماره سفارش',
+    'field_order_date' => 'تاریخ سفارش',
+    'field_business_partner' => 'طرف تجاری',
+    'field_currency' => 'واحد پول',
+    'field_amount' => 'مبلغ',
+    'field_description' => 'توضیحات',
+    'field_date_from' => 'از تاریخ',
+    'field_date_to' => 'تا تاریخ',
+    'field_stage' => 'مرحله',
+
+    'items_title' => 'اقلام',
+    'field_item_description' => 'شرح',
+    'field_quantity' => 'تعداد',
+    'field_unit' => 'واحد',
+    'field_packaging' => 'بسته‌بندی',
+    'field_unit_price' => 'قیمت واحد',
+    'field_line_total' => 'جمع',
+    'action_add_item' => 'افزودن قلم',
+    'action_remove_item' => 'حذف',
+    'no_items' => 'هنوز قلمی اضافه نشده است.',
+
+    'timeline_title' => 'جدول زمانی مراحل',
+    'timeline_skipped' => 'رد شده',
+    'timeline_responsible' => 'مسئول',
+    'timeline_recorded_by' => 'ثبت شده توسط :name',
+    'no_stage_configured' => 'هنوز مرحله‌ای برای سفارش تعریف نشده است.',
+
+    'title_advance_stage' => 'پیشبرد مرحله',
+    'field_target_stage' => 'مرحله هدف',
+    'field_responsible_user' => 'شخص مسئول',
+    'field_cost' => 'هزینه',
+    'field_comment' => 'توضیح',
+    'field_files' => 'پیوست‌ها',
+    'action_advance' => 'پیشبرد',
+
+    'status_closed' => 'بسته شده',
+    'status_open' => 'باز',
+
+    'flash_created' => 'سفارش ایجاد شد.',
+    'flash_updated' => 'سفارش به‌روزرسانی شد.',
+    'flash_deleted' => 'سفارش حذف شد.',
+    'flash_advanced' => 'مرحله سفارش پیشبرد شد.',
+    'flash_stockposted' => 'گردش موجودی از این سفارش ثبت شد.',
+    'flash_shipmentsaved' => 'اطلاعات حمل ذخیره شد.',
+    'confirm_delete' => 'آیا از حذف این سفارش مطمئن هستید؟',
+
+    'title_post_stock' => 'ثبت در موجودی',
+    'post_stock_hint' => 'برای هر قلم این سفارش که به یک محصول در کاتالوگ متصل است، یک گردش موجودی :direction ثبت می‌کند.',
+    'post_stock_direction_in' => 'ورودی',
+    'post_stock_direction_out' => 'خروجی',
+    'action_post_stock' => 'ثبت در موجودی',
+    'no_linked_items' => 'هنوز هیچ قلمی از این سفارش به محصولی در کاتالوگ متصل نشده است.',
+    'field_linked_product' => 'محصول کاتالوگ',
+];

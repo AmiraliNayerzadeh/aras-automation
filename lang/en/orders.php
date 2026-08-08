@@ -1,0 +1,66 @@
+<?php
+
+return [
+    'title_index' => 'Orders',
+    'title_create' => 'New Order',
+    'title_edit' => 'Edit Order',
+    'title_detail' => 'Order Detail',
+
+    'field_type' => 'Order Type',
+    'type_internal' => 'Internal',
+    'type_external' => 'External',
+
+    'field_order_number' => 'Order Number',
+    'field_order_date' => 'Order Date',
+    'field_business_partner' => 'Business Partner',
+    'field_currency' => 'Currency',
+    'field_amount' => 'Amount',
+    'field_description' => 'Description',
+    'field_date_from' => 'Date From',
+    'field_date_to' => 'Date To',
+    'field_stage' => 'Stage',
+
+    'items_title' => 'Items',
+    'field_item_description' => 'Description',
+    'field_quantity' => 'Quantity',
+    'field_unit' => 'Unit',
+    'field_packaging' => 'Packaging',
+    'field_unit_price' => 'Unit Price',
+    'field_line_total' => 'Line Total',
+    'action_add_item' => 'Add Item',
+    'action_remove_item' => 'Remove',
+    'no_items' => 'No items added yet.',
+
+    'timeline_title' => 'Stage Timeline',
+    'timeline_skipped' => 'Skipped',
+    'timeline_responsible' => 'Responsible',
+    'timeline_recorded_by' => 'Recorded by :name',
+    'no_stage_configured' => 'No order stages are configured yet.',
+
+    'title_advance_stage' => 'Advance Stage',
+    'field_target_stage' => 'Target Stage',
+    'field_responsible_user' => 'Responsible Person',
+    'field_cost' => 'Cost',
+    'field_comment' => 'Comment',
+    'field_files' => 'Attachments',
+    'action_advance' => 'Advance',
+
+    'status_closed' => 'Closed',
+    'status_open' => 'Open',
+
+    'flash_created' => 'Order created.',
+    'flash_updated' => 'Order updated.',
+    'flash_deleted' => 'Order deleted.',
+    'flash_advanced' => 'Order stage advanced.',
+    'flash_stockposted' => 'Stock movement posted from this order.',
+    'flash_shipmentsaved' => 'Shipment details saved.',
+    'confirm_delete' => 'Are you sure you want to delete this order?',
+
+    'title_post_stock' => 'Post Stock Movement',
+    'post_stock_hint' => 'Posts an :direction stock movement for every item on this order that is linked to a catalog product.',
+    'post_stock_direction_in' => 'incoming',
+    'post_stock_direction_out' => 'outgoing',
+    'action_post_stock' => 'Post to Stock',
+    'no_linked_items' => 'No items on this order are linked to a catalog product yet.',
+    'field_linked_product' => 'Catalog Product',
+];

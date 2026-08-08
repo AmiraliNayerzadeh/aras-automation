@@ -36,6 +36,87 @@
         </li>
     @endcanany
 
+    @canany(['orders.view', 'business-partners.view'])
+        <li class="sidebar-menu-group-title">{{ __('app.nav_orders') }}</li>
+
+        @can('orders.view')
+            <li>
+                <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
+                    <i class="ri-shopping-cart-2-line menu-icon"></i>
+                    <span>{{ __('app.nav_orders') }}</span>
+                </x-nav-link>
+            </li>
+        @endcan
+
+        @can('business-partners.view')
+            <li>
+                <x-nav-link :href="route('admin.business-partners.index')" :active="request()->routeIs('admin.business-partners.*')">
+                    <i class="ri-contacts-book-2-line menu-icon"></i>
+                    <span>{{ __('app.nav_business_partners') }}</span>
+                </x-nav-link>
+            </li>
+        @endcan
+    @endcanany
+
+    @canany(['products.view', 'warehouse.view', 'stock.view'])
+        <li class="sidebar-menu-group-title">{{ __('app.nav_inventory') }}</li>
+
+        <li class="dropdown {{ request()->routeIs('admin.products.*', 'admin.product-categories.*', 'admin.product-brands.*', 'admin.warehouses.*', 'admin.stock-movements.*') ? 'active' : '' }}">
+            <a href="javascript:void(0)">
+                <i class="ri-archive-2-line menu-icon"></i>
+                <span>{{ __('app.nav_inventory') }}</span>
+            </a>
+            <ul class="sidebar-submenu">
+                @can('products.view')
+                    <li>
+                        <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active-page' : '' }}">
+                            <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> {{ __('products.title_index') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.product-categories.index') }}" class="{{ request()->routeIs('admin.product-categories.*') ? 'active-page' : '' }}">
+                            <i class="ri-circle-fill circle-icon text-info-main w-auto"></i> {{ __('products.title_categories') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.product-brands.index') }}" class="{{ request()->routeIs('admin.product-brands.*') ? 'active-page' : '' }}">
+                            <i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> {{ __('products.title_brands') }}
+                        </a>
+                    </li>
+                @endcan
+                @can('warehouse.view')
+                    <li>
+                        <a href="{{ route('admin.warehouses.index') }}" class="{{ request()->routeIs('admin.warehouses.*') ? 'active-page' : '' }}">
+                            <i class="ri-circle-fill circle-icon text-success-main w-auto"></i> {{ __('warehouse.title_warehouses') }}
+                        </a>
+                    </li>
+                @endcan
+                @can('stock.view')
+                    <li>
+                        <a href="{{ route('admin.stock-movements.index') }}" class="{{ request()->routeIs('admin.stock-movements.index') ? 'active-page' : '' }}">
+                            <i class="ri-circle-fill circle-icon text-cyan w-auto"></i> {{ __('warehouse.title_stock_movements') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.stock-movements.overview') }}" class="{{ request()->routeIs('admin.stock-movements.overview') ? 'active-page' : '' }}">
+                            <i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> {{ __('warehouse.title_stock_overview') }}
+                        </a>
+                    </li>
+                @endcan
+            </ul>
+        </li>
+    @endcanany
+
+    @can('tasks.create')
+        <li class="sidebar-menu-group-title">{{ __('app.nav_tasks') }}</li>
+        <li>
+            <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                <i class="ri-task-line menu-icon"></i>
+                <span>{{ __('app.nav_tasks') }}</span>
+            </x-nav-link>
+        </li>
+    @endcan
+
     @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view'])
         <li class="sidebar-menu-group-title">{{ __('app.nav_administration') }}</li>
     @endcanany

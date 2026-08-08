@@ -5,7 +5,7 @@
 
     <div class="card radius-12">
         <div class="card-body">
-            <form method="POST" action="{{ route('admin.users.store') }}">
+            <form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data">
                 @csrf
                 @include('admin.users._form')
             </form>

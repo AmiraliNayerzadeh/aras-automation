@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/remixicon.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/lib/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/style.css') }}">
+        @include('partials.theme-color')
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -24,9 +25,9 @@
             </button>
             <div>
                 <a href="{{ route('dashboard') }}" class="sidebar-logo">
-                    <img src="{{ asset('assets/wowdash/images/logo.png') }}" alt="{{ config('app.name') }}" class="light-logo">
-                    <img src="{{ asset('assets/wowdash/images/logo-light.png') }}" alt="{{ config('app.name') }}" class="dark-logo">
-                    <img src="{{ asset('assets/wowdash/images/logo-icon.png') }}" alt="{{ config('app.name') }}" class="logo-icon">
+                    <img src="{{ asset('logo.png') }}" alt="{{ config('app.name') }}" class="light-logo">
+                    <img src="{{ asset('logo.png') }}" alt="{{ config('app.name') }}" class="dark-logo">
+                    <img src="{{ asset('logo.png') }}" alt="{{ config('app.name') }}" class="logo-icon">
                 </a>
             </div>
             <div class="sidebar-menu-area">
@@ -64,7 +65,7 @@
 
                             <div class="dropdown">
                                 <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
-                                    <img src="{{ asset('assets/wowdash/images/user.png') }}" alt="{{ Auth::user()->name }}" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                                    <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="w-40-px h-40-px object-fit-cover rounded-circle">
                                 </button>
                                 <div class="dropdown-menu to-top dropdown-menu-sm">
                                     <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
@@ -109,5 +110,6 @@
         <script src="{{ asset('assets/wowdash/js/lib/jquery-3.7.1.min.js') }}"></script>
         <script src="{{ asset('assets/wowdash/js/lib/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('assets/wowdash/js/app.js') }}"></script>
+        @stack('scripts')
     </body>
 </html>

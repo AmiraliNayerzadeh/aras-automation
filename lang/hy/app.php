@@ -6,6 +6,10 @@ return [
 
     'nav_dashboard' => 'Կառավարման վահանակ',
     'nav_hr' => 'Մարդկային ռեսուրսներ',
+    'nav_orders' => 'Պատվերներ',
+    'nav_inventory' => 'Պահեստավորում',
+    'nav_tasks' => 'Առաջադրանքներ',
+    'nav_business_partners' => 'Գործընկերներ',
     'nav_approvals' => 'Իմ հաստատումները',
     'nav_administration' => 'Կառավարում',
     'nav_users' => 'Օգտատերեր',
@@ -38,6 +42,7 @@ return [
     'inbox_title' => 'Հաստատումների արկղ',
     'inbox_empty' => 'Ներկայումս ձեր որոշումը սպասող ոչինչ չկա։',
     'inbox_pending_approval' => ':count հայտ սպասում է ձեր հաստատմանը',
+    'task_due_soon' => 'Առաջադրանքի ժամկետը մոտենում է՝ :title (:date)',
 
     'step_manager' => 'Անմիջական ղեկավար',
     'step_hr' => 'Մարդկային ռեսուրսներ',
@@ -82,6 +87,13 @@ return [
     'field_value' => 'Արժեք',
     'field_group' => 'Խումբ',
     'field_key' => 'Բանալի',
+    'field_category' => 'Կատեգորիա',
+    'field_file' => 'Ֆայլ',
+    'field_avatar' => 'Նկար',
+    'field_appearance' => 'Տեսք — Հիմնական գույն',
+    'field_sort_order' => 'Դասավորության հերթականություն',
+
+    'documents' => 'Փաստաթղթեր',
 
     'no_records' => 'Գրառումներ չեն գտնվել։',
     'create_new' => 'Ավելացնել',

@@ -1,5 +1,14 @@
 @php($user = $user ?? null)
 
+<div class="d-flex align-items-center gap-3 mb-24">
+    <img src="{{ $user?->avatar_url ?? asset('assets/user-default.jpg') }}" alt="" class="w-80-px h-80-px rounded-circle object-fit-cover border">
+    <div class="flex-grow-1">
+        <x-input-label for="avatar" :value="__('app.field_avatar')" />
+        <input id="avatar" name="avatar" type="file" accept="image/*" class="form-control radius-8 mt-1">
+        <x-input-error :messages="$errors->get('avatar')" class="mt-1" />
+    </div>
+</div>
+
 <div class="row g-3">
     <div class="col-md-6">
         <x-input-label for="name" :value="__('app.field_name')" />

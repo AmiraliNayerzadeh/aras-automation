@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             SettingsSeeder::class,
             LookupTypeSeeder::class,
+            WarehouseSeeder::class,
         ]);
     }
 }

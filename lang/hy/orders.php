@@ -1,0 +1,66 @@
+<?php
+
+return [
+    'title_index' => 'Պատվերներ',
+    'title_create' => 'Նոր պատվեր',
+    'title_edit' => 'Խմբագրել պատվերը',
+    'title_detail' => 'Պատվերի մանրամասներ',
+
+    'field_type' => 'Պատվերի տեսակ',
+    'type_internal' => 'Ներքին',
+    'type_external' => 'Արտաքին',
+
+    'field_order_number' => 'Պատվերի համար',
+    'field_order_date' => 'Պատվերի ամսաթիվ',
+    'field_business_partner' => 'Գործընկեր',
+    'field_currency' => 'Արժույթ',
+    'field_amount' => 'Գումար',
+    'field_description' => 'Նկարագրություն',
+    'field_date_from' => 'Ամսաթվից',
+    'field_date_to' => 'Ամսաթիվ մինչև',
+    'field_stage' => 'Փուլ',
+
+    'items_title' => 'Ապրանքներ',
+    'field_item_description' => 'Նկարագրություն',
+    'field_quantity' => 'Քանակ',
+    'field_unit' => 'Չափման միավոր',
+    'field_packaging' => 'Փաթեթավորում',
+    'field_unit_price' => 'Միավոր գին',
+    'field_line_total' => 'Ընդհանուր',
+    'action_add_item' => 'Ավելացնել տող',
+    'action_remove_item' => 'Հեռացնել',
+    'no_items' => 'Ապրանքներ դեռ ավելացված չեն։',
+
+    'timeline_title' => 'Փուլերի ժամանակացույց',
+    'timeline_skipped' => 'Բաց թողնված',
+    'timeline_responsible' => 'Պատասխանատու',
+    'timeline_recorded_by' => 'Գրանցվել է՝ :name',
+    'no_stage_configured' => 'Պատվերի փուլեր դեռ կարգավորված չեն։',
+
+    'title_advance_stage' => 'Փուլի առաջընթաց',
+    'field_target_stage' => 'Նպատակային փուլ',
+    'field_responsible_user' => 'Պատասխանատու անձ',
+    'field_cost' => 'Ծախս',
+    'field_comment' => 'Մեկնաբանություն',
+    'field_files' => 'Կցորդներ',
+    'action_advance' => 'Առաջ տանել',
+
+    'status_closed' => 'Փակված',
+    'status_open' => 'Բաց',
+
+    'flash_created' => 'Պատվերը ստեղծվեց։',
+    'flash_updated' => 'Պատվերը թարմացվեց։',
+    'flash_deleted' => 'Պատվերը ջնջվեց։',
+    'flash_advanced' => 'Պատվերի փուլն առաջ տարվեց։',
+    'flash_stockposted' => 'Մնացորդի շարժը գրանցվեց այս պատվերից։',
+    'flash_shipmentsaved' => 'Առաքման տվյալները պահպանվեցին։',
+    'confirm_delete' => 'Վստա՞հ եք, որ ցանկանում եք ջնջել այս պատվերը։',
+
+    'title_post_stock' => 'Գրանցել մնացորդում',
+    'post_stock_hint' => 'Կգրանցի :direction մնացորդի շարժ պատվերի յուրաքանչյուր ապրանքի համար, որը կապված է կատալոգի ապրանքի հետ։',
+    'post_stock_direction_in' => 'մուտքային',
+    'post_stock_direction_out' => 'ելքային',
+    'action_post_stock' => 'Գրանցել մնացորդում',
+    'no_linked_items' => 'Այս պատվերի ոչ մի տող դեռ կապված չէ կատալոգի ապրանքի հետ։',
+    'field_linked_product' => 'Կատալոգի ապրանք',
+];

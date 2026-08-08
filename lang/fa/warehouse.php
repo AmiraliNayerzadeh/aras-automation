@@ -1,0 +1,50 @@
+<?php
+
+return [
+    'title_warehouses' => 'انبارها',
+    'title_create' => 'انبار جدید',
+    'title_edit' => 'ویرایش انبار',
+    'field_code' => 'کد',
+    'field_default' => 'انبار پیش‌فرض',
+
+    'title_stock_movements' => 'گردش موجودی',
+    'title_record_movement' => 'ثبت گردش',
+    'title_stock_overview' => 'نمای کلی موجودی',
+
+    'field_product' => 'محصول',
+    'field_sku' => 'کد کالا (SKU)',
+    'field_type' => 'نوع',
+    'type_in' => 'ورود',
+    'type_out' => 'خروج',
+    'type_adjustment' => 'اصلاح',
+    'field_quantity' => 'مقدار',
+    'field_unit_cost' => 'بهای واحد',
+    'field_business_partner' => 'طرف تجاری',
+    'field_reference' => 'مرجع',
+    'field_note' => 'یادداشت',
+    'field_occurred_at' => 'تاریخ',
+    'field_recorded_by' => 'ثبت شده توسط',
+
+    'stat_total_products' => 'تعداد کل محصولات',
+    'stat_total_value' => 'ارزش کل موجودی',
+    'stat_out_of_stock' => 'ناموجود',
+    'stat_warehouses' => 'انبارها',
+
+    'title_shipment' => 'حمل و نقل / لجستیک',
+    'field_carrier_name' => 'شرکت حمل',
+    'field_tracking_number' => 'شماره رهگیری',
+    'field_vehicle_plate' => 'پلاک وسیله نقلیه',
+    'field_driver_name' => 'راننده',
+    'field_transport_method' => 'روش حمل',
+    'field_departure_date' => 'تاریخ اعزام',
+    'field_expected_arrival_date' => 'تاریخ تخمینی رسیدن',
+    'field_actual_arrival_date' => 'تاریخ واقعی رسیدن',
+    'field_cost' => 'هزینه',
+    'no_shipment' => 'هنوز اطلاعات حمل ثبت نشده است.',
+
+    'flash_created' => 'انبار ایجاد شد.',
+    'flash_updated' => 'انبار به‌روزرسانی شد.',
+    'flash_deleted' => 'انبار حذف شد.',
+    'flash_movement_recorded' => 'گردش موجودی ثبت شد.',
+    'flash_shipment_saved' => 'اطلاعات حمل ذخیره شد.',
+];

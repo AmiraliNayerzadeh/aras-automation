@@ -29,8 +29,13 @@
                         @endphp
                         <tr>
                             <td>
-                                <div class="fw-medium">{{ $subject->user->name }}</div>
-                                <div class="text-secondary-light text-sm">{{ $label }} #{{ $subject->id }}</div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="{{ $subject->user->avatar_url }}" alt="" class="w-32-px h-32-px rounded-circle object-fit-cover">
+                                    <div>
+                                        <div class="fw-medium">{{ $subject->user->name }}</div>
+                                        <div class="text-secondary-light text-sm">{{ $label }} #{{ $subject->id }}</div>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <span class="badge text-sm fw-semibold px-16 py-6 radius-4 text-warning-600 bg-warning-100">

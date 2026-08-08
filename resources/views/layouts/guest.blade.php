@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/remixicon.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/lib/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/style.css') }}">
+        @include('partials.theme-color')
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -28,7 +29,7 @@
                 <div class="max-w-464-px mx-auto w-100">
                     <div class="mb-40 text-center">
                         <a href="{{ route('dashboard') }}" class="d-inline-block">
-                            <img src="{{ asset('assets/wowdash/images/logo.png') }}" alt="{{ config('app.name') }}" style="max-height: 3rem;">
+                            <img src="{{ asset('logo.png') }}" alt="{{ config('app.name') }}" style="max-height: 3rem;">
                         </a>
                     </div>
 

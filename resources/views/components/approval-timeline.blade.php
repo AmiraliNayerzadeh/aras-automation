@@ -34,11 +34,15 @@
                 </div>
 
                 @if ($step->approver)
-                    <p class="text-secondary-light text-sm mb-4">{{ $step->approver->name }}</p>
+                    <p class="text-secondary-light text-sm mb-4 d-flex align-items-center gap-2">
+                        <img src="{{ $step->approver->avatar_url }}" alt="" class="w-24-px h-24-px rounded-circle object-fit-cover">
+                        {{ $step->approver->name }}
+                    </p>
                 @endif
 
                 @if ($step->acted_by_id && $step->actedBy)
-                    <p class="text-secondary-light text-sm mb-4">
+                    <p class="text-secondary-light text-sm mb-4 d-flex align-items-center gap-2">
+                        <img src="{{ $step->actedBy->avatar_url }}" alt="" class="w-24-px h-24-px rounded-circle object-fit-cover">
                         {{ __('leaves.timeline_acted_by', ['name' => $step->actedBy->name]) }}
                         — {{ $step->acted_at?->format('Y-m-d H:i') }}
                     </p>

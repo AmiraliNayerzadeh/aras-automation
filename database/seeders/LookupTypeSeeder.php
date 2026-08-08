@@ -18,6 +18,8 @@ class LookupTypeSeeder extends Seeder
         'expense_type' => 'Expense Type',
         'file_category' => 'File Category',
         'generic_status' => 'Generic Status',
+        'order_stage' => 'Order Stage',
+        'transport_method' => 'Transport Method',
     ];
 
     public function run(): void
@@ -87,6 +89,98 @@ class LookupTypeSeeder extends Seeder
                     'label' => $type['label'],
                     'color' => $type['color'],
                     'sort_order' => $type['sort_order'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $fileCategory = LookupType::where('code', 'file_category')->firstOrFail();
+
+        $fileCategories = [
+            ['code' => 'id_card', 'label' => ['en' => 'ID Card', 'hy' => 'Անձնագիր', 'fa' => 'کارت شناسایی'], 'color' => 'primary', 'sort_order' => 1],
+            ['code' => 'contract', 'label' => ['en' => 'Contract', 'hy' => 'Պայմանագիր', 'fa' => 'قرارداد'], 'color' => 'info', 'sort_order' => 2],
+            ['code' => 'certificate', 'label' => ['en' => 'Certificate', 'hy' => 'Վկայական', 'fa' => 'گواهی'], 'color' => 'success', 'sort_order' => 3],
+            ['code' => 'other', 'label' => ['en' => 'Other', 'hy' => 'Այլ', 'fa' => 'سایر'], 'color' => 'secondary', 'sort_order' => 4],
+        ];
+
+        foreach ($fileCategories as $category) {
+            $fileCategory->values()->updateOrCreate(
+                ['code' => $category['code']],
+                [
+                    'label' => $category['label'],
+                    'color' => $category['color'],
+                    'sort_order' => $category['sort_order'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $orderStage = LookupType::where('code', 'order_stage')->firstOrFail();
+
+        $orderStages = [
+            ['code' => 'order_registered', 'label' => ['en' => 'Order Registered', 'hy' => 'Պատվերի գրանցում', 'fa' => 'ثبت سفارش'], 'color' => 'neutral', 'sort_order' => 10],
+            ['code' => 'approved', 'label' => ['en' => 'Approved', 'hy' => 'Հաստատված', 'fa' => 'تأیید شده'], 'color' => 'success', 'sort_order' => 20],
+            ['code' => 'payment_recorded', 'label' => ['en' => 'Payment Recorded', 'hy' => 'Վճարումը գրանցված է', 'fa' => 'پرداخت ثبت شد'], 'color' => 'info', 'sort_order' => 30],
+            ['code' => 'preparation', 'label' => ['en' => 'Preparation', 'hy' => 'Պատրաստում', 'fa' => 'آماده‌سازی'], 'color' => 'warning', 'sort_order' => 40],
+            ['code' => 'shipping', 'label' => ['en' => 'Shipping', 'hy' => 'Առաքում', 'fa' => 'حمل و نقل'], 'color' => 'primary', 'sort_order' => 50],
+            ['code' => 'customs', 'label' => ['en' => 'Customs', 'hy' => 'Մաքսային ձևակերպում', 'fa' => 'گمرک'], 'color' => 'cyan', 'sort_order' => 60],
+            ['code' => 'clearance', 'label' => ['en' => 'Clearance', 'hy' => 'Մաքսային ազատում', 'fa' => 'ترخیص کالا'], 'color' => 'lilac', 'sort_order' => 70],
+            ['code' => 'warehouse', 'label' => ['en' => 'Warehouse', 'hy' => 'Պահեստ', 'fa' => 'انبار'], 'color' => 'primary', 'sort_order' => 80],
+            ['code' => 'quality_control', 'label' => ['en' => 'Quality Control', 'hy' => 'Որակի հսկողություն', 'fa' => 'کنترل کیفیت'], 'color' => 'warning', 'sort_order' => 90],
+            ['code' => 'distribution', 'label' => ['en' => 'Distribution', 'hy' => 'Բաշխում', 'fa' => 'توزیع'], 'color' => 'info', 'sort_order' => 100],
+            ['code' => 'delivered', 'label' => ['en' => 'Delivered', 'hy' => 'Առաքված', 'fa' => 'تحویل داده شد'], 'color' => 'success', 'sort_order' => 110],
+            ['code' => 'closed', 'label' => ['en' => 'Closed', 'hy' => 'Փակված', 'fa' => 'بسته شده'], 'color' => 'success', 'sort_order' => 120],
+        ];
+
+        foreach ($orderStages as $stage) {
+            $orderStage->values()->updateOrCreate(
+                ['code' => $stage['code']],
+                [
+                    'label' => $stage['label'],
+                    'color' => $stage['color'],
+                    'sort_order' => $stage['sort_order'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $transportMethod = LookupType::where('code', 'transport_method')->firstOrFail();
+
+        $transportMethods = [
+            ['code' => 'road', 'label' => ['en' => 'Road', 'hy' => 'Ցամաքային', 'fa' => 'جاده‌ای'], 'color' => 'primary', 'sort_order' => 1],
+            ['code' => 'air', 'label' => ['en' => 'Air', 'hy' => 'Օդային', 'fa' => 'هوایی'], 'color' => 'info', 'sort_order' => 2],
+            ['code' => 'sea', 'label' => ['en' => 'Sea', 'hy' => 'Ծովային', 'fa' => 'دریایی'], 'color' => 'cyan', 'sort_order' => 3],
+            ['code' => 'rail', 'label' => ['en' => 'Rail', 'hy' => 'Երկաթուղային', 'fa' => 'ریلی'], 'color' => 'warning', 'sort_order' => 4],
+        ];
+
+        foreach ($transportMethods as $method) {
+            $transportMethod->values()->updateOrCreate(
+                ['code' => $method['code']],
+                [
+                    'label' => $method['label'],
+                    'color' => $method['color'],
+                    'sort_order' => $method['sort_order'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $taskPriority = LookupType::where('code', 'task_priority')->firstOrFail();
+
+        $taskPriorities = [
+            ['code' => 'low', 'label' => ['en' => 'Low', 'hy' => 'Ցածր', 'fa' => 'کم'], 'color' => 'neutral', 'sort_order' => 1],
+            ['code' => 'medium', 'label' => ['en' => 'Medium', 'hy' => 'Միջին', 'fa' => 'متوسط'], 'color' => 'info', 'sort_order' => 2],
+            ['code' => 'high', 'label' => ['en' => 'High', 'hy' => 'Բարձր', 'fa' => 'زیاد'], 'color' => 'warning', 'sort_order' => 3],
+            ['code' => 'urgent', 'label' => ['en' => 'Urgent', 'hy' => 'Հրատապ', 'fa' => 'فوری'], 'color' => 'danger', 'sort_order' => 4],
+        ];
+
+        foreach ($taskPriorities as $priority) {
+            $taskPriority->values()->updateOrCreate(
+                ['code' => $priority['code']],
+                [
+                    'label' => $priority['label'],
+                    'color' => $priority['color'],
+                    'sort_order' => $priority['sort_order'],
                     'is_active' => true,
                 ]
             );

@@ -1,0 +1,50 @@
+<?php
+
+return [
+    'title_warehouses' => 'Պահեստներ',
+    'title_create' => 'Նոր պահեստ',
+    'title_edit' => 'Խմբագրել պահեստը',
+    'field_code' => 'Կոդ',
+    'field_default' => 'Հիմնական պահեստ',
+
+    'title_stock_movements' => 'Մնացորդի շարժեր',
+    'title_record_movement' => 'Գրանցել շարժ',
+    'title_stock_overview' => 'Մնացորդների ընդհանուր պատկեր',
+
+    'field_product' => 'Ապրանք',
+    'field_sku' => 'SKU',
+    'field_type' => 'Տեսակ',
+    'type_in' => 'Մուտք',
+    'type_out' => 'Ելք',
+    'type_adjustment' => 'Ճշգրտում',
+    'field_quantity' => 'Քանակ',
+    'field_unit_cost' => 'Միավոր արժեք',
+    'field_business_partner' => 'Գործընկեր',
+    'field_reference' => 'Հղում',
+    'field_note' => 'Նշում',
+    'field_occurred_at' => 'Ամսաթիվ',
+    'field_recorded_by' => 'Գրանցվել է',
+
+    'stat_total_products' => 'Ընդհանուր ապրանքներ',
+    'stat_total_value' => 'Մնացորդի ընդհանուր արժեք',
+    'stat_out_of_stock' => 'Առկա չէ',
+    'stat_warehouses' => 'Պահեստներ',
+
+    'title_shipment' => 'Առաքում / Լոգիստիկա',
+    'field_carrier_name' => 'Փոխադրող',
+    'field_tracking_number' => 'Հետագծման համար',
+    'field_vehicle_plate' => 'Տրանսպորտի համարանիշ',
+    'field_driver_name' => 'Վարորդ',
+    'field_transport_method' => 'Փոխադրման եղանակ',
+    'field_departure_date' => 'Մեկնման ամսաթիվ',
+    'field_expected_arrival_date' => 'Ժամանման ակնկալվող ամսաթիվ',
+    'field_actual_arrival_date' => 'Փաստացի ժամանման ամսաթիվ',
+    'field_cost' => 'Ծախս',
+    'no_shipment' => 'Առաքման տվյալներ դեռ գրանցված չեն։',
+
+    'flash_created' => 'Պահեստը ստեղծվեց։',
+    'flash_updated' => 'Պահեստը թարմացվեց։',
+    'flash_deleted' => 'Պահեստը ջնջվեց։',
+    'flash_movement_recorded' => 'Մնացորդի շարժը գրանցվեց։',
+    'flash_shipment_saved' => 'Առաքման տվյալները պահպանվեցին։',
+];

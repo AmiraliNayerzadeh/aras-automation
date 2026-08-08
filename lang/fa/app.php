@@ -6,6 +6,10 @@ return [
 
     'nav_dashboard' => 'داشبورد',
     'nav_hr' => 'منابع انسانی',
+    'nav_orders' => 'سفارش‌ها',
+    'nav_inventory' => 'موجودی و انبار',
+    'nav_tasks' => 'وظایف',
+    'nav_business_partners' => 'طرف‌های تجاری',
     'nav_approvals' => 'تاییدهای من',
     'nav_administration' => 'مدیریت سیستم',
     'nav_users' => 'کاربران',
@@ -38,6 +42,7 @@ return [
     'inbox_title' => 'صندوق تأییدها',
     'inbox_empty' => 'در حال حاضر موردی برای تصمیم‌گیری شما وجود ندارد.',
     'inbox_pending_approval' => ':count درخواست در انتظار تأیید شما',
+    'task_due_soon' => 'مهلت وظیفه نزدیک است: :title (:date)',
 
     'step_manager' => 'مدیر مستقیم',
     'step_hr' => 'منابع انسانی',
@@ -82,6 +87,13 @@ return [
     'field_value' => 'مقدار',
     'field_group' => 'گروه',
     'field_key' => 'کلید',
+    'field_category' => 'دسته‌بندی',
+    'field_file' => 'فایل',
+    'field_avatar' => 'تصویر پروفایل',
+    'field_appearance' => 'ظاهر — رنگ اصلی',
+    'field_sort_order' => 'ترتیب نمایش',
+
+    'documents' => 'مدارک',
 
     'no_records' => 'رکوردی یافت نشد.',
     'create_new' => 'افزودن',

@@ -3,6 +3,27 @@
         <h2 class="h4 fw-semibold mb-0">{{ __('app.nav_settings') }}</h2>
     </x-slot>
 
+    <div class="card radius-12 mb-24">
+        <div class="card-body">
+            <h6 class="mb-16">{{ __('app.field_appearance') }}</h6>
+            <form action="{{ route('admin.settings.color.update') }}" method="POST" class="d-flex flex-wrap align-items-center gap-16">
+                @csrf
+                @method('put')
+                @foreach ($themeColors as $key => $preset)
+                    <label class="d-flex flex-column align-items-center gap-2" style="cursor: pointer;">
+                        <input type="radio" name="primary_color" value="{{ $key }}" class="d-none theme-color-radio" @checked($currentColor === $key) onchange="this.form.submit()">
+                        <span class="d-inline-flex justify-content-center align-items-center rounded-circle {{ $currentColor === $key ? 'border border-3 border-dark' : 'border' }}" style="width: 40px; height: 40px; background-color: {{ $preset['swatch'] }};">
+                            @if ($currentColor === $key)
+                                <i class="ri-check-line text-white"></i>
+                            @endif
+                        </span>
+                        <span class="text-secondary-light text-xs">{{ $preset['label'] }}</span>
+                    </label>
+                @endforeach
+            </form>
+        </div>
+    </div>
+
     <div class="card radius-12">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">

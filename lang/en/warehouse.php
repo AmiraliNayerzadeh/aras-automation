@@ -1,0 +1,50 @@
+<?php
+
+return [
+    'title_warehouses' => 'Warehouses',
+    'title_create' => 'New Warehouse',
+    'title_edit' => 'Edit Warehouse',
+    'field_code' => 'Code',
+    'field_default' => 'Default Warehouse',
+
+    'title_stock_movements' => 'Stock Movements',
+    'title_record_movement' => 'Record Movement',
+    'title_stock_overview' => 'Stock Overview',
+
+    'field_product' => 'Product',
+    'field_sku' => 'SKU',
+    'field_type' => 'Type',
+    'type_in' => 'Stock In',
+    'type_out' => 'Stock Out',
+    'type_adjustment' => 'Adjustment',
+    'field_quantity' => 'Quantity',
+    'field_unit_cost' => 'Unit Cost',
+    'field_business_partner' => 'Business Partner',
+    'field_reference' => 'Reference',
+    'field_note' => 'Note',
+    'field_occurred_at' => 'Date',
+    'field_recorded_by' => 'Recorded By',
+
+    'stat_total_products' => 'Total Products',
+    'stat_total_value' => 'Total Stock Value',
+    'stat_out_of_stock' => 'Out of Stock',
+    'stat_warehouses' => 'Warehouses',
+
+    'title_shipment' => 'Shipment / Logistics',
+    'field_carrier_name' => 'Carrier',
+    'field_tracking_number' => 'Tracking Number',
+    'field_vehicle_plate' => 'Vehicle Plate',
+    'field_driver_name' => 'Driver',
+    'field_transport_method' => 'Transport Method',
+    'field_departure_date' => 'Departure Date',
+    'field_expected_arrival_date' => 'Expected Arrival',
+    'field_actual_arrival_date' => 'Actual Arrival',
+    'field_cost' => 'Cost',
+    'no_shipment' => 'No shipment details recorded yet.',
+
+    'flash_created' => 'Warehouse created.',
+    'flash_updated' => 'Warehouse updated.',
+    'flash_deleted' => 'Warehouse deleted.',
+    'flash_movement_recorded' => 'Stock movement recorded.',
+    'flash_shipment_saved' => 'Shipment details saved.',
+];
