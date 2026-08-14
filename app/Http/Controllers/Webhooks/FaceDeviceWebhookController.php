@@ -39,6 +39,7 @@ class FaceDeviceWebhookController extends Controller
                 Log::channel('telegram')->warning('face-device: درخواستی دریافت شد اما محتوایی برای پردازش پیدا نشد', [
                     'content_type' => $request->header('Content-Type'),
                     'ip' => $request->ip(),
+                    'diagnostics' => $this->buildDiagnostics($request),
                 ]);
 
                 return response('', 200);
@@ -82,15 +83,17 @@ class FaceDeviceWebhookController extends Controller
         $xml = null;
 
         if (str_starts_with((string) $request->header('Content-Type'), 'multipart/form-data')) {
+            // Hikvision terminals don't reliably set a filename or a text/xml
+            // mime type on the event-data part, so sniff every part's raw
+            // content instead of trusting mime type / filename / field name.
             foreach ($request->allFiles() as $file) {
                 $files = is_array($file) ? $file : [$file];
 
                 foreach ($files as $uploaded) {
-                    $mime = $uploaded->getMimeType();
-                    $name = $uploaded->getClientOriginalName();
+                    $content = $this->stripBom(trim((string) file_get_contents($uploaded->getRealPath())));
 
-                    if ($mime && (str_contains($mime, 'xml') || str_ends_with($name, '.xml'))) {
-                        $xml = file_get_contents($uploaded->getRealPath());
+                    if (str_starts_with($content, '<')) {
+                        $xml = $content;
                         break 2;
                     }
                 }
@@ -98,18 +101,22 @@ class FaceDeviceWebhookController extends Controller
 
             if (! $xml) {
                 foreach ($request->all() as $value) {
-                    if (is_string($value) && str_starts_with(trim($value), '<')) {
-                        $xml = $value;
-                        break;
+                    if (is_string($value)) {
+                        $candidate = $this->stripBom(trim($value));
+
+                        if (str_starts_with($candidate, '<')) {
+                            $xml = $candidate;
+                            break;
+                        }
                     }
                 }
             }
         } else {
-            $body = $request->getContent();
+            $body = $this->stripBom(trim((string) $request->getContent()));
 
-            if ($body && str_starts_with(trim($body), '<')) {
+            if (str_starts_with($body, '<')) {
                 $xml = $body;
-            } elseif ($body && str_starts_with(trim($body), '{')) {
+            } elseif (str_starts_with($body, '{')) {
                 return json_decode($body, true);
             }
         }
@@ -125,6 +132,41 @@ class FaceDeviceWebhookController extends Controller
         }
 
         return json_decode((string) json_encode($parsed), true);
+    }
+
+    private function stripBom(string $value): string
+    {
+        return str_starts_with($value, "\xEF\xBB\xBF") ? substr($value, 3) : $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildDiagnostics(Request $request): array
+    {
+        $files = [];
+
+        foreach ($request->allFiles() as $field => $file) {
+            $list = is_array($file) ? $file : [$file];
+
+            foreach ($list as $uploaded) {
+                $files[] = [
+                    'field' => $field,
+                    'name' => $uploaded->getClientOriginalName(),
+                    'mime' => $uploaded->getMimeType(),
+                    'size' => $uploaded->getSize(),
+                    'preview' => mb_substr((string) file_get_contents($uploaded->getRealPath()), 0, 150),
+                ];
+            }
+        }
+
+        $fields = [];
+
+        foreach ($request->all() as $key => $value) {
+            $fields[$key] = is_string($value) ? mb_substr($value, 0, 150) : gettype($value);
+        }
+
+        return ['files' => $files, 'fields' => $fields];
     }
 
     /**
