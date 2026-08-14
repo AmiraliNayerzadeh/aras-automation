@@ -80,58 +80,57 @@ class FaceDeviceWebhookController extends Controller
      */
     private function extractPayload(Request $request): ?array
     {
-        $xml = null;
-
         if (str_starts_with((string) $request->header('Content-Type'), 'multipart/form-data')) {
-            // Hikvision terminals don't reliably set a filename or a text/xml
-            // mime type on the event-data part, so sniff every part's raw
-            // content instead of trusting mime type / filename / field name.
+            // Hikvision terminals don't reliably set a filename or a
+            // text/xml|json mime type on the event-data part (and may send
+            // either XML or JSON depending on device config), so sniff every
+            // part's raw content instead of trusting mime type / filename.
             foreach ($request->allFiles() as $file) {
                 $files = is_array($file) ? $file : [$file];
 
                 foreach ($files as $uploaded) {
                     $content = $this->stripBom(trim((string) file_get_contents($uploaded->getRealPath())));
 
-                    if (str_starts_with($content, '<')) {
-                        $xml = $content;
-                        break 2;
+                    if ($parsed = $this->parsePayloadString($content)) {
+                        return $parsed;
                     }
                 }
             }
 
-            if (! $xml) {
-                foreach ($request->all() as $value) {
-                    if (is_string($value)) {
-                        $candidate = $this->stripBom(trim($value));
-
-                        if (str_starts_with($candidate, '<')) {
-                            $xml = $candidate;
-                            break;
-                        }
-                    }
+            foreach ($request->all() as $value) {
+                if (is_string($value) && $parsed = $this->parsePayloadString($this->stripBom(trim($value)))) {
+                    return $parsed;
                 }
             }
-        } else {
-            $body = $this->stripBom(trim((string) $request->getContent()));
 
-            if (str_starts_with($body, '<')) {
-                $xml = $body;
-            } elseif (str_starts_with($body, '{')) {
-                return json_decode($body, true);
-            }
-        }
-
-        if (! $xml) {
             return null;
         }
 
-        $parsed = @simplexml_load_string($xml);
+        return $this->parsePayloadString($this->stripBom(trim((string) $request->getContent())));
+    }
 
-        if ($parsed === false) {
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function parsePayloadString(string $content): ?array
+    {
+        if ($content === '') {
             return null;
         }
 
-        return json_decode((string) json_encode($parsed), true);
+        if (str_starts_with($content, '<')) {
+            $parsed = @simplexml_load_string($content);
+
+            return $parsed === false ? null : json_decode((string) json_encode($parsed), true);
+        }
+
+        if (str_starts_with($content, '{') || str_starts_with($content, '[')) {
+            $decoded = json_decode($content, true);
+
+            return is_array($decoded) ? $decoded : null;
+        }
+
+        return null;
     }
 
     private function stripBom(string $value): string
