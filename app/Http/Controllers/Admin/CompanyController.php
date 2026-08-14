@@ -24,6 +24,7 @@ class CompanyController extends Controller implements HasMiddleware
 
 
 
+
     public function index(): View
     {
         return view('admin.companies.index', [

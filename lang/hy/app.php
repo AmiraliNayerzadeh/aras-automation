@@ -19,6 +19,7 @@ return [
     'nav_settings' => 'Կարգավորումներ',
     'nav_activity_log' => 'Գործողությունների պատմություն',
     'nav_face_device_events' => 'Դեմքի ճանաչման սարքի իրադարձություններ',
+    'nav_attendance_report' => 'Ներկայության հաշվետվություն',
     'nav_profile' => 'Անձնական էջ',
     'logout' => 'Ելք',
 
@@ -117,6 +118,17 @@ return [
     'field_device_serial' => 'Սարք',
     'field_employee_no' => 'Անձնակազմի համար (սարք)',
     'unmatched_employee' => 'Անհայտ',
+
+    'title_attendance_report' => 'Ներկայության հաշվետվություն',
+    'back_to_summary' => 'Վերադառնալ ամփոփագրին',
+    'view_details' => 'Դիտել մանրամասները',
+    'field_present_days' => 'Ներկայության օրեր',
+    'field_total_hours' => 'Ընդհանուր ժամեր',
+    'field_avg_daily_hours' => 'Միջին օրական ժամեր',
+    'field_check_in' => 'Մուտք',
+    'field_check_out' => 'Ելք',
+    'field_duration' => 'Տևողություն',
+    'incomplete' => 'Թերի',
 
     'companies' => 'Ընկերություններ',
     'branches' => 'Մասնաճյուղեր',

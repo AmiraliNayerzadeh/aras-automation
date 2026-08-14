@@ -19,6 +19,7 @@ return [
     'nav_settings' => 'تنظیمات',
     'nav_activity_log' => 'فعالیت‌ها',
     'nav_face_device_events' => 'رویدادهای دستگاه تشخیص چهره',
+    'nav_attendance_report' => 'گزارش حضور و غیاب',
     'nav_profile' => 'پروفایل',
     'logout' => 'خروج',
 
@@ -117,6 +118,17 @@ return [
     'field_device_serial' => 'دستگاه',
     'field_employee_no' => 'شماره پرسنلی (دستگاه)',
     'unmatched_employee' => 'نامشخص',
+
+    'title_attendance_report' => 'گزارش حضور و غیاب',
+    'back_to_summary' => 'بازگشت به خلاصه',
+    'view_details' => 'مشاهده جزئیات',
+    'field_present_days' => 'روزهای حضور',
+    'field_total_hours' => 'مجموع ساعت کارکرد',
+    'field_avg_daily_hours' => 'میانگین ساعت روزانه',
+    'field_check_in' => 'ورود',
+    'field_check_out' => 'خروج',
+    'field_duration' => 'مدت حضور',
+    'incomplete' => 'ناقص',
 
     'companies' => 'شرکت‌ها',
     'branches' => 'شعبه‌ها',

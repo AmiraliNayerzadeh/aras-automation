@@ -222,5 +222,11 @@
                 <span>{{ __('app.nav_face_device_events') }}</span>
             </x-nav-link>
         </li>
+        <li>
+            <x-nav-link :href="route('admin.attendance-report.index')" :active="request()->routeIs('admin.attendance-report.*')">
+                <i class="ri-bar-chart-2-line menu-icon"></i>
+                <span>{{ __('app.nav_attendance_report') }}</span>
+            </x-nav-link>
+        </li>
     @endcan
 </ul>

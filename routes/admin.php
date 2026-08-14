@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AttendanceReportController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BusinessPartnerController;
 use App\Http\Controllers\Admin\CompanyController;
@@ -43,6 +44,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
 
     Route::get('face-device-events', [FaceDeviceEventController::class, 'index'])->name('face-device-events.index');
+    Route::get('attendance-report', [AttendanceReportController::class, 'index'])->name('attendance-report.index');
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::post('products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulk-update');

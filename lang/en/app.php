@@ -19,6 +19,7 @@ return [
     'nav_settings' => 'Settings',
     'nav_activity_log' => 'Activity Log',
     'nav_face_device_events' => 'Face Device Events',
+    'nav_attendance_report' => 'Attendance Report',
     'nav_profile' => 'Profile',
     'logout' => 'Log Out',
 
@@ -117,6 +118,17 @@ return [
     'field_device_serial' => 'Device',
     'field_employee_no' => 'Employee No (device)',
     'unmatched_employee' => 'Unmatched',
+
+    'title_attendance_report' => 'Attendance Report',
+    'back_to_summary' => 'Back to Summary',
+    'view_details' => 'View Details',
+    'field_present_days' => 'Present Days',
+    'field_total_hours' => 'Total Hours',
+    'field_avg_daily_hours' => 'Avg. Daily Hours',
+    'field_check_in' => 'Check-in',
+    'field_check_out' => 'Check-out',
+    'field_duration' => 'Duration',
+    'incomplete' => 'Incomplete',
 
     'companies' => 'Companies',
     'branches' => 'Branches',
