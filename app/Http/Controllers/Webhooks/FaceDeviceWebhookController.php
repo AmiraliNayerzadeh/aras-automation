@@ -45,6 +45,10 @@ class FaceDeviceWebhookController extends Controller
                 return response('', 200);
             }
 
+            if ($this->isHeartbeat($data)) {
+                return response('', 200);
+            }
+
             $event = $this->storeEvent($request, $data);
 
             Log::channel('telegram')->info('رویداد جدید از دستگاه تشخیص چهره ثبت شد', [
@@ -62,6 +66,16 @@ class FaceDeviceWebhookController extends Controller
         }
 
         return response('', 200);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function isHeartbeat(array $data): bool
+    {
+        $eventType = $data['eventType'] ?? null;
+
+        return is_string($eventType) && strcasecmp($eventType, 'heartBeat') === 0;
     }
 
     private function ipAllowed(Request $request): bool
