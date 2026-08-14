@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BusinessPartnerController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\FaceDeviceEventController;
 use App\Http\Controllers\Admin\LookupTypeController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\ProductBrandController;
@@ -40,6 +41,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         ->name('lookup-types.values.store');
 
     Route::get('activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+
+    Route::get('face-device-events', [FaceDeviceEventController::class, 'index'])->name('face-device-events.index');
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::post('products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulk-update');

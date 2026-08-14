@@ -127,7 +127,7 @@
         </li>
     @endcan
 
-    @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view'])
+    @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view'])
         <li class="sidebar-menu-group-title">{{ __('app.nav_administration') }}</li>
     @endcanany
 
@@ -211,6 +211,15 @@
             <x-nav-link :href="route('admin.activity-log.index')" :active="request()->routeIs('admin.activity-log.*')">
                 <i class="ri-history-line menu-icon"></i>
                 <span>{{ __('app.nav_activity_log') }}</span>
+            </x-nav-link>
+        </li>
+    @endcan
+
+    @can('face-device-events.view')
+        <li>
+            <x-nav-link :href="route('admin.face-device-events.index')" :active="request()->routeIs('admin.face-device-events.*')">
+                <i class="ri-fingerprint-line menu-icon"></i>
+                <span>{{ __('app.nav_face_device_events') }}</span>
             </x-nav-link>
         </li>
     @endcan

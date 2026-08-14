@@ -18,6 +18,7 @@ return [
     'nav_roles' => 'Roles & Permissions',
     'nav_settings' => 'Settings',
     'nav_activity_log' => 'Activity Log',
+    'nav_face_device_events' => 'Face Device Events',
     'nav_profile' => 'Profile',
     'logout' => 'Log Out',
 
@@ -106,6 +107,16 @@ return [
     'log_event' => 'Event',
     'log_subject' => 'Subject',
     'log_date' => 'Date',
+
+    'title_face_device_events' => 'Face Device Events',
+    'field_event_time' => 'Event Time',
+    'field_employee' => 'Employee',
+    'field_verify_mode' => 'Verify Mode',
+    'field_event_type' => 'Event Type',
+    'field_attendance_status' => 'Attendance Status',
+    'field_device_serial' => 'Device',
+    'field_employee_no' => 'Employee No (device)',
+    'unmatched_employee' => 'Unmatched',
 
     'companies' => 'Companies',
     'branches' => 'Branches',

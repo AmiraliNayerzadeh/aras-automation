@@ -18,6 +18,7 @@ return [
     'nav_roles' => 'نقش‌ها و دسترسی‌ها',
     'nav_settings' => 'تنظیمات',
     'nav_activity_log' => 'فعالیت‌ها',
+    'nav_face_device_events' => 'رویدادهای دستگاه تشخیص چهره',
     'nav_profile' => 'پروفایل',
     'logout' => 'خروج',
 
@@ -106,6 +107,16 @@ return [
     'log_event' => 'رویداد',
     'log_subject' => 'مورد',
     'log_date' => 'تاریخ',
+
+    'title_face_device_events' => 'رویدادهای دستگاه تشخیص چهره',
+    'field_event_time' => 'زمان رویداد',
+    'field_employee' => 'کارمند',
+    'field_verify_mode' => 'نوع تایید',
+    'field_event_type' => 'نوع رویداد',
+    'field_attendance_status' => 'وضعیت حضور',
+    'field_device_serial' => 'دستگاه',
+    'field_employee_no' => 'شماره پرسنلی (دستگاه)',
+    'unmatched_employee' => 'نامشخص',
 
     'companies' => 'شرکت‌ها',
     'branches' => 'شعبه‌ها',

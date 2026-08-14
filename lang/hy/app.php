@@ -18,6 +18,7 @@ return [
     'nav_roles' => 'Դերեր և թույլտվություններ',
     'nav_settings' => 'Կարգավորումներ',
     'nav_activity_log' => 'Գործողությունների պատմություն',
+    'nav_face_device_events' => 'Դեմքի ճանաչման սարքի իրադարձություններ',
     'nav_profile' => 'Անձնական էջ',
     'logout' => 'Ելք',
 
@@ -106,6 +107,16 @@ return [
     'log_event' => 'Գործողություն',
     'log_subject' => 'Օբյեկտ',
     'log_date' => 'Ամսաթիվ',
+
+    'title_face_device_events' => 'Դեմքի ճանաչման սարքի իրադարձություններ',
+    'field_event_time' => 'Իրադարձության ժամանակ',
+    'field_employee' => 'Աշխատակից',
+    'field_verify_mode' => 'Հաստատման եղանակ',
+    'field_event_type' => 'Իրադարձության տեսակ',
+    'field_attendance_status' => 'Ներկայության կարգավիճակ',
+    'field_device_serial' => 'Սարք',
+    'field_employee_no' => 'Անձնակազմի համար (սարք)',
+    'unmatched_employee' => 'Անհայտ',
 
     'companies' => 'Ընկերություններ',
     'branches' => 'Մասնաճյուղեր',

@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'log_chat_id' => env('TELEGRAM_LOG_CHAT_ID'),
+        'report_chat_id' => env('TELEGRAM_REPORT_CHAT_ID'),
+    ],
+
+    'face_device' => [
+        'webhook_token' => env('FACE_DEVICE_WEBHOOK_TOKEN'),
+        'allowed_ips' => env('FACE_DEVICE_ALLOWED_IPS'),
+    ],
+
 ];

@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('hr:expire-requests')->daily();
+Schedule::command('face-device:daily-report')->dailyAt('08:00');
