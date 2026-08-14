@@ -10,6 +10,7 @@ return [
     'nav_orders' => 'Orders',
     'nav_inventory' => 'Inventory',
     'nav_tasks' => 'Tasks',
+    'nav_files' => 'Files',
     'nav_business_partners' => 'Business Partners',
     'nav_administration' => 'Administration',
     'nav_users' => 'Users',
@@ -43,6 +44,7 @@ return [
     'inbox_empty' => 'Nothing waiting for your decision right now.',
     'inbox_pending_approval' => ':count requests awaiting your approval',
     'task_due_soon' => 'Task due soon: :title (:date)',
+    'file_shared_with_you' => 'File shared with you: :title',
 
     'step_manager' => 'Direct Manager',
     'step_hr' => 'Human Resources',

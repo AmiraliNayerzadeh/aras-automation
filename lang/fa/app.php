@@ -9,6 +9,7 @@ return [
     'nav_orders' => 'سفارش‌ها',
     'nav_inventory' => 'موجودی و انبار',
     'nav_tasks' => 'وظایف',
+    'nav_files' => 'فایل‌ها',
     'nav_business_partners' => 'طرف‌های تجاری',
     'nav_approvals' => 'تاییدهای من',
     'nav_administration' => 'مدیریت سیستم',
@@ -43,6 +44,7 @@ return [
     'inbox_empty' => 'در حال حاضر موردی برای تصمیم‌گیری شما وجود ندارد.',
     'inbox_pending_approval' => ':count درخواست در انتظار تأیید شما',
     'task_due_soon' => 'مهلت وظیفه نزدیک است: :title (:date)',
+    'file_shared_with_you' => 'فایلی با شما به اشتراک گذاشته شد: :title',
 
     'step_manager' => 'مدیر مستقیم',
     'step_hr' => 'منابع انسانی',

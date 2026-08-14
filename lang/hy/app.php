@@ -9,6 +9,7 @@ return [
     'nav_orders' => 'Պատվերներ',
     'nav_inventory' => 'Պահեստավորում',
     'nav_tasks' => 'Առաջադրանքներ',
+    'nav_files' => 'Ֆայլեր',
     'nav_business_partners' => 'Գործընկերներ',
     'nav_approvals' => 'Իմ հաստատումները',
     'nav_administration' => 'Կառավարում',
@@ -43,6 +44,7 @@ return [
     'inbox_empty' => 'Ներկայումս ձեր որոշումը սպասող ոչինչ չկա։',
     'inbox_pending_approval' => ':count հայտ սպասում է ձեր հաստատմանը',
     'task_due_soon' => 'Առաջադրանքի ժամկետը մոտենում է՝ :title (:date)',
+    'file_shared_with_you' => 'Ֆայլը կիսվեց ձեզ հետ՝ :title',
 
     'step_manager' => 'Անմիջական ղեկավար',
     'step_hr' => 'Մարդկային ռեսուրսներ',

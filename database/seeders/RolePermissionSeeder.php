@@ -25,6 +25,7 @@ class RolePermissionSeeder extends Seeder
         'warehouse.view', 'warehouse.manage',
         'stock.view', 'stock.record',
         'tasks.create', 'tasks.view_all', 'tasks.manage',
+        'files.create', 'files.view_all', 'files.manage',
     ];
 
     public function run(): void
@@ -51,6 +52,7 @@ class RolePermissionSeeder extends Seeder
             'warehouse.view', 'warehouse.manage',
             'stock.view', 'stock.record',
             'tasks.create', 'tasks.view_all', 'tasks.manage',
+            'files.create', 'files.manage',
         ]);
 
         $hr = Role::findOrCreate('hr', 'web');
@@ -58,7 +60,7 @@ class RolePermissionSeeder extends Seeder
             'users.view', 'users.create', 'users.edit', 'organization.view',
             'leaves.view_all', 'leaves.create', 'leaves.approve',
             'missions.view_all', 'missions.create', 'missions.approve',
-            'tasks.create',
+            'tasks.create', 'files.create',
         ]);
 
         $warehouse = Role::findOrCreate('warehouse', 'web');
@@ -66,10 +68,10 @@ class RolePermissionSeeder extends Seeder
             'organization.view', 'leaves.create', 'missions.create',
             'orders.view', 'orders.advance',
             'products.view', 'warehouse.view', 'stock.view', 'stock.record',
-            'tasks.create',
+            'tasks.create', 'files.create',
         ]);
 
         $employee = Role::findOrCreate('employee', 'web');
-        $employee->syncPermissions(['leaves.create', 'leaves.approve', 'missions.create', 'missions.approve', 'tasks.create']);
+        $employee->syncPermissions(['leaves.create', 'leaves.approve', 'missions.create', 'missions.approve', 'tasks.create', 'files.create']);
     }
 }
