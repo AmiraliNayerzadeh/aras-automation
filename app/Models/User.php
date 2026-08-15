@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\EmploymentType;
 use App\Enums\UserStatus;
+use App\Models\Hr\WorkShift;
 use App\Models\Organization\Branch;
 use App\Models\Organization\Company;
 use App\Models\Organization\Department;
@@ -29,7 +30,7 @@ use Spatie\Permission\Traits\HasRoles;
 #[Fillable([
     'name', 'email', 'password',
     'employee_number', 'national_id', 'date_of_birth', 'gender', 'mobile', 'emergency_mobile',
-    'profile_photo_path', 'signature_path', 'address', 'hire_date', 'employment_type', 'status',
+    'profile_photo_path', 'signature_path', 'address', 'hire_date', 'employment_type', 'is_remote', 'status',
     'company_id', 'branch_id', 'department_id', 'unit_id', 'position_id',
     'manager_id', 'secondary_manager_id', 'org_code', 'activity_start_date', 'locale',
 ])]
@@ -55,6 +56,7 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'employment_type' => EmploymentType::class,
             'status' => UserStatus::class,
+            'is_remote' => 'boolean',
         ];
     }
 
@@ -113,5 +115,10 @@ class User extends Authenticatable
     public function directReports(): HasMany
     {
         return $this->hasMany(User::class, 'manager_id');
+    }
+
+    public function workShifts(): HasMany
+    {
+        return $this->hasMany(WorkShift::class);
     }
 }

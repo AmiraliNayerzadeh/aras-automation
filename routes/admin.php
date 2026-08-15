@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\StockMovementController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\WorkShiftController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -45,6 +46,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::get('face-device-events', [FaceDeviceEventController::class, 'index'])->name('face-device-events.index');
     Route::get('attendance-report', [AttendanceReportController::class, 'index'])->name('attendance-report.index');
+
+    Route::get('work-shifts', [WorkShiftController::class, 'index'])->name('work-shifts.index');
+    Route::get('work-shifts/{user}/edit', [WorkShiftController::class, 'edit'])->name('work-shifts.edit');
+    Route::put('work-shifts/{user}', [WorkShiftController::class, 'update'])->name('work-shifts.update');
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::post('products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulk-update');

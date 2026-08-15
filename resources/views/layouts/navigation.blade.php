@@ -229,4 +229,13 @@
             </x-nav-link>
         </li>
     @endcan
+
+    @can('work-shifts.manage')
+        <li>
+            <x-nav-link :href="route('admin.work-shifts.index')" :active="request()->routeIs('admin.work-shifts.*')">
+                <i class="ri-calendar-2-line menu-icon"></i>
+                <span>{{ __('app.nav_work_shifts') }}</span>
+            </x-nav-link>
+        </li>
+    @endcan
 </ul>

@@ -18,6 +18,7 @@ class RolePermissionSeeder extends Seeder
         'settings.manage',
         'activitylog.view',
         'face-device-events.view',
+        'work-shifts.manage',
         'leaves.create', 'leaves.view_all', 'leaves.approve', 'leaves.approve_any', 'leaves.cancel_any',
         'missions.create', 'missions.view_all', 'missions.approve', 'missions.approve_any', 'missions.cancel_any',
         'business-partners.view', 'business-partners.create', 'business-partners.edit', 'business-partners.delete',
@@ -44,7 +45,7 @@ class RolePermissionSeeder extends Seeder
         $admin->syncPermissions([
             'users.view', 'users.create', 'users.edit', 'users.delete',
             'organization.view', 'organization.create', 'organization.edit', 'organization.delete',
-            'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view',
+            'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view', 'work-shifts.manage',
             'leaves.view_all', 'leaves.approve_any', 'leaves.cancel_any',
             'missions.view_all', 'missions.approve_any', 'missions.cancel_any',
             'business-partners.view', 'business-partners.create', 'business-partners.edit', 'business-partners.delete',
@@ -61,7 +62,7 @@ class RolePermissionSeeder extends Seeder
             'users.view', 'users.create', 'users.edit', 'organization.view',
             'leaves.view_all', 'leaves.create', 'leaves.approve',
             'missions.view_all', 'missions.create', 'missions.approve',
-            'tasks.create', 'files.create', 'face-device-events.view',
+            'tasks.create', 'files.create', 'face-device-events.view', 'work-shifts.manage',
         ]);
 
         $warehouse = Role::findOrCreate('warehouse', 'web');

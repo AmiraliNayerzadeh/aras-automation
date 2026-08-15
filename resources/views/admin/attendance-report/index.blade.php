@@ -63,6 +63,18 @@
         </div>
     </div>
 
+    @php
+        $statusBadge = fn (string $status) => match ($status) {
+            'present' => 'text-success-600 bg-success-100',
+            'absent' => 'text-danger-600 bg-danger-100',
+            'on_leave' => 'text-info-600 bg-info-100',
+            'remote' => 'text-primary-600 bg-primary-50',
+            'day_off' => 'text-neutral-600 bg-neutral-200',
+            default => 'text-warning-600 bg-warning-100',
+        };
+        $minutesToHours = fn (?int $minutes) => $minutes ? number_format($minutes / 60, 1) : '0.0';
+    @endphp
+
     @if ($mode === 'summary')
         <div class="card radius-12">
             <div class="table-responsive">
@@ -70,9 +82,14 @@
                     <thead>
                         <tr>
                             <th>{{ __('app.field_employee') }}</th>
-                            <th>{{ __('app.field_present_days') }}</th>
+                            <th>{{ __('app.status_present') }}</th>
+                            <th>{{ __('app.status_absent') }}</th>
+                            <th>{{ __('app.status_on_leave') }}</th>
+                            <th>{{ __('app.status_remote') }}</th>
                             <th>{{ __('app.field_total_hours') }}</th>
                             <th>{{ __('app.field_avg_daily_hours') }}</th>
+                            <th>{{ __('app.field_overtime') }}</th>
+                            <th>{{ __('app.field_shortfall') }}</th>
                             <th>{{ __('app.actions') }}</th>
                         </tr>
                     </thead>
@@ -86,8 +103,13 @@
                                     </div>
                                 </td>
                                 <td>{{ $row['present_days'] }}</td>
-                                <td>{{ number_format($row['total_minutes'] / 60, 1) }}</td>
-                                <td>{{ $row['avg_minutes'] ? number_format($row['avg_minutes'] / 60, 1) : '—' }}</td>
+                                <td>{{ $row['absent_days'] }}</td>
+                                <td>{{ $row['on_leave_days'] }}</td>
+                                <td>{{ $row['remote_days'] }}</td>
+                                <td>{{ $minutesToHours($row['total_minutes']) }}</td>
+                                <td>{{ $row['avg_minutes'] ? $minutesToHours($row['avg_minutes']) : '—' }}</td>
+                                <td class="text-success-600">{{ $minutesToHours($row['total_overtime_minutes']) }}</td>
+                                <td class="text-danger-600">{{ $minutesToHours($row['total_shortfall_minutes']) }}</td>
                                 <td>
                                     <a href="{{ route('admin.attendance-report.index', array_merge(request()->except('user_id'), ['user_id' => $row['user']?->id])) }}" class="text-primary-600">
                                         {{ __('app.view_details') }}
@@ -95,7 +117,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
+                            <tr><td colspan="10" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -118,29 +140,37 @@
                     <thead>
                         <tr>
                             <th>{{ __('app.log_date') }}</th>
+                            <th>{{ __('app.field_status') }}</th>
                             <th>{{ __('app.field_check_in') }}</th>
                             <th>{{ __('app.field_check_out') }}</th>
                             <th>{{ __('app.field_duration') }}</th>
+                            <th>{{ __('app.field_overtime') }}</th>
+                            <th>{{ __('app.field_shortfall') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($rows as $row)
                             <tr>
                                 <td>{{ $row['date'] }}</td>
-                                <td>{{ $row['check_in']->format('H:i:s') }}</td>
+                                <td>
+                                    <span class="badge text-sm fw-semibold px-16 py-6 radius-4 {{ $statusBadge($row['status']) }}">
+                                        {{ __('app.status_'.$row['status']) }}
+                                    </span>
+                                </td>
+                                <td>{{ $row['check_in']?->format('H:i:s') ?? '—' }}</td>
                                 <td>{{ $row['check_out']?->format('H:i:s') ?? '—' }}</td>
                                 <td>
-                                    @if ($row['duration_minutes'] !== null)
-                                        {{ sprintf('%d:%02d', intdiv($row['duration_minutes'], 60), $row['duration_minutes'] % 60) }}
+                                    @if ($row['worked_minutes'] !== null)
+                                        {{ sprintf('%d:%02d', intdiv($row['worked_minutes'], 60), $row['worked_minutes'] % 60) }}
                                     @else
-                                        <span class="badge text-sm fw-semibold px-16 py-6 radius-4 text-warning-600 bg-warning-100">
-                                            {{ __('app.incomplete') }}
-                                        </span>
+                                        —
                                     @endif
                                 </td>
+                                <td class="text-success-600">{{ $row['overtime_minutes'] ? $minutesToHours($row['overtime_minutes']) : '—' }}</td>
+                                <td class="text-danger-600">{{ $row['shortfall_minutes'] ? $minutesToHours($row['shortfall_minutes']) : '—' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
+                            <tr><td colspan="7" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
