@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AssetCategoryController;
+use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\AttendanceReportController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BusinessPartnerController;
@@ -50,6 +52,13 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('work-shifts', [WorkShiftController::class, 'index'])->name('work-shifts.index');
     Route::get('work-shifts/{user}/edit', [WorkShiftController::class, 'edit'])->name('work-shifts.edit');
     Route::put('work-shifts/{user}', [WorkShiftController::class, 'update'])->name('work-shifts.update');
+
+    Route::resource('assets', AssetController::class);
+    Route::post('assets/{asset}/assign', [AssetController::class, 'assign'])->name('assets.assign');
+    Route::put('assets/{asset}/return', [AssetController::class, 'return'])->name('assets.return');
+    Route::get('assets/{asset}/label', [AssetController::class, 'label'])->name('assets.label');
+    Route::get('assets-labels', [AssetController::class, 'labels'])->name('assets.labels');
+    Route::resource('asset-categories', AssetCategoryController::class)->except(['show']);
 
     Route::resource('products', ProductController::class)->except(['show']);
     Route::post('products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulk-update');

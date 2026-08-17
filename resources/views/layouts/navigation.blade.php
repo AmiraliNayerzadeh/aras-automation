@@ -107,6 +107,29 @@
         </li>
     @endcanany
 
+    @can('assets.view')
+        <li class="sidebar-menu-group-title">{{ __('assets.title_index') }}</li>
+
+        <li class="dropdown {{ request()->routeIs('admin.assets.*', 'admin.asset-categories.*') ? 'active' : '' }}">
+            <a href="javascript:void(0)">
+                <i class="ri-archive-drawer-line menu-icon"></i>
+                <span>{{ __('assets.title_index') }}</span>
+            </a>
+            <ul class="sidebar-submenu">
+                <li>
+                    <a href="{{ route('admin.assets.index') }}" class="{{ request()->routeIs('admin.assets.*') ? 'active-page' : '' }}">
+                        <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> {{ __('assets.title_index') }}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.asset-categories.index') }}" class="{{ request()->routeIs('admin.asset-categories.*') ? 'active-page' : '' }}">
+                        <i class="ri-circle-fill circle-icon text-info-main w-auto"></i> {{ __('assets.title_categories') }}
+                    </a>
+                </li>
+            </ul>
+        </li>
+    @endcan
+
     @can('tasks.create')
         <li class="sidebar-menu-group-title">{{ __('app.nav_tasks') }}</li>
         <li>
