@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Webhooks;
 use App\Http\Controllers\Controller;
 use App\Models\Hr\FaceDeviceEvent;
 use App\Models\User;
+use App\Services\SettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
@@ -51,13 +52,15 @@ class FaceDeviceWebhookController extends Controller
 
             $event = $this->storeEvent($request, $data);
 
-            Log::channel('telegram')->info('رویداد جدید از دستگاه تشخیص چهره ثبت شد', [
-                'employee_no' => $event->employee_no,
-                'user' => $event->user?->name,
-                'event' => $event->minor_event ?? $event->major_event,
-                'verify_mode' => $event->verify_mode,
-                'time' => $event->event_time?->toDateTimeString(),
-            ]);
+            if (app(SettingsService::class)->get('attendance_send_event_logs', true)) {
+                Log::channel('telegram')->info('رویداد جدید از دستگاه تشخیص چهره ثبت شد', [
+                    'employee_no' => $event->employee_no,
+                    'user' => $event->user?->name,
+                    'event' => $event->minor_event ?? $event->major_event,
+                    'verify_mode' => $event->verify_mode,
+                    'time' => $event->event_time?->toDateTimeString(),
+                ]);
+            }
         } catch (\Throwable $e) {
             Log::channel('telegram')->error('خطا در پردازش رویداد دستگاه تشخیص چهره', [
                 'message' => $e->getMessage(),

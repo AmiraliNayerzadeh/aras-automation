@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('hr:expire-requests')->daily();
 Schedule::command('face-device:daily-report')->dailyAt('08:00');
+Schedule::command('attendance:nightly-pdf-report')->dailyAt('22:00');

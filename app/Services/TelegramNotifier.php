@@ -26,4 +26,26 @@ class TelegramNotifier
             return false;
         }
     }
+
+    public function sendDocument(?string $chatId, string $filename, string $binaryContent, ?string $caption = null): bool
+    {
+        $token = config('services.telegram.bot_token');
+
+        if (! $token || ! $chatId) {
+            return false;
+        }
+
+        try {
+            $response = Http::timeout(30)
+                ->attach('document', $binaryContent, $filename)
+                ->post("https://api.telegram.org/bot{$token}/sendDocument", array_filter([
+                    'chat_id' => $chatId,
+                    'caption' => $caption,
+                ]));
+
+            return $response->successful();
+        } catch (\Throwable) {
+            return false;
+        }
+    }
 }

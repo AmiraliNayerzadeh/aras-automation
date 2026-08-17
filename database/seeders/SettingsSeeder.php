@@ -14,6 +14,7 @@ class SettingsSeeder extends Seeder
             ['key' => 'default_locale', 'value' => 'en', 'type' => 'string', 'group' => 'general', 'is_public' => true],
             ['key' => 'timezone', 'value' => 'Asia/Yerevan', 'type' => 'string', 'group' => 'general', 'is_public' => true],
             ['key' => 'logo_path', 'value' => null, 'type' => 'string', 'group' => 'general', 'is_public' => true],
+            ['key' => 'attendance_send_event_logs', 'value' => '1', 'type' => 'boolean', 'group' => 'attendance', 'is_public' => false],
         ];
 
         foreach ($settings as $setting) {
