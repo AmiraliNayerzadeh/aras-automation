@@ -42,11 +42,9 @@
             <li class="nav-item">
                 <a class="nav-link {{ $tab === 'shared' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'shared', 'view' => $view]) }}">{{ __('files.tab_shared') }}</a>
             </li>
-            @can('files.view_all')
-                <li class="nav-item">
-                    <a class="nav-link {{ $tab === 'all' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'all', 'view' => $view]) }}">{{ __('files.tab_all') }}</a>
-                </li>
-            @endcan
+            <li class="nav-item">
+                <a class="nav-link {{ $tab === 'all' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'all', 'view' => $view]) }}">{{ __('files.tab_all') }}</a>
+            </li>
         </ul>
     @else
         <nav class="mb-24">

@@ -58,13 +58,4 @@ class Folder extends Model
 
         return $items;
     }
-
-    public function isVisibleTo(User $user): bool
-    {
-        if ($this->hasDirectAccess($user)) {
-            return true;
-        }
-
-        return (bool) $this->parent?->isVisibleTo($user);
-    }
 }

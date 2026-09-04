@@ -32,8 +32,12 @@ class FileManagerController extends Controller
             $currentFolder = Folder::findOrFail($folderId);
             $this->authorize('view', $currentFolder);
 
-            $folders = $currentFolder->children()->with('owner')->get();
-            $files = $currentFolder->files()->with('owner')->get();
+            // Even inside a folder you can see, an individual child/file with its
+            // own (more restrictive) share must stay hidden unless you're one of
+            // its explicit grantees - folder access never overrides an item's own
+            // sharing.
+            $folders = $currentFolder->children()->visibleTo($user)->with('owner')->get();
+            $files = $currentFolder->files()->visibleTo($user)->with('owner')->get();
             $breadcrumb = $currentFolder->ancestors()->push($currentFolder);
         } elseif ($tab === 'shared') {
             // Lists every folder/file directly shared with the user, regardless of
@@ -41,9 +45,12 @@ class FileManagerController extends Controller
             // so a single file shared without its parent folder stays discoverable.
             $folders = Folder::where('owner_id', '!=', $user->id)->sharedWithUser($user)->with('owner')->get();
             $files = FileEntry::where('owner_id', '!=', $user->id)->sharedWithUser($user)->with('owner')->get();
-        } elseif ($tab === 'all' && $user->can('files.view_all')) {
-            $folders = Folder::whereNull('parent_id')->with('owner')->get();
-            $files = FileEntry::whereNull('folder_id')->with('owner')->get();
+        } elseif ($tab === 'all') {
+            // Open to everyone: unrestricted (no-share) items are visible to the
+            // whole company by default; items with an explicit share are scoped
+            // to their owner/grantees; files.view_all admins always see everything.
+            $folders = Folder::whereNull('parent_id')->visibleTo($user)->with('owner')->get();
+            $files = FileEntry::whereNull('folder_id')->visibleTo($user)->with('owner')->get();
         } else {
             $tab = 'mine';
             $folders = Folder::whereNull('parent_id')->where('owner_id', $user->id)->with('owner')->get();

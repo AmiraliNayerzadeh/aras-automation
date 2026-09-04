@@ -80,13 +80,4 @@ class FileEntry extends Model
     {
         return $this->mime_type === 'application/pdf';
     }
-
-    public function isVisibleTo(User $user): bool
-    {
-        if ($this->hasDirectAccess($user)) {
-            return true;
-        }
-
-        return (bool) $this->folder?->isVisibleTo($user);
-    }
 }
