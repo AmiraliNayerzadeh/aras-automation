@@ -21,7 +21,13 @@ trait HasFileShares
         return $query->whereHas('shares', function (Builder $q) use ($user, $roleIds) {
             $q->where('grantee_type', 'everyone')
                 ->orWhere(fn (Builder $qq) => $qq->where('grantee_type', 'user')->where('grantee_id', $user->id))
-                ->orWhere(fn (Builder $qq) => $qq->where('grantee_type', 'role')->whereIn('grantee_id', $roleIds));
+                ->orWhere(fn (Builder $qq) => $qq->where('grantee_type', 'role')->whereIn('grantee_id', $roleIds))
+                ->when($user->department_id, fn (Builder $qq) => $qq->orWhere(
+                    fn (Builder $qqq) => $qqq->where('grantee_type', 'department')->where('grantee_id', $user->department_id)
+                ))
+                ->when($user->position_id, fn (Builder $qq) => $qq->orWhere(
+                    fn (Builder $qqq) => $qqq->where('grantee_type', 'position')->where('grantee_id', $user->position_id)
+                ));
         });
     }
 
@@ -41,7 +47,13 @@ trait HasFileShares
             ->where(function (Builder $query) use ($user, $roleIds) {
                 $query->where('grantee_type', 'everyone')
                     ->orWhere(fn (Builder $q) => $q->where('grantee_type', 'user')->where('grantee_id', $user->id))
-                    ->orWhere(fn (Builder $q) => $q->where('grantee_type', 'role')->whereIn('grantee_id', $roleIds));
+                    ->orWhere(fn (Builder $q) => $q->where('grantee_type', 'role')->whereIn('grantee_id', $roleIds))
+                    ->when($user->department_id, fn (Builder $q) => $q->orWhere(
+                        fn (Builder $qq) => $qq->where('grantee_type', 'department')->where('grantee_id', $user->department_id)
+                    ))
+                    ->when($user->position_id, fn (Builder $q) => $q->orWhere(
+                        fn (Builder $qq) => $qq->where('grantee_type', 'position')->where('grantee_id', $user->position_id)
+                    ));
             })
             ->exists();
     }

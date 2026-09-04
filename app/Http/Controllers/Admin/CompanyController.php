@@ -23,8 +23,6 @@ class CompanyController extends Controller implements HasMiddleware
     }
 
 
-
-
     public function index(): View
     {
         return view('admin.companies.index', [
@@ -39,9 +37,10 @@ class CompanyController extends Controller implements HasMiddleware
 
     public function store(Request $request): RedirectResponse
     {
-        Company::create($this->validateData($request));
 
+        Company::create($this->validateData($request));
         return redirect()->route('admin.companies.index')->with('status', 'company-created');
+
     }
 
     public function edit(Company $company): View
@@ -51,6 +50,7 @@ class CompanyController extends Controller implements HasMiddleware
 
     public function update(Request $request, Company $company): RedirectResponse
     {
+
         $company->update($this->validateData($request, $company));
 
         return redirect()->route('admin.companies.index')->with('status', 'company-updated');

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\FileManager\FileEntry;
 use App\Models\FileManager\FileShare;
 use App\Models\FileManager\Folder;
+use App\Models\Organization\Department;
+use App\Models\Organization\Position;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -52,25 +54,44 @@ class FileShareController extends Controller
     protected function grant(Request $request, Folder|FileEntry $shareable): void
     {
         $data = $request->validate([
-            'grantee_type' => ['required', Rule::in(['user', 'role', 'everyone'])],
-            'grantee_value' => ['nullable', 'integer'],
+            'grantee_type' => ['required', Rule::in(['user', 'role', 'everyone', 'department', 'position'])],
+            'grantee_value' => ['nullable'],
+            'grantee_value.*' => ['integer'],
         ]);
 
-        $granteeId = null;
+        $type = $data['grantee_type'];
 
-        if ($data['grantee_type'] === 'user') {
-            $granteeId = User::find($data['grantee_value'] ?? null)?->id;
-        } elseif ($data['grantee_type'] === 'role') {
-            $granteeId = Role::find($data['grantee_value'] ?? null)?->id;
-        }
+        // "user" allows sharing with several people in one submit (multi-select);
+        // the other grantee types each target a single group, so one id is enough.
+        $granteeIds = $type === 'user'
+            ? User::whereIn('id', (array) ($data['grantee_value'] ?? []))->pluck('id')
+            : collect([$this->resolveSingleGrantee($type, $data['grantee_value'] ?? null)])->filter();
 
-        if ($data['grantee_type'] !== 'everyone' && ! $granteeId) {
+        if ($type !== 'everyone' && $granteeIds->isEmpty()) {
             throw ValidationException::withMessages(['grantee_value' => __('files.error_grantee_required')]);
         }
 
-        $shareable->shares()->firstOrCreate(
-            ['grantee_type' => $data['grantee_type'], 'grantee_id' => $granteeId],
-            ['created_by_id' => $request->user()->id]
-        );
+        if ($type === 'everyone') {
+            $granteeIds = collect([null]);
+        }
+
+        foreach ($granteeIds as $granteeId) {
+            $shareable->shares()->firstOrCreate(
+                ['grantee_type' => $type, 'grantee_id' => $granteeId],
+                ['created_by_id' => $request->user()->id]
+            );
+        }
+    }
+
+    protected function resolveSingleGrantee(string $type, mixed $value): ?int
+    {
+        $id = is_array($value) ? ($value[0] ?? null) : $value;
+
+        return match ($type) {
+            'role' => Role::find($id)?->id,
+            'department' => Department::find($id)?->id,
+            'position' => Position::find($id)?->id,
+            default => null,
+        };
     }
 }

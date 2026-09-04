@@ -3,6 +3,18 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h2 class="h4 fw-semibold mb-0">{{ __('files.title_index') }}</h2>
             <div class="d-flex gap-2">
+                <div class="btn-group" role="group">
+                    <a href="{{ route('files.index', array_merge(request()->except('view'), ['view' => 'grid'])) }}"
+                        class="btn btn-sm {{ $view === 'grid' ? 'btn-primary-600' : 'btn-outline-secondary-600' }} radius-8 px-12"
+                        title="{{ __('files.view_grid') }}">
+                        <i class="ri-grid-fill"></i>
+                    </a>
+                    <a href="{{ route('files.index', array_merge(request()->except('view'), ['view' => 'list'])) }}"
+                        class="btn btn-sm {{ $view === 'list' ? 'btn-primary-600' : 'btn-outline-secondary-600' }} radius-8 px-12"
+                        title="{{ __('files.view_list') }}">
+                        <i class="ri-list-check-2"></i>
+                    </a>
+                </div>
                 <a href="{{ route('files.trash') }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">
                     <i class="ri-delete-bin-6-line"></i> {{ __('files.action_view_trash') }}
                 </a>
@@ -20,30 +32,54 @@
         <div class="alert alert-success radius-8 mb-24">{{ __('files.flash_'.str_replace('-', '_', session('status'))) }}</div>
     @endif
 
+    {{-- Quick Access --}}
+    <div class="card radius-12 mb-24">
+        <div class="card-body py-12">
+            <div class="d-flex align-items-center gap-8 mb-8">
+                <i class="ri-pushpin-2-line text-warning-main"></i>
+                <span class="text-sm fw-semibold">{{ __('files.quick_access_title') }}</span>
+            </div>
+            @if ($quickAccess->isEmpty())
+                <p class="text-secondary-light text-xs mb-0">{{ __('files.quick_access_empty') }}</p>
+            @else
+                <div class="d-flex flex-wrap gap-8">
+                    @foreach ($quickAccess as $pinned)
+                        @php($isPinnedFolder = $pinned instanceof \App\Models\FileManager\Folder)
+                        <a href="{{ $isPinnedFolder ? route('files.index', ['folder' => $pinned->id]) : route('files.entries.show', $pinned) }}"
+                            class="d-flex align-items-center gap-1 border radius-8 px-12 py-6 text-sm text-secondary-light text-decoration-none">
+                            <i class="{{ $isPinnedFolder ? 'ri-folder-3-fill text-warning-main' : 'ri-file-3-line' }}"></i>
+                            {{ $isPinnedFolder ? $pinned->name : ($pinned->title ?: $pinned->original_name) }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
     @unless ($currentFolder)
         <ul class="nav nav-pills mb-24">
             <li class="nav-item">
-                <a class="nav-link {{ $tab === 'mine' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'mine']) }}">{{ __('files.tab_mine') }}</a>
+                <a class="nav-link {{ $tab === 'mine' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'mine', 'view' => $view]) }}">{{ __('files.tab_mine') }}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ $tab === 'shared' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'shared']) }}">{{ __('files.tab_shared') }}</a>
+                <a class="nav-link {{ $tab === 'shared' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'shared', 'view' => $view]) }}">{{ __('files.tab_shared') }}</a>
             </li>
             @can('files.view_all')
                 <li class="nav-item">
-                    <a class="nav-link {{ $tab === 'all' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'all']) }}">{{ __('files.tab_all') }}</a>
+                    <a class="nav-link {{ $tab === 'all' ? 'active' : '' }}" href="{{ route('files.index', ['tab' => 'all', 'view' => $view]) }}">{{ __('files.tab_all') }}</a>
                 </li>
             @endcan
         </ul>
     @else
         <nav class="mb-24">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ route('files.index', ['tab' => $tab]) }}">{{ __('files.breadcrumb_home') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('files.index', ['tab' => $tab, 'view' => $view]) }}">{{ __('files.breadcrumb_home') }}</a></li>
                 @foreach ($breadcrumb as $crumb)
                     <li class="breadcrumb-item {{ $loop->last ? 'active' : '' }}">
                         @if ($loop->last || ! auth()->user()->can('view', $crumb))
                             {{ $crumb->name }}
                         @else
-                            <a href="{{ route('files.index', ['folder' => $crumb->id]) }}">{{ $crumb->name }}</a>
+                            <a href="{{ route('files.index', ['folder' => $crumb->id, 'view' => $view]) }}">{{ $crumb->name }}</a>
                         @endif
                     </li>
                 @endforeach
@@ -55,47 +91,98 @@
         <div class="card radius-12">
             <div class="card-body text-center text-muted py-4">{{ __('files.empty_folder') }}</div>
         </div>
+    @elseif ($view === 'list')
+        <div class="card radius-12">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>{{ __('app.field_name') }}</th>
+                            <th>{{ __('files.field_owner') }}</th>
+                            <th>{{ __('files.field_access') }}</th>
+                            <th>{{ __('files.field_size') }}</th>
+                            <th>{{ __('files.field_updated_at') }}</th>
+                            <th class="text-end">{{ __('app.actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($folders as $folder)
+                            <tr data-context-menu>
+                                <td>
+                                    <a href="{{ route('files.index', ['folder' => $folder->id, 'view' => $view]) }}" class="text-primary-light d-flex align-items-center gap-2">
+                                        <i class="ri-folder-3-fill text-warning-main"></i> {{ $folder->name }}
+                                    </a>
+                                </td>
+                                <td>{{ $folder->owner?->name }}</td>
+                                <td>@include('files._access_avatars', ['item' => $folder])</td>
+                                <td>—</td>
+                                <td>{{ $folder->updated_at->format('Y-m-d H:i') }}</td>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base ms-auto">
+                                            <i class="ri-more-2-fill"></i>
+                                        </button>
+                                        @include('files._item_actions', ['item' => $folder])
+                                    </div>
+                                </td>
+                            </tr>
+                            @can('update', $folder)
+                                @include('files._share_modal', ['shareable' => $folder, 'modalId' => 'share-modal-folder-'.$folder->id, 'storeRoute' => route('files.folders.shares.store', $folder), 'destroyRouteBase' => 'files.folders.shares.destroy', 'destroyParam' => $folder])
+                            @endcan
+                        @endforeach
+
+                        @foreach ($files as $file)
+                            <tr data-context-menu>
+                                <td>
+                                    <a href="{{ route('files.entries.show', $file) }}" class="text-primary-light d-flex align-items-center gap-2">
+                                        @if ($file->isPdf())
+                                            <i class="ri-file-pdf-2-line text-danger-main"></i>
+                                        @else
+                                            <i class="ri-file-3-line text-neutral-400"></i>
+                                        @endif
+                                        {{ $file->title ?: $file->original_name }}
+                                    </a>
+                                </td>
+                                <td>{{ $file->owner?->name }}</td>
+                                <td>@include('files._access_avatars', ['item' => $file])</td>
+                                <td>{{ $file->human_size }}</td>
+                                <td>{{ $file->updated_at->format('Y-m-d H:i') }}</td>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base ms-auto">
+                                            <i class="ri-more-2-fill"></i>
+                                        </button>
+                                        @include('files._item_actions', ['item' => $file])
+                                    </div>
+                                </td>
+                            </tr>
+                            @can('update', $file)
+                                @include('files._share_modal', ['shareable' => $file, 'modalId' => 'share-modal-file-'.$file->id, 'storeRoute' => route('files.entries.shares.store', $file), 'destroyRouteBase' => 'files.entries.shares.destroy', 'destroyParam' => $file])
+                            @endcan
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     @else
         <div class="row g-16">
             @foreach ($folders as $folder)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="border radius-12 p-16 h-100 bg-base position-relative">
+                    <div class="border radius-12 p-16 h-100 bg-base position-relative" data-context-menu>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8">
                             <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
                             </button>
-                            <ul class="dropdown-menu p-8 border bg-base shadow">
-                                <li><a class="dropdown-item px-12 py-6 rounded text-secondary-light" href="{{ route('files.index', ['folder' => $folder->id]) }}">{{ __('files.action_open') }}</a></li>
-                                @can('update', $folder)
-                                    <li>
-                                        <button type="button" class="dropdown-item px-12 py-6 rounded text-secondary-light w-100 text-start border-0 bg-transparent"
-                                            data-bs-toggle="modal" data-bs-target="#rename-modal"
-                                            data-action="{{ route('files.folders.update', $folder) }}" data-name="{{ $folder->name }}" data-label="{{ __('files.field_folder_name') }}">
-                                            {{ __('files.action_rename') }}
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item px-12 py-6 rounded text-secondary-light w-100 text-start border-0 bg-transparent"
-                                            data-bs-toggle="modal" data-bs-target="#move-modal" data-action="{{ route('files.folders.move', $folder) }}">
-                                            {{ __('files.action_move') }}
-                                        </button>
-                                    </li>
-                                    <li><a class="dropdown-item px-12 py-6 rounded text-secondary-light" href="#" data-bs-toggle="modal" data-bs-target="#share-modal-folder-{{ $folder->id }}">{{ __('files.action_share') }}</a></li>
-                                    <li>
-                                        <form action="{{ route('files.folders.destroy', $folder) }}" method="POST" onsubmit="return confirm('{{ __('files.confirm_delete_folder') }}');">
-                                            @csrf
-                                            @method('delete')
-                                            <button type="submit" class="dropdown-item px-12 py-6 rounded text-danger-600 w-100 text-start border-0 bg-transparent">{{ __('files.action_delete') }}</button>
-                                        </form>
-                                    </li>
-                                @endcan
-                            </ul>
+                            @include('files._item_actions', ['item' => $folder])
                         </div>
-                        <a href="{{ route('files.index', ['folder' => $folder->id]) }}" class="d-flex flex-column align-items-center text-center text-decoration-none py-16">
+                        <a href="{{ route('files.index', ['folder' => $folder->id, 'view' => $view]) }}" class="d-flex flex-column align-items-center text-center text-decoration-none py-16">
                             <i class="ri-folder-3-fill text-warning-main" style="font-size: 48px;"></i>
                             <span class="text-primary-light fw-medium text-sm mt-8 text-truncate w-100">{{ $folder->name }}</span>
                             <span class="text-secondary-light text-xs">{{ $folder->owner?->name }}</span>
                         </a>
+                        <div class="d-flex justify-content-center mt-4">
+                            @include('files._access_avatars', ['item' => $folder])
+                        </div>
                     </div>
                 </div>
                 @can('update', $folder)
@@ -105,40 +192,12 @@
 
             @foreach ($files as $file)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="border radius-12 h-100 bg-base position-relative overflow-hidden">
+                    <div class="border radius-12 h-100 bg-base position-relative overflow-hidden" data-context-menu>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8 z-1">
                             <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
                             </button>
-                            <ul class="dropdown-menu p-8 border bg-base shadow">
-                                <li><a class="dropdown-item px-12 py-6 rounded text-secondary-light" href="{{ route('files.entries.show', $file) }}">{{ __('files.action_preview') }}</a></li>
-                                <li><a class="dropdown-item px-12 py-6 rounded text-secondary-light" href="{{ route('files.entries.download', $file) }}">{{ __('files.action_download') }}</a></li>
-                                @can('update', $file)
-                                    <li>
-                                        <button type="button" class="dropdown-item px-12 py-6 rounded text-secondary-light w-100 text-start border-0 bg-transparent"
-                                            data-bs-toggle="modal" data-bs-target="#rename-modal"
-                                            data-action="{{ route('files.entries.update', $file) }}" data-name="{{ $file->title ?: $file->original_name }}" data-label="{{ __('files.field_title') }}">
-                                            {{ __('files.action_rename') }}
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item px-12 py-6 rounded text-secondary-light w-100 text-start border-0 bg-transparent"
-                                            data-bs-toggle="modal" data-bs-target="#move-modal" data-action="{{ route('files.entries.move', $file) }}">
-                                            {{ __('files.action_move') }}
-                                        </button>
-                                    </li>
-                                    <li><a class="dropdown-item px-12 py-6 rounded text-secondary-light" href="#" data-bs-toggle="modal" data-bs-target="#share-modal-file-{{ $file->id }}">{{ __('files.action_share') }}</a></li>
-                                @endcan
-                                @can('delete', $file)
-                                    <li>
-                                        <form action="{{ route('files.entries.destroy', $file) }}" method="POST" onsubmit="return confirm('{{ __('files.confirm_delete_file') }}');">
-                                            @csrf
-                                            @method('delete')
-                                            <button type="submit" class="dropdown-item px-12 py-6 rounded text-danger-600 w-100 text-start border-0 bg-transparent">{{ __('files.action_delete') }}</button>
-                                        </form>
-                                    </li>
-                                @endcan
-                            </ul>
+                            @include('files._item_actions', ['item' => $file])
                         </div>
                         <a href="{{ route('files.entries.show', $file) }}" class="d-block bg-neutral-100 d-flex align-items-center justify-content-center" style="height: 120px;">
                             @if ($file->isImage())
@@ -156,6 +215,9 @@
                             <div class="text-secondary-light text-xs d-flex justify-content-between mt-4">
                                 <span>{{ $file->owner?->name }}</span>
                                 <span>{{ $file->human_size }}</span>
+                            </div>
+                            <div class="mt-8">
+                                @include('files._access_avatars', ['item' => $file])
                             </div>
                         </div>
                     </div>
@@ -277,6 +339,43 @@
                 document.getElementById('move-modal').addEventListener('show.bs.modal', function (event) {
                     var trigger = event.relatedTarget;
                     document.getElementById('move-form').action = trigger.getAttribute('data-action');
+                });
+
+                // Right-click: reuse each card/row's own "..." dropdown-menu as a
+                // context menu, positioned at the cursor, instead of duplicating
+                // the action list in a separate menu structure.
+                document.addEventListener('contextmenu', function (event) {
+                    var host = event.target.closest('[data-context-menu]');
+                    if (!host) {
+                        return;
+                    }
+                    var menu = host.querySelector('.dropdown-menu');
+                    if (!menu) {
+                        return;
+                    }
+                    event.preventDefault();
+
+                    document.querySelectorAll('.dropdown-menu.show').forEach(function (open) {
+                        open.classList.remove('show');
+                    });
+
+                    menu.style.position = 'fixed';
+                    menu.style.inset = 'auto';
+                    menu.style.left = event.clientX + 'px';
+                    menu.style.top = event.clientY + 'px';
+                    menu.classList.add('show');
+
+                    var close = function (closeEvent) {
+                        if (menu.contains(closeEvent.target)) {
+                            return;
+                        }
+                        menu.classList.remove('show');
+                        menu.style.position = '';
+                        menu.style.left = '';
+                        menu.style.top = '';
+                        document.removeEventListener('click', close);
+                    };
+                    document.addEventListener('click', close);
                 });
             })();
         </script>

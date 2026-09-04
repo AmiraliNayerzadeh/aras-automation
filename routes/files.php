@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FileManager\FileCommentController;
 use App\Http\Controllers\FileManager\FileController;
+use App\Http\Controllers\FileManager\FileFavoriteController;
 use App\Http\Controllers\FileManager\FileManagerController;
 use App\Http\Controllers\FileManager\FileShareController;
 use App\Http\Controllers\FileManager\FileVersionController;
@@ -12,6 +13,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('files', [FileManagerController::class, 'index'])->name('files.index');
     Route::get('files/trash', [FileManagerController::class, 'trash'])->name('files.trash');
     Route::get('files/link/{token}', [FileController::class, 'downloadByToken'])->name('files.link');
+    Route::post('files/favorites/toggle', [FileFavoriteController::class, 'toggle'])->name('files.favorites.toggle');
 
     Route::post('files/folders', [FolderController::class, 'store'])->name('files.folders.store');
     Route::put('files/folders/{folder}', [FolderController::class, 'update'])->name('files.folders.update');

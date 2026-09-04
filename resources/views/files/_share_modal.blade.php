@@ -4,18 +4,20 @@
     @push('scripts')
         <script>
             (function () {
+                var granteeBlocks = ['user', 'role', 'department', 'position'];
+
                 document.addEventListener('change', function (event) {
                     if (!event.target.classList.contains('share-grantee-type')) {
                         return;
                     }
                     var form = event.target.closest('form');
-                    var userBlock = form.querySelector('.share-grantee-user');
-                    var roleBlock = form.querySelector('.share-grantee-role');
                     var value = event.target.value;
-                    userBlock.style.display = value === 'user' ? '' : 'none';
-                    roleBlock.style.display = value === 'role' ? '' : 'none';
-                    userBlock.querySelector('select').disabled = value !== 'user';
-                    roleBlock.querySelector('select').disabled = value !== 'role';
+
+                    granteeBlocks.forEach(function (type) {
+                        var block = form.querySelector('.share-grantee-' + type);
+                        block.style.display = value === type ? '' : 'none';
+                        block.querySelector('select').disabled = value !== type;
+                    });
                 });
             })();
         </script>
@@ -39,6 +41,10 @@
                                     <i class="ri-global-line"></i>
                                 @elseif ($share->grantee_type === 'role')
                                     <i class="ri-shield-user-line"></i>
+                                @elseif ($share->grantee_type === 'department')
+                                    <i class="ri-git-branch-line"></i>
+                                @elseif ($share->grantee_type === 'position')
+                                    <i class="ri-briefcase-line"></i>
                                 @else
                                     <i class="ri-user-line"></i>
                                 @endif
@@ -57,6 +63,11 @@
                     @endforelse
                 </div>
 
+                @php
+                    $departments = $departments ?? \App\Models\Organization\Department::orderBy('name')->get(['id', 'name']);
+                    $positions = $positions ?? \App\Models\Organization\Position::orderBy('title')->get(['id', 'title']);
+                @endphp
+
                 <form method="POST" action="{{ $storeRoute }}" class="share-add-form">
                     @csrf
                     <div class="mb-2">
@@ -64,12 +75,14 @@
                         <select name="grantee_type" class="form-select mt-1 share-grantee-type">
                             <option value="user">{{ __('files.grantee_type_user') }}</option>
                             <option value="role">{{ __('files.grantee_type_role') }}</option>
+                            <option value="department">{{ __('files.grantee_type_department') }}</option>
+                            <option value="position">{{ __('files.grantee_type_position') }}</option>
                             <option value="everyone">{{ __('files.grantee_type_everyone') }}</option>
                         </select>
                     </div>
                     <div class="mb-2 share-grantee-user">
                         <x-input-label :value="__('files.field_grantee_user')" />
-                        <select name="grantee_value" class="form-select mt-1">
+                        <select name="grantee_value[]" class="form-select mt-1" multiple size="4">
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
@@ -80,6 +93,22 @@
                         <select name="grantee_value" class="form-select mt-1" disabled>
                             @foreach ($roles as $role)
                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-2 share-grantee-department" style="display: none;">
+                        <x-input-label :value="__('files.field_grantee_department')" />
+                        <select name="grantee_value" class="form-select mt-1" disabled>
+                            @foreach ($departments as $department)
+                                <option value="{{ $department->id }}">{{ $department->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-2 share-grantee-position" style="display: none;">
+                        <x-input-label :value="__('files.field_grantee_position')" />
+                        <select name="grantee_value" class="form-select mt-1" disabled>
+                            @foreach ($positions as $position)
+                                <option value="{{ $position->id }}">{{ $position->title }}</option>
                             @endforeach
                         </select>
                     </div>

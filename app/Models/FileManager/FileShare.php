@@ -2,6 +2,8 @@
 
 namespace App\Models\FileManager;
 
+use App\Models\Organization\Department;
+use App\Models\Organization\Position;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -22,11 +24,13 @@ class FileShare extends Model
         return $this->belongsTo(User::class, 'created_by_id');
     }
 
-    public function grantee(): User|Role|null
+    public function grantee(): User|Role|Department|Position|null
     {
         return match ($this->grantee_type) {
             'user' => User::find($this->grantee_id),
             'role' => Role::find($this->grantee_id),
+            'department' => Department::find($this->grantee_id),
+            'position' => Position::find($this->grantee_id),
             default => null,
         };
     }
@@ -36,6 +40,8 @@ class FileShare extends Model
         return match ($this->grantee_type) {
             'user' => $this->grantee()?->name ?? __('files.deleted_user'),
             'role' => $this->grantee()?->name ?? __('files.deleted_role'),
+            'department' => $this->grantee()?->name ?? __('files.deleted_department'),
+            'position' => $this->grantee()?->title ?? __('files.deleted_position'),
             default => __('files.share_everyone'),
         };
     }
