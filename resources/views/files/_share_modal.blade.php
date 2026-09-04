@@ -1,7 +1,17 @@
-@php($isFile = $shareable instanceof \App\Models\FileManager\FileEntry)
+@php
+    $isFile = ($shareable ?? null) instanceof \App\Models\FileManager\FileEntry;
+@endphp
 
+@isset($shareable)
 @once
     @push('scripts')
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+        <style>
+            .select2-avatar-img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-inline-end: 8px; vertical-align: middle; }
+            .select2-container .select2-selection--multiple,
+            .select2-container .select2-selection--single { min-height: 42px; }
+        </style>
         <script>
             (function () {
                 var granteeBlocks = ['user', 'role', 'department', 'position'];
@@ -16,8 +26,59 @@
                     granteeBlocks.forEach(function (type) {
                         var block = form.querySelector('.share-grantee-' + type);
                         block.style.display = value === type ? '' : 'none';
-                        block.querySelector('select').disabled = value !== type;
+                        var select = block.querySelector('select');
+                        select.disabled = value !== type;
+                        if (window.jQuery && jQuery.fn.select2) {
+                            jQuery(select).trigger('change.select2');
+                        }
                     });
+                });
+
+                function renderUserOption(option) {
+                    if (!option.id) {
+                        return option.text;
+                    }
+                    var avatar = option.element ? option.element.getAttribute('data-avatar') : null;
+                    var $wrap = jQuery('<span class="d-flex align-items-center"></span>');
+                    if (avatar) {
+                        $wrap.append(jQuery('<img>').attr('src', avatar).addClass('select2-avatar-img'));
+                    }
+                    $wrap.append(jQuery('<span></span>').text(option.text));
+                    return $wrap;
+                }
+
+                function initShareSelects(modal) {
+                    if (!window.jQuery || !jQuery.fn.select2) {
+                        return;
+                    }
+                    var $modal = jQuery(modal);
+
+                    $modal.find('.share-select2-user').each(function () {
+                        if (this.dataset.select2Ready) {
+                            return;
+                        }
+                        this.dataset.select2Ready = '1';
+                        jQuery(this).select2({
+                            dropdownParent: $modal,
+                            width: '100%',
+                            templateResult: renderUserOption,
+                            templateSelection: renderUserOption,
+                        });
+                    });
+
+                    $modal.find('.share-select2-plain').each(function () {
+                        if (this.dataset.select2Ready) {
+                            return;
+                        }
+                        this.dataset.select2Ready = '1';
+                        jQuery(this).select2({ dropdownParent: $modal, width: '100%' });
+                    });
+                }
+
+                document.addEventListener('shown.bs.modal', function (event) {
+                    if (event.target.id && event.target.id.indexOf('share-modal-') === 0) {
+                        initShareSelects(event.target);
+                    }
                 });
             })();
         </script>
@@ -82,15 +143,15 @@
                     </div>
                     <div class="mb-2 share-grantee-user">
                         <x-input-label :value="__('files.field_grantee_user')" />
-                        <select name="grantee_value[]" class="form-select mt-1" multiple size="4">
+                        <select name="grantee_value[]" class="form-select mt-1 share-select2-user" multiple>
                             @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                <option value="{{ $user->id }}" data-avatar="{{ $user->avatar_url }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-2 share-grantee-role" style="display: none;">
                         <x-input-label :value="__('files.field_grantee_role')" />
-                        <select name="grantee_value" class="form-select mt-1" disabled>
+                        <select name="grantee_value" class="form-select mt-1 share-select2-plain" disabled>
                             @foreach ($roles as $role)
                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
                             @endforeach
@@ -98,7 +159,7 @@
                     </div>
                     <div class="mb-2 share-grantee-department" style="display: none;">
                         <x-input-label :value="__('files.field_grantee_department')" />
-                        <select name="grantee_value" class="form-select mt-1" disabled>
+                        <select name="grantee_value" class="form-select mt-1 share-select2-plain" disabled>
                             @foreach ($departments as $department)
                                 <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
@@ -106,7 +167,7 @@
                     </div>
                     <div class="mb-2 share-grantee-position" style="display: none;">
                         <x-input-label :value="__('files.field_grantee_position')" />
-                        <select name="grantee_value" class="form-select mt-1" disabled>
+                        <select name="grantee_value" class="form-select mt-1 share-select2-plain" disabled>
                             @foreach ($positions as $position)
                                 <option value="{{ $position->id }}">{{ $position->title }}</option>
                             @endforeach
@@ -146,3 +207,4 @@
         </div>
     </div>
 </div>
+@endisset

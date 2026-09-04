@@ -22,7 +22,7 @@ class FileManagerController extends Controller
 
         $user = $request->user();
         $folderId = $request->integer('folder') ?: null;
-        $tab = $request->string('tab', 'mine')->toString();
+        $tab = $request->string('tab', 'all')->toString();
         $view = $request->input('view') === 'list' ? 'list' : 'grid';
 
         $currentFolder = null;

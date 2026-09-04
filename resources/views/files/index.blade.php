@@ -32,29 +32,7 @@
         <div class="alert alert-success radius-8 mb-24">{{ __('files.flash_'.str_replace('-', '_', session('status'))) }}</div>
     @endif
 
-    {{-- Quick Access --}}
-    <div class="card radius-12 mb-24">
-        <div class="card-body py-12">
-            <div class="d-flex align-items-center gap-8 mb-8">
-                <i class="ri-pushpin-2-line text-warning-main"></i>
-                <span class="text-sm fw-semibold">{{ __('files.quick_access_title') }}</span>
-            </div>
-            @if ($quickAccess->isEmpty())
-                <p class="text-secondary-light text-xs mb-0">{{ __('files.quick_access_empty') }}</p>
-            @else
-                <div class="d-flex flex-wrap gap-8">
-                    @foreach ($quickAccess as $pinned)
-                        @php($isPinnedFolder = $pinned instanceof \App\Models\FileManager\Folder)
-                        <a href="{{ $isPinnedFolder ? route('files.index', ['folder' => $pinned->id]) : route('files.entries.show', $pinned) }}"
-                            class="d-flex align-items-center gap-1 border radius-8 px-12 py-6 text-sm text-secondary-light text-decoration-none">
-                            <i class="{{ $isPinnedFolder ? 'ri-folder-3-fill text-warning-main' : 'ri-file-3-line' }}"></i>
-                            {{ $isPinnedFolder ? $pinned->name : ($pinned->title ?: $pinned->original_name) }}
-                        </a>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    </div>
+    @include('files._quick_access', ['quickAccess' => $quickAccess])
 
     @unless ($currentFolder)
         <ul class="nav nav-pills mb-24">
@@ -192,14 +170,14 @@
 
             @foreach ($files as $file)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="border radius-12 h-100 bg-base position-relative overflow-hidden" data-context-menu>
+                    <div class="border radius-12 h-100 bg-base position-relative" data-context-menu>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8 z-1">
                             <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
                             </button>
                             @include('files._item_actions', ['item' => $file])
                         </div>
-                        <a href="{{ route('files.entries.show', $file) }}" class="d-block bg-neutral-100 d-flex align-items-center justify-content-center" style="height: 120px;">
+                        <a href="{{ route('files.entries.show', $file) }}" class="d-block bg-neutral-100 d-flex align-items-center justify-content-center overflow-hidden" style="height: 120px; border-radius: 12px 12px 0 0;">
                             @if ($file->isImage())
                                 <img src="{{ asset('storage/'.$file->file_path) }}" alt="" class="w-100 h-100 object-fit-cover">
                             @elseif ($file->isPdf())

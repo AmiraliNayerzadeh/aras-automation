@@ -25,11 +25,16 @@ class FileShareController extends Controller
         return redirect()->route('files.index', ['folder' => $folder->id])->with('status', 'share-added');
     }
 
-    public function destroyForFolder(Folder $folder, FileShare $share): RedirectResponse
+    public function destroyForFolder(Request $request, Folder $folder, FileShare $share): RedirectResponse
     {
         $this->authorize('update', $folder);
         abort_unless($share->shareable_id === $folder->id && $share->shareable_type === 'folder', 404);
+
+        $label = $share->label();
         $share->delete();
+
+        activity('file_manager')->causedBy($request->user())->performedOn($folder)
+            ->event('unshared')->withProperties(['grantee' => $label])->log('Folder unshared with '.$label);
 
         return redirect()->route('files.index', ['folder' => $folder->id])->with('status', 'share-removed');
     }
@@ -42,11 +47,16 @@ class FileShareController extends Controller
         return redirect()->route('files.entries.show', $file)->with('status', 'share-added');
     }
 
-    public function destroyForFile(FileEntry $file, FileShare $share): RedirectResponse
+    public function destroyForFile(Request $request, FileEntry $file, FileShare $share): RedirectResponse
     {
         $this->authorize('update', $file);
         abort_unless($share->shareable_id === $file->id && $share->shareable_type === 'file', 404);
+
+        $label = $share->label();
         $share->delete();
+
+        activity('file_manager')->causedBy($request->user())->performedOn($file)
+            ->event('unshared')->withProperties(['grantee' => $label])->log('File unshared with '.$label);
 
         return redirect()->route('files.entries.show', $file)->with('status', 'share-removed');
     }
@@ -75,11 +85,23 @@ class FileShareController extends Controller
             $granteeIds = collect([null]);
         }
 
+        $labels = [];
+
         foreach ($granteeIds as $granteeId) {
-            $shareable->shares()->firstOrCreate(
+            $share = $shareable->shares()->firstOrCreate(
                 ['grantee_type' => $type, 'grantee_id' => $granteeId],
                 ['created_by_id' => $request->user()->id]
             );
+
+            $labels[] = $share->label();
+        }
+
+        if ($labels) {
+            $noun = $shareable instanceof Folder ? 'Folder' : 'File';
+
+            activity('file_manager')->causedBy($request->user())->performedOn($shareable)
+                ->event('shared')->withProperties(['grantees' => $labels])
+                ->log("{$noun} shared with ".implode(', ', $labels));
         }
     }
 

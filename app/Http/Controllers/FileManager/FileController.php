@@ -116,8 +116,10 @@ class FileController extends Controller
     {
         $this->authorize('update', $file);
 
-        $data = $request->validate(['folder_id' => ['nullable', 'exists:folders,id']]);
-        $destinationId = $data['folder_id'] ?? null;
+        // The shared move modal (resources/views/files/index.blade.php) submits
+        // a single "parent_id" field for both folders and files.
+        $data = $request->validate(['parent_id' => ['nullable', 'exists:folders,id']]);
+        $destinationId = $data['parent_id'] ?? null;
 
         if ($destinationId) {
             $destination = Folder::findOrFail($destinationId);
@@ -133,6 +135,9 @@ class FileController extends Controller
     {
         $this->authorize('view', $file);
 
+        activity('file_manager')->causedBy(auth()->user())->performedOn($file)
+            ->event('downloaded')->log('File downloaded');
+
         return Storage::disk('public')->download($file->file_path, $file->original_name);
     }
 
@@ -144,6 +149,9 @@ class FileController extends Controller
             $file->share_token_expires_at && $file->share_token_expires_at->isPast(),
             404
         );
+
+        activity('file_manager')->causedBy(auth()->user())->performedOn($file)
+            ->event('downloaded')->withProperties(['via' => 'share_link'])->log('File downloaded via share link');
 
         return Storage::disk('public')->download($file->file_path, $file->original_name);
     }
@@ -159,14 +167,20 @@ class FileController extends Controller
             'share_token_expires_at' => $data['expires_at'] ?? null,
         ]);
 
+        activity('file_manager')->causedBy($request->user())->performedOn($file)
+            ->event('share_link_enabled')->log('Share link enabled');
+
         return redirect()->route('files.entries.show', $file)->with('status', 'file-share-link-enabled');
     }
 
-    public function disableShareLink(FileEntry $file): RedirectResponse
+    public function disableShareLink(Request $request, FileEntry $file): RedirectResponse
     {
         $this->authorize('update', $file);
 
         $file->update(['share_token' => null, 'share_token_expires_at' => null]);
+
+        activity('file_manager')->causedBy($request->user())->performedOn($file)
+            ->event('share_link_disabled')->log('Share link disabled');
 
         return redirect()->route('files.entries.show', $file)->with('status', 'file-share-link-disabled');
     }

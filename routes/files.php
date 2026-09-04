@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FileManager\FileActivityLogController;
 use App\Http\Controllers\FileManager\FileCommentController;
 use App\Http\Controllers\FileManager\FileController;
 use App\Http\Controllers\FileManager\FileFavoriteController;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('files', [FileManagerController::class, 'index'])->name('files.index');
     Route::get('files/trash', [FileManagerController::class, 'trash'])->name('files.trash');
+    Route::get('files/activity-log', [FileActivityLogController::class, 'index'])->name('files.activity-log.index');
     Route::get('files/link/{token}', [FileController::class, 'downloadByToken'])->name('files.link');
     Route::post('files/favorites/toggle', [FileFavoriteController::class, 'toggle'])->name('files.favorites.toggle');
 

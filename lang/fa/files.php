@@ -110,4 +110,23 @@ return [
     'flash_file_commentadded' => 'نظر افزوده شد.',
     'flash_share_added' => 'اشتراک‌گذاری افزوده شد.',
     'flash_share_removed' => 'اشتراک‌گذاری حذف شد.',
+
+    'title_activity_log' => 'لاگ فعالیت فایل‌ها',
+    'action_activity_log' => 'لاگ فعالیت',
+    'field_event' => 'عملیات',
+    'field_causer' => 'توسط',
+    'field_subject' => 'مورد',
+    'field_when' => 'زمان',
+    'field_details' => 'جزئیات',
+    'deleted_item' => 'مورد حذف‌شده',
+
+    'event_created' => 'ایجاد شد',
+    'event_updated' => 'ویرایش شد',
+    'event_deleted' => 'حذف شد',
+    'event_restored' => 'بازیابی شد',
+    'event_downloaded' => 'دانلود شد',
+    'event_shared' => 'اشتراک‌گذاری شد',
+    'event_unshared' => 'اشتراک‌گذاری لغو شد',
+    'event_share_link_enabled' => 'لینک فعال شد',
+    'event_share_link_disabled' => 'لینک غیرفعال شد',
 ];

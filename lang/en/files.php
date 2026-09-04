@@ -110,4 +110,23 @@ return [
     'flash_file_commentadded' => 'Comment added.',
     'flash_share_added' => 'Share added.',
     'flash_share_removed' => 'Share removed.',
+
+    'title_activity_log' => 'Files Activity Log',
+    'action_activity_log' => 'Activity Log',
+    'field_event' => 'Action',
+    'field_causer' => 'By',
+    'field_subject' => 'Item',
+    'field_when' => 'When',
+    'field_details' => 'Details',
+    'deleted_item' => 'Deleted item',
+
+    'event_created' => 'Created',
+    'event_updated' => 'Updated',
+    'event_deleted' => 'Deleted',
+    'event_restored' => 'Restored',
+    'event_downloaded' => 'Downloaded',
+    'event_shared' => 'Shared',
+    'event_unshared' => 'Unshared',
+    'event_share_link_enabled' => 'Share link enabled',
+    'event_share_link_disabled' => 'Share link disabled',
 ];

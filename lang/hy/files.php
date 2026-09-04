@@ -110,4 +110,23 @@ return [
     'flash_file_commentadded' => 'Մեկնաբանությունն ավելացվեց։',
     'flash_share_added' => 'Կիսումն ավելացվեց։',
     'flash_share_removed' => 'Կիսումը հեռացվեց։',
+
+    'title_activity_log' => 'Ֆայլերի գործողությունների մատյան',
+    'action_activity_log' => 'Գործողությունների մատյան',
+    'field_event' => 'Գործողություն',
+    'field_causer' => 'Կատարող',
+    'field_subject' => 'Օբյեկտ',
+    'field_when' => 'Ժամանակ',
+    'field_details' => 'Մանրամասներ',
+    'deleted_item' => 'Ջնջված տարր',
+
+    'event_created' => 'Ստեղծվեց',
+    'event_updated' => 'Խմբագրվեց',
+    'event_deleted' => 'Ջնջվեց',
+    'event_restored' => 'Վերականգնվեց',
+    'event_downloaded' => 'Ներբեռնվեց',
+    'event_shared' => 'Կիսվեց',
+    'event_unshared' => 'Կիսումը չեղարկվեց',
+    'event_share_link_enabled' => 'Հղումը միացվեց',
+    'event_share_link_disabled' => 'Հղումը անջատվեց',
 ];

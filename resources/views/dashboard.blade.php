@@ -5,6 +5,8 @@
         </h2>
     </x-slot>
 
+    @include('files._quick_access', ['quickAccess' => $quickAccess])
+
     @foreach ($birthdaysToday as $birthdayUser)
         <div class="alert alert-warning radius-8 alert-dismissible fade show" role="alert">
             {{ __('app.birthday_banner', ['name' => $birthdayUser->name]) }}

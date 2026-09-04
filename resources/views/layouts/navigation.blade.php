@@ -143,11 +143,19 @@
     @can('files.create')
         <li class="sidebar-menu-group-title">{{ __('app.nav_files') }}</li>
         <li>
-            <x-nav-link :href="route('files.index')" :active="request()->routeIs('files.*')">
+            <x-nav-link :href="route('files.index')" :active="request()->routeIs('files.index', 'files.entries.show', 'files.trash')">
                 <i class="ri-folder-3-line menu-icon"></i>
                 <span>{{ __('app.nav_files') }}</span>
             </x-nav-link>
         </li>
+        @can('files.manage')
+            <li>
+                <x-nav-link :href="route('files.activity-log.index')" :active="request()->routeIs('files.activity-log.*')">
+                    <i class="ri-history-line menu-icon"></i>
+                    <span>{{ __('files.action_activity_log') }}</span>
+                </x-nav-link>
+            </li>
+        @endcan
     @endcan
 
     @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view'])

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FileManager\FileFavorite;
 use App\Models\Organization\Company;
 use App\Models\Organization\Department;
 use App\Models\User;
 use App\Support\DashboardWidgetRegistry;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index(DashboardWidgetRegistry $widgets)
+    public function index(DashboardWidgetRegistry $widgets, Request $request)
     {
         $birthdaysToday = User::query()
             ->whereNotNull('date_of_birth')
@@ -24,10 +26,18 @@ class DashboardController extends Controller
             'active_users' => User::where('status', 'active')->count(),
         ];
 
+        $quickAccess = FileFavorite::where('user_id', $request->user()->id)
+            ->with('favoritable')
+            ->latest()
+            ->get()
+            ->pluck('favoritable')
+            ->filter();
+
         return view('dashboard', [
             'birthdaysToday' => $birthdaysToday,
             'actionItems' => $widgets->resolve(),
             'stats' => $stats,
+            'quickAccess' => $quickAccess,
         ]);
     }
 }
