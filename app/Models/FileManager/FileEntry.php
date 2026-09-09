@@ -80,4 +80,79 @@ class FileEntry extends Model
     {
         return $this->mime_type === 'application/pdf';
     }
+
+    public function isSpreadsheet(): bool
+    {
+        return in_array($this->mime_type, [
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv',
+            'application/csv',
+        ], true) || $this->hasExtension(['xlsx', 'xls', 'csv']);
+    }
+
+    /**
+     * True only for modern .docx (docx-preview, used for in-browser preview,
+     * can't render the older binary .doc format).
+     */
+    public function isWordDocument(): bool
+    {
+        return $this->mime_type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            || $this->hasExtension(['docx']);
+    }
+
+    public function isLegacyWordDocument(): bool
+    {
+        return $this->mime_type === 'application/msword' || $this->hasExtension(['doc']);
+    }
+
+    public function isPresentation(): bool
+    {
+        return in_array($this->mime_type, [
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ], true) || $this->hasExtension(['pptx', 'ppt']);
+    }
+
+    public function isArchive(): bool
+    {
+        return in_array($this->mime_type, [
+            'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed',
+            'application/x-tar', 'application/gzip',
+        ], true) || $this->hasExtension(['zip', 'rar', '7z', 'tar', 'gz']);
+    }
+
+    public function iconClass(): string
+    {
+        return match (true) {
+            $this->isPdf() => 'ri-file-pdf-2-line',
+            $this->isSpreadsheet() => 'ri-file-excel-2-line',
+            $this->isWordDocument(), $this->isLegacyWordDocument() => 'ri-file-word-2-line',
+            $this->isPresentation() => 'ri-file-ppt-2-line',
+            $this->isArchive() => 'ri-file-zip-line',
+            Str::startsWith((string) $this->mime_type, 'audio/') => 'ri-file-music-line',
+            Str::startsWith((string) $this->mime_type, 'video/') => 'ri-file-video-line',
+            $this->mime_type === 'text/plain' => 'ri-file-text-line',
+            default => 'ri-file-3-line',
+        };
+    }
+
+    public function iconColorClass(): string
+    {
+        return match (true) {
+            $this->isPdf() => 'text-danger-main',
+            $this->isSpreadsheet() => 'text-success-main',
+            $this->isWordDocument(), $this->isLegacyWordDocument() => 'text-info-main',
+            $this->isPresentation() => 'text-warning-main',
+            $this->isArchive() => 'text-neutral-500',
+            default => 'text-neutral-400',
+        };
+    }
+
+    private function hasExtension(array $extensions): bool
+    {
+        $ext = strtolower(pathinfo((string) $this->original_name, PATHINFO_EXTENSION));
+
+        return in_array($ext, $extensions, true);
+    }
 }

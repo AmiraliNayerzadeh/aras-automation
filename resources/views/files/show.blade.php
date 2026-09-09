@@ -34,9 +34,23 @@
                             <img src="{{ asset('storage/'.$file->file_path) }}" alt="" class="w-100" style="max-height: 480px; object-fit: contain;">
                         @elseif ($file->isPdf())
                             <iframe src="{{ asset('storage/'.$file->file_path) }}" style="width: 100%; height: 480px; border: 0;"></iframe>
+                        @elseif ($file->isSpreadsheet())
+                            <div id="office-preview" class="w-100 bg-white radius-8 p-16 text-sm" style="max-height: 480px; overflow: auto;" data-preview-type="spreadsheet">
+                                <div class="text-center text-secondary-light py-64" data-preview-loading>
+                                    <i class="ri-loader-4-line" style="font-size: 32px;"></i>
+                                    <p class="mt-8 mb-0">{{ __('files.preview_loading') }}</p>
+                                </div>
+                            </div>
+                        @elseif ($file->isWordDocument())
+                            <div id="office-preview" class="w-100 bg-white radius-8 p-16" style="max-height: 480px; overflow: auto;" data-preview-type="docx">
+                                <div class="text-center text-secondary-light py-64" data-preview-loading>
+                                    <i class="ri-loader-4-line" style="font-size: 32px;"></i>
+                                    <p class="mt-8 mb-0">{{ __('files.preview_loading') }}</p>
+                                </div>
+                            </div>
                         @else
                             <div class="text-center text-secondary-light py-64">
-                                <i class="ri-file-3-line" style="font-size: 48px;"></i>
+                                <i class="{{ $file->iconClass() }} {{ $file->iconColorClass() }}" style="font-size: 48px;"></i>
                                 <p class="mt-8 mb-0">{{ __('files.preview_unavailable') }}</p>
                             </div>
                         @endif
@@ -130,4 +144,61 @@
     @can('update', $file)
         @include('files._share_modal', ['shareable' => $file, 'modalId' => 'share-modal-file-'.$file->id, 'storeRoute' => route('files.entries.shares.store', $file), 'destroyRouteBase' => 'files.entries.shares.destroy', 'destroyParam' => $file])
     @endcan
+
+    @if ($file->isSpreadsheet())
+        @push('scripts')
+            <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+            <script>
+                (function () {
+                    var container = document.getElementById('office-preview');
+
+                    fetch(@json(route('files.entries.download', $file)))
+                        .then(function (res) { return res.arrayBuffer(); })
+                        .then(function (buffer) {
+                            var workbook = XLSX.read(buffer, { type: 'array' });
+                            var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                            var html = XLSX.utils.sheet_to_html(worksheet, { editable: false });
+
+                            container.innerHTML = html;
+
+                            var table = container.querySelector('table');
+                            if (table) {
+                                table.classList.add('table', 'table-bordered', 'table-sm');
+                            }
+
+                            if (workbook.SheetNames.length > 1) {
+                                var note = document.createElement('div');
+                                note.className = 'text-secondary-light text-xs mt-8';
+                                note.textContent = @json(__('files.preview_first_sheet_note'));
+                                container.appendChild(note);
+                            }
+                        })
+                        .catch(function () {
+                            container.innerHTML = '<div class="text-center text-danger-600 py-4">'
+                                + @json(__('files.preview_failed')) + '</div>';
+                        });
+                })();
+            </script>
+        @endpush
+    @elseif ($file->isWordDocument())
+        @push('scripts')
+            <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3/dist/docx-preview.min.js"></script>
+            <script>
+                (function () {
+                    var container = document.getElementById('office-preview');
+
+                    fetch(@json(route('files.entries.download', $file)))
+                        .then(function (res) { return res.blob(); })
+                        .then(function (blob) {
+                            container.innerHTML = '';
+                            return docx.renderAsync(blob, container, null, { className: 'docx-preview' });
+                        })
+                        .catch(function () {
+                            container.innerHTML = '<div class="text-center text-danger-600 py-4">'
+                                + @json(__('files.preview_failed')) + '</div>';
+                        });
+                })();
+            </script>
+        @endpush
+    @endif
 </x-app-layout>

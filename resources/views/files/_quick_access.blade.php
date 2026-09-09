@@ -14,7 +14,7 @@
                     @php($isPinnedFolder = $pinned instanceof \App\Models\FileManager\Folder)
                     <a href="{{ $isPinnedFolder ? route('files.index', ['folder' => $pinned->id]) : route('files.entries.show', $pinned) }}"
                         class="d-flex align-items-center gap-1 border radius-8 px-12 py-6 text-sm text-secondary-light text-decoration-none">
-                        <i class="{{ $isPinnedFolder ? 'ri-folder-3-fill text-warning-main' : 'ri-file-3-line' }}"></i>
+                        <i class="{{ $isPinnedFolder ? 'ri-folder-3-fill text-warning-main' : $pinned->iconClass().' '.$pinned->iconColorClass() }}"></i>
                         {{ $isPinnedFolder ? $pinned->name : ($pinned->title ?: $pinned->original_name) }}
                     </a>
                 @endforeach

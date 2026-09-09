@@ -121,11 +121,7 @@
                             <tr data-context-menu>
                                 <td>
                                     <a href="{{ route('files.entries.show', $file) }}" class="text-primary-light d-flex align-items-center gap-2">
-                                        @if ($file->isPdf())
-                                            <i class="ri-file-pdf-2-line text-danger-main"></i>
-                                        @else
-                                            <i class="ri-file-3-line text-neutral-400"></i>
-                                        @endif
+                                        <i class="{{ $file->iconClass() }} {{ $file->iconColorClass() }}"></i>
                                         {{ $file->title ?: $file->original_name }}
                                     </a>
                                 </td>
@@ -188,10 +184,8 @@
                         <a href="{{ route('files.entries.show', $file) }}" class="d-block bg-neutral-100 d-flex align-items-center justify-content-center overflow-hidden" style="height: 120px; border-radius: 12px 12px 0 0;">
                             @if ($file->isImage())
                                 <img src="{{ asset('storage/'.$file->file_path) }}" alt="" class="w-100 h-100 object-fit-cover">
-                            @elseif ($file->isPdf())
-                                <i class="ri-file-pdf-2-line text-danger-main" style="font-size: 40px;"></i>
                             @else
-                                <i class="ri-file-3-line text-neutral-400" style="font-size: 40px;"></i>
+                                <i class="{{ $file->iconClass() }} {{ $file->iconColorClass() }}" style="font-size: 40px;"></i>
                             @endif
                         </a>
                         <div class="p-12">

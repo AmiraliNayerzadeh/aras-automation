@@ -42,7 +42,7 @@
                         @endforeach
                         @foreach ($files as $file)
                             <tr>
-                                <td><i class="ri-file-3-line"></i> {{ $file->title ?: $file->original_name }}</td>
+                                <td><i class="{{ $file->iconClass() }} {{ $file->iconColorClass() }}"></i> {{ $file->title ?: $file->original_name }}</td>
                                 <td>{{ $file->owner?->name }}</td>
                                 <td class="text-end">
                                     <form method="POST" action="{{ route('files.entries.restore', $file->id) }}">

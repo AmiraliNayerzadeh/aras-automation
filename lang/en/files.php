@@ -95,6 +95,9 @@ return [
     'action_add_note' => 'Add Comment',
 
     'preview_unavailable' => 'Preview is not available for this file type. Download it to view the contents.',
+    'preview_loading' => 'Loading preview…',
+    'preview_failed' => 'Could not load the preview. Download the file to view it.',
+    'preview_first_sheet_note' => 'Showing the first sheet only — download the file to see all sheets.',
 
     'flash_folder_created' => 'Folder created.',
     'flash_folder_renamed' => 'Folder renamed.',
