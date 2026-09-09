@@ -24,6 +24,9 @@ return [
 
     'action_new_folder' => 'پوشه جدید',
     'action_upload' => 'بارگذاری فایل',
+    'drop_hint' => 'فایل‌ها رو اینجا رها کنید تا آپلود بشن',
+    'uploading' => 'در حال آپلود…',
+    'upload_error_generic' => 'آپلود ناموفق بود. دوباره امتحان کنید.',
     'action_open' => 'باز کردن',
     'action_rename' => 'تغییر نام',
     'action_share' => 'اشتراک‌گذاری',

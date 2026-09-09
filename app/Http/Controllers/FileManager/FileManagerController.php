@@ -11,6 +11,7 @@ use App\Models\Organization\Position;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
@@ -22,8 +23,21 @@ class FileManagerController extends Controller
 
         $user = $request->user();
         $folderId = $request->integer('folder') ?: null;
-        $tab = $request->string('tab', 'all')->toString();
-        $view = $request->input('view') === 'list' ? 'list' : 'grid';
+
+        // The view mode (grid/list) and tab persist across requests via cookie,
+        // so a redirect after creating/uploading/moving something (which can't
+        // carry every query param) still lands the user back where they were,
+        // instead of silently resetting to the defaults.
+        $tab = $request->string('tab', $request->cookie('files_tab', 'all'))->toString();
+        $view = $request->input('view', $request->cookie('files_view', 'grid')) === 'list' ? 'list' : 'grid';
+
+        if ($request->has('tab')) {
+            Cookie::queue('files_tab', $tab, 60 * 24 * 365);
+        }
+
+        if ($request->has('view')) {
+            Cookie::queue('files_view', $view, 60 * 24 * 365);
+        }
 
         $currentFolder = null;
         $breadcrumb = collect();

@@ -24,6 +24,9 @@ return [
 
     'action_new_folder' => 'Նոր պանակ',
     'action_upload' => 'Բեռնել ֆայլ',
+    'drop_hint' => 'Ֆայլերը գցեք այստեղ՝ բեռնելու համար',
+    'uploading' => 'Բեռնվում է…',
+    'upload_error_generic' => 'Բեռնումը ձախողվեց։ Խնդրում ենք կրկին փորձել։',
     'action_open' => 'Բացել',
     'action_rename' => 'Վերանվանել',
     'action_share' => 'Կիսվել',

@@ -24,6 +24,9 @@ return [
 
     'action_new_folder' => 'New Folder',
     'action_upload' => 'Upload File',
+    'drop_hint' => 'Drop files here to upload',
+    'uploading' => 'Uploading…',
+    'upload_error_generic' => 'Upload failed. Please try again.',
     'action_open' => 'Open',
     'action_rename' => 'Rename',
     'action_share' => 'Share',

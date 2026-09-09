@@ -47,20 +47,30 @@
             </li>
         </ul>
     @else
-        <nav class="mb-24">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ route('files.index', ['tab' => $tab, 'view' => $view]) }}">{{ __('files.breadcrumb_home') }}</a></li>
-                @foreach ($breadcrumb as $crumb)
-                    <li class="breadcrumb-item {{ $loop->last ? 'active' : '' }}">
-                        @if ($loop->last || ! auth()->user()->can('view', $crumb))
-                            {{ $crumb->name }}
-                        @else
-                            <a href="{{ route('files.index', ['folder' => $crumb->id, 'view' => $view]) }}">{{ $crumb->name }}</a>
-                        @endif
+        <div class="d-flex align-items-center gap-3 mb-24 flex-wrap">
+            <a href="{{ $currentFolder->parent_id ? route('files.index', ['folder' => $currentFolder->parent_id, 'tab' => $tab, 'view' => $view]) : route('files.index', ['tab' => $tab, 'view' => $view]) }}"
+                class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm d-flex align-items-center gap-1 flex-shrink-0">
+                <i class="ri-arrow-left-line"></i> {{ __('app.back') }}
+            </a>
+            <nav class="flex-grow-1 overflow-auto">
+                <ol class="breadcrumb mb-0 bg-neutral-50 radius-8 px-16 py-10 border">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('files.index', ['tab' => $tab, 'view' => $view]) }}" class="d-flex align-items-center gap-1">
+                            <i class="ri-home-4-line"></i> {{ __('files.breadcrumb_home') }}
+                        </a>
                     </li>
-                @endforeach
-            </ol>
-        </nav>
+                    @foreach ($breadcrumb as $crumb)
+                        <li class="breadcrumb-item {{ $loop->last ? 'active fw-semibold' : '' }}">
+                            @if ($loop->last || ! auth()->user()->can('view', $crumb))
+                                {{ $crumb->name }}
+                            @else
+                                <a href="{{ route('files.index', ['folder' => $crumb->id, 'tab' => $tab, 'view' => $view]) }}">{{ $crumb->name }}</a>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
+            </nav>
+        </div>
     @endunless
 
     @if ($folders->isEmpty() && $files->isEmpty())
@@ -141,7 +151,7 @@
             </div>
         </div>
     @else
-        <div class="row g-16">
+        <div class="row g-3">
             @foreach ($folders as $folder)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
                     <div class="border radius-12 p-16 h-100 bg-base position-relative" data-context-menu>
@@ -230,7 +240,7 @@
     {{-- Upload modal --}}
     <div class="modal fade" id="file-upload-modal" tabindex="-1">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('files.entries.store') }}" enctype="multipart/form-data" class="modal-content">
+            <form method="POST" action="{{ route('files.entries.store') }}" enctype="multipart/form-data" class="modal-content" id="upload-form" data-upload-form>
                 @csrf
                 <input type="hidden" name="folder_id" value="{{ $currentFolder?->id }}">
                 <div class="modal-header">
@@ -246,12 +256,42 @@
                         <x-input-label for="upload_file" :value="__('files.field_file')" />
                         <input type="file" id="upload_file" name="file" class="form-control mt-1" required>
                     </div>
+                    <div class="mt-3 d-none" data-upload-progress-wrap>
+                        <div class="progress radius-8" style="height: 8px;">
+                            <div class="progress-bar bg-primary-600" role="progressbar" style="width: 0%" data-upload-progress-bar></div>
+                        </div>
+                        <div class="text-secondary-light text-xs mt-4" data-upload-progress-text">0%</div>
+                    </div>
+                    <div class="text-danger-600 text-sm mt-2 d-none" data-upload-error></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
-                    <button type="submit" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm">{{ __('files.action_upload') }}</button>
+                    <button type="submit" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm" data-upload-submit>{{ __('files.action_upload') }}</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- Drag-and-drop overlay (shown while dragging files anywhere over the page) --}}
+    <div class="position-fixed top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center flex-column"
+        id="drop-overlay" style="background: rgba(72, 127, 255, 0.12); border: 3px dashed #487FFF; z-index: 1080; pointer-events: none;">
+        <i class="ri-upload-cloud-2-line" style="font-size: 64px; color: #487FFF;"></i>
+        <div class="text-primary-600 fw-semibold mt-2">{{ __('files.drop_hint') }}</div>
+    </div>
+
+    {{-- Background upload progress toast (for drag-and-drop uploads) --}}
+    <div class="position-fixed bottom-0 end-0 m-24 d-none" id="upload-toast" style="z-index: 1090; width: 320px;">
+        <div class="card radius-12 shadow">
+            <div class="card-body p-16">
+                <div class="d-flex justify-content-between align-items-center mb-8">
+                    <span class="text-sm fw-semibold" id="upload-toast-title">{{ __('files.action_upload') }}</span>
+                    <span class="text-secondary-light text-xs" id="upload-toast-count"></span>
+                </div>
+                <div class="text-secondary-light text-xs mb-4 text-truncate" id="upload-toast-filename"></div>
+                <div class="progress radius-8" style="height: 6px;">
+                    <div class="progress-bar bg-primary-600" role="progressbar" style="width: 0%" id="upload-toast-bar"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -353,6 +393,161 @@
                     };
                     document.addEventListener('click', close);
                 });
+
+                // --- Upload: XHR (for a real progress bar) + drag-and-drop ---
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                var uploadUrl = @json(route('files.entries.store'));
+                var currentFolderId = @json($currentFolder?->id);
+
+                function xhrUpload(formData, onProgress, onDone, onError) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', uploadUrl, true);
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    xhr.upload.addEventListener('progress', function (e) {
+                        if (e.lengthComputable) {
+                            onProgress(Math.round((e.loaded / e.total) * 100));
+                        }
+                    });
+                    xhr.addEventListener('load', function () {
+                        if (xhr.status >= 200 && xhr.status < 400) {
+                            onDone();
+                            return;
+                        }
+                        var message = null;
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.errors) {
+                                message = Object.values(data.errors).flat().join(' ');
+                            } else if (data.message) {
+                                message = data.message;
+                            }
+                        } catch (e) {}
+                        onError(message);
+                    });
+                    xhr.addEventListener('error', function () {
+                        onError(null);
+                    });
+                    xhr.send(formData);
+                }
+
+                // Modal upload: single file, progress bar inside the modal.
+                var uploadForm = document.querySelector('[data-upload-form]');
+
+                if (uploadForm) {
+                    uploadForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
+                        var submitBtn = uploadForm.querySelector('[data-upload-submit]');
+                        var progressWrap = uploadForm.querySelector('[data-upload-progress-wrap]');
+                        var progressBar = uploadForm.querySelector('[data-upload-progress-bar]');
+                        var progressText = uploadForm.querySelector('[data-upload-progress-text]');
+                        var errorBox = uploadForm.querySelector('[data-upload-error]');
+
+                        errorBox.classList.add('d-none');
+                        progressWrap.classList.remove('d-none');
+                        submitBtn.disabled = true;
+
+                        xhrUpload(new FormData(uploadForm), function (pct) {
+                            progressBar.style.width = pct + '%';
+                            progressText.textContent = pct + '%';
+                        }, function () {
+                            window.location.reload();
+                        }, function (message) {
+                            submitBtn.disabled = false;
+                            progressWrap.classList.add('d-none');
+                            errorBox.textContent = message || @json(__('files.upload_error_generic'));
+                            errorBox.classList.remove('d-none');
+                        });
+                    });
+                }
+
+                // Drag-and-drop anywhere on the page.
+                var dropOverlay = document.getElementById('drop-overlay');
+                var dragDepth = 0;
+
+                function isFileDrag(event) {
+                    return event.dataTransfer && Array.prototype.indexOf.call(event.dataTransfer.types || [], 'Files') !== -1;
+                }
+
+                window.addEventListener('dragenter', function (event) {
+                    if (!isFileDrag(event)) {
+                        return;
+                    }
+                    dragDepth++;
+                    dropOverlay.classList.remove('d-none');
+                    dropOverlay.classList.add('d-flex');
+                });
+
+                window.addEventListener('dragover', function (event) {
+                    if (isFileDrag(event)) {
+                        event.preventDefault();
+                    }
+                });
+
+                window.addEventListener('dragleave', function () {
+                    dragDepth = Math.max(0, dragDepth - 1);
+                    if (dragDepth === 0) {
+                        dropOverlay.classList.add('d-none');
+                        dropOverlay.classList.remove('d-flex');
+                    }
+                });
+
+                window.addEventListener('drop', function (event) {
+                    if (!isFileDrag(event)) {
+                        return;
+                    }
+                    event.preventDefault();
+                    dragDepth = 0;
+                    dropOverlay.classList.add('d-none');
+                    dropOverlay.classList.remove('d-flex');
+
+                    var files = event.dataTransfer.files ? Array.from(event.dataTransfer.files) : [];
+                    if (files.length) {
+                        uploadDroppedFiles(files);
+                    }
+                });
+
+                function uploadDroppedFiles(files) {
+                    var toast = document.getElementById('upload-toast');
+                    var toastBar = document.getElementById('upload-toast-bar');
+                    var toastFilename = document.getElementById('upload-toast-filename');
+                    var toastCount = document.getElementById('upload-toast-count');
+
+                    toast.classList.remove('d-none');
+                    var index = 0;
+
+                    function next() {
+                        if (index >= files.length) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        var file = files[index];
+                        toastFilename.textContent = file.name;
+                        toastCount.textContent = (index + 1) + ' / ' + files.length;
+                        toastBar.style.width = '0%';
+
+                        var formData = new FormData();
+                        formData.append('_token', csrfToken);
+                        formData.append('file', file);
+                        if (currentFolderId) {
+                            formData.append('folder_id', currentFolderId);
+                        }
+
+                        xhrUpload(formData, function (pct) {
+                            toastBar.style.width = pct + '%';
+                        }, function () {
+                            index++;
+                            next();
+                        }, function () {
+                            index++;
+                            next();
+                        });
+                    }
+
+                    next();
+                }
             })();
         </script>
     @endpush

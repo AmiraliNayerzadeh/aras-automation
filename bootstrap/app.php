@@ -29,6 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            // Always JSON for api/* routes, and preserve Laravel's normal default
+            // (JSON for requests that explicitly ask for it via Accept header /
+            // X-Requested-With) for everything else - needed so AJAX calls like
+            // the file upload's XHR progress flow get a JSON validation response
+            // instead of being redirected back.
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();
