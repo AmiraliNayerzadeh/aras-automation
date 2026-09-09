@@ -14,6 +14,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends Controller
 {
+    /**
+     * Max upload size in kilobytes (Laravel's file "max" rule unit) — 4GB.
+     * Also needs upload_max_filesize/post_max_size in php.ini and, if behind
+     * nginx, client_max_body_size raised to match on the server itself.
+     */
+    protected const MAX_UPLOAD_KB = 4 * 1024 * 1024;
+
     public function store(Request $request): RedirectResponse
     {
         $this->authorize('create', FileEntry::class);
@@ -21,7 +28,7 @@ class FileController extends Controller
         $data = $request->validate([
             'folder_id' => ['nullable', 'exists:folders,id'],
             'title' => ['nullable', 'string', 'max:255'],
-            'file' => ['required', 'file', 'max:10240'],
+            'file' => ['required', 'file', 'max:'.self::MAX_UPLOAD_KB],
         ]);
 
         if (! empty($data['folder_id'])) {
@@ -69,7 +76,7 @@ class FileController extends Controller
     {
         $this->authorize('update', $file);
 
-        $data = $request->validate(['file' => ['required', 'file', 'max:10240']]);
+        $data = $request->validate(['file' => ['required', 'file', 'max:'.self::MAX_UPLOAD_KB]]);
 
         $file->versions()->create([
             'original_name' => $file->original_name,

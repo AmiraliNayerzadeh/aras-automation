@@ -105,7 +105,7 @@
                                 <td>{{ $folder->updated_at->format('Y-m-d H:i') }}</td>
                                 <td class="text-end">
                                     <div class="dropdown">
-                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base ms-auto">
+                                        <button type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy": "fixed"}' aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base ms-auto">
                                             <i class="ri-more-2-fill"></i>
                                         </button>
                                         @include('files._item_actions', ['item' => $folder])
@@ -135,7 +135,7 @@
                                 <td>{{ $file->updated_at->format('Y-m-d H:i') }}</td>
                                 <td class="text-end">
                                     <div class="dropdown">
-                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base ms-auto">
+                                        <button type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy": "fixed"}' aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base ms-auto">
                                             <i class="ri-more-2-fill"></i>
                                         </button>
                                         @include('files._item_actions', ['item' => $file])
@@ -156,7 +156,7 @@
                 <div class="col-xl-3 col-lg-4 col-sm-6">
                     <div class="border radius-12 p-16 h-100 bg-base position-relative" data-context-menu>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8">
-                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
+                            <button type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy": "fixed"}' aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
                             </button>
                             @include('files._item_actions', ['item' => $folder])
@@ -180,7 +180,7 @@
                 <div class="col-xl-3 col-lg-4 col-sm-6">
                     <div class="border radius-12 h-100 bg-base position-relative" data-context-menu>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8 z-1">
-                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
+                            <button type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy": "fixed"}' aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
                             </button>
                             @include('files._item_actions', ['item' => $file])
