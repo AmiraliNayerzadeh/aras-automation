@@ -74,8 +74,11 @@ class FileManagerController extends Controller
         $this->attachAccessAvatars($folders);
         $this->attachAccessAvatars($files);
 
+        // A confidential folder's name must not leak into this dropdown for a
+        // files.manage holder who isn't its owner — same rule as everywhere else.
         $moveDestinations = $user->can('files.manage')
-            ? Folder::orderBy('name')->get(['id', 'name'])
+            ? Folder::where(fn ($q) => $q->where('is_confidential', false)->orWhere('owner_id', $user->id))
+                ->orderBy('name')->get(['id', 'name'])
             : Folder::where('owner_id', $user->id)->orderBy('name')->get(['id', 'name']);
 
         $favoriteKeys = FileFavorite::where('user_id', $user->id)
@@ -83,12 +86,17 @@ class FileManagerController extends Controller
             ->map(fn (FileFavorite $f) => $f->favoritable_type.':'.$f->favoritable_id)
             ->all();
 
+        // Re-checked against current visibility on every load: a pinned item
+        // whose sharing changed (or was marked confidential) after it was
+        // pinned must not keep leaking its name/existence here.
         $quickAccess = FileFavorite::where('user_id', $user->id)
             ->with('favoritable')
             ->latest()
             ->get()
             ->pluck('favoritable')
-            ->filter();
+            ->filter()
+            ->filter(fn ($item) => $item->isVisibleTo($user))
+            ->values();
 
         return view('files.index', [
             'tab' => $tab,
@@ -114,9 +122,17 @@ class FileManagerController extends Controller
         $user = $request->user();
         $seeAll = $user->can('files.view_all');
 
-        $folders = Folder::onlyTrashed()->when(! $seeAll, fn ($q) => $q->where('owner_id', $user->id))
+        // files.view_all still doesn't reach a confidential item's trash entry —
+        // same absolute rule as everywhere else.
+        $confidentialAware = fn ($q) => $q->where(
+            fn ($qq) => $qq->where('is_confidential', false)->orWhere('owner_id', $user->id)
+        );
+
+        $folders = Folder::onlyTrashed()
+            ->when($seeAll, $confidentialAware, fn ($q) => $q->where('owner_id', $user->id))
             ->with('owner')->latest('deleted_at')->get();
-        $files = FileEntry::onlyTrashed()->when(! $seeAll, fn ($q) => $q->where('owner_id', $user->id))
+        $files = FileEntry::onlyTrashed()
+            ->when($seeAll, $confidentialAware, fn ($q) => $q->where('owner_id', $user->id))
             ->with('owner')->latest('deleted_at')->get();
 
         return view('files.trash', ['folders' => $folders, 'files' => $files]);

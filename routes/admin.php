@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\FaceDeviceEventController;
 use App\Http\Controllers\Admin\LookupTypeController;
+use App\Http\Controllers\Admin\OrgChartController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\ProductBrandController;
 use App\Http\Controllers\Admin\ProductCategoryController;
@@ -52,6 +53,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('work-shifts', [WorkShiftController::class, 'index'])->name('work-shifts.index');
     Route::get('work-shifts/{user}/edit', [WorkShiftController::class, 'edit'])->name('work-shifts.edit');
     Route::put('work-shifts/{user}', [WorkShiftController::class, 'update'])->name('work-shifts.update');
+
+    Route::get('org-chart', [OrgChartController::class, 'index'])->name('org-chart.index');
+    Route::get('org-chart/pdf', [OrgChartController::class, 'pdf'])->name('org-chart.pdf');
+    Route::post('org-chart/departments', [OrgChartController::class, 'storeDepartment'])->name('org-chart.departments.store');
+    Route::put('org-chart/departments/{department}', [OrgChartController::class, 'updateDepartment'])->name('org-chart.departments.update');
+    Route::delete('org-chart/departments/{department}', [OrgChartController::class, 'destroyDepartment'])->name('org-chart.departments.destroy');
+    Route::post('org-chart/departments/{department}/members', [OrgChartController::class, 'addMember'])->name('org-chart.members.store');
+    Route::delete('org-chart/departments/{department}/members/{user}', [OrgChartController::class, 'removeMember'])->name('org-chart.members.destroy');
 
     Route::resource('assets', AssetController::class);
     Route::post('assets/{asset}/assign', [AssetController::class, 'assign'])->name('assets.assign');

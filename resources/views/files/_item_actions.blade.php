@@ -49,6 +49,20 @@
         </li>
     @endcan
 
+    @can('markConfidential', $item)
+        <li>
+            <form action="{{ $isFolder ? route('files.folders.confidential.toggle', $item) : route('files.entries.confidential.toggle', $item) }}"
+                method="POST"
+                onsubmit="return confirm('{{ $item->is_confidential ? __('files.confirm_unmark_confidential') : __('files.confirm_mark_confidential') }}');">
+                @csrf
+                <button type="submit" class="dropdown-item px-12 py-6 rounded {{ $item->is_confidential ? 'text-warning-main' : 'text-danger-600' }} w-100 text-start border-0 bg-transparent">
+                    <i class="{{ $item->is_confidential ? 'ri-lock-unlock-line' : 'ri-lock-2-line' }}"></i>
+                    {{ $item->is_confidential ? __('files.action_unmark_confidential') : __('files.action_mark_confidential') }}
+                </button>
+            </form>
+        </li>
+    @endcan
+
     @if ($isFolder)
         @can('update', $item)
             <li>

@@ -19,6 +19,7 @@ class RolePermissionSeeder extends Seeder
         'activitylog.view',
         'face-device-events.view',
         'work-shifts.manage',
+        'org-chart.manage',
         'assets.view', 'assets.create', 'assets.edit', 'assets.delete', 'assets.assign',
         'leaves.create', 'leaves.view_all', 'leaves.approve', 'leaves.approve_any', 'leaves.cancel_any',
         'missions.create', 'missions.view_all', 'missions.approve', 'missions.approve_any', 'missions.cancel_any',
@@ -28,7 +29,7 @@ class RolePermissionSeeder extends Seeder
         'warehouse.view', 'warehouse.manage',
         'stock.view', 'stock.record',
         'tasks.create', 'tasks.view_all', 'tasks.manage',
-        'files.create', 'files.view_all', 'files.manage',
+        'files.create', 'files.view_all', 'files.manage', 'files.mark_confidential',
     ];
 
     public function run(): void
@@ -65,7 +66,7 @@ class RolePermissionSeeder extends Seeder
             'leaves.view_all', 'leaves.create', 'leaves.approve',
             'missions.view_all', 'missions.create', 'missions.approve',
             'tasks.create', 'files.create', 'face-device-events.view', 'work-shifts.manage',
-            'assets.view', 'assets.assign',
+            'assets.view', 'assets.assign', 'org-chart.manage',
         ]);
 
         $warehouse = Role::findOrCreate('warehouse', 'web');

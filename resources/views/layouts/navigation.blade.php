@@ -158,7 +158,7 @@
         @endcan
     @endcan
 
-    @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view'])
+    @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view', 'org-chart.manage'])
         <li class="sidebar-menu-group-title">{{ __('app.nav_administration') }}</li>
     @endcanany
 
@@ -204,6 +204,15 @@
                     </a>
                 </li>
             </ul>
+        </li>
+    @endcan
+
+    @can('org-chart.manage')
+        <li>
+            <x-nav-link :href="route('admin.org-chart.index')" :active="request()->routeIs('admin.org-chart.*')">
+                <i class="ri-node-tree menu-icon"></i>
+                <span>{{ __('org_chart.title_index') }}</span>
+            </x-nav-link>
         </li>
     @endcan
 

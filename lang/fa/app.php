@@ -66,6 +66,7 @@ return [
 
     'field_name' => 'نام',
     'field_code' => 'کد',
+    'field_parent_department' => 'دپارتمان والد',
     'field_title' => 'عنوان',
     'field_status' => 'وضعیت',
     'field_active' => 'فعال',

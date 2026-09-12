@@ -138,6 +138,20 @@ class FileController extends Controller
         return redirect()->route('files.index', ['folder' => $destinationId])->with('status', 'file-moved');
     }
 
+    public function toggleConfidential(Request $request, FileEntry $file): RedirectResponse
+    {
+        $this->authorize('markConfidential', $file);
+
+        $file->update(['is_confidential' => ! $file->is_confidential]);
+
+        activity('file_manager')->causedBy($request->user())->performedOn($file)
+            ->event($file->is_confidential ? 'marked_confidential' : 'unmarked_confidential')
+            ->log($file->is_confidential ? 'File marked confidential' : 'File unmarked confidential');
+
+        return redirect()->route('files.index', ['folder' => $file->folder_id])
+            ->with('status', $file->is_confidential ? 'file-marked-confidential' : 'file-unmarked-confidential');
+    }
+
     public function download(FileEntry $file): StreamedResponse
     {
         $this->authorize('view', $file);

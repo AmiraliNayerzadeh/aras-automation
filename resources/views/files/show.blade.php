@@ -4,12 +4,27 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h2 class="h4 fw-semibold mb-0 text-truncate">{{ $file->title ?: $file->original_name }}</h2>
+            <h2 class="h4 fw-semibold mb-0 text-truncate">
+                {{ $file->title ?: $file->original_name }}
+                @if ($file->is_confidential)
+                    <i class="ri-lock-2-fill text-danger-600 text-sm" title="{{ __('files.badge_confidential') }}"></i>
+                @endif
+            </h2>
             <div class="d-flex gap-2">
                 @can('update', $file)
                     <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-toggle="modal" data-bs-target="#share-modal-file-{{ $file->id }}">
                         <i class="ri-share-line"></i> {{ __('files.action_share') }}
                     </button>
+                @endcan
+                @can('markConfidential', $file)
+                    <form action="{{ route('files.entries.confidential.toggle', $file) }}" method="POST"
+                        onsubmit="return confirm('{{ $file->is_confidential ? __('files.confirm_unmark_confidential') : __('files.confirm_mark_confidential') }}');">
+                        @csrf
+                        <button type="submit" class="btn {{ $file->is_confidential ? 'btn-outline-warning-600' : 'btn-outline-danger-600' }} radius-8 px-16 py-8 text-sm">
+                            <i class="{{ $file->is_confidential ? 'ri-lock-unlock-line' : 'ri-lock-2-line' }}"></i>
+                            {{ $file->is_confidential ? __('files.action_unmark_confidential') : __('files.action_mark_confidential') }}
+                        </button>
+                    </form>
                 @endcan
                 <a href="{{ route('files.entries.download', $file) }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">
                     <i class="ri-download-2-line"></i> {{ __('files.action_download') }}

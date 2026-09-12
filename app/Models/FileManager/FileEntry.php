@@ -16,7 +16,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 #[Fillable([
     'folder_id', 'owner_id', 'title', 'original_name', 'file_path',
-    'mime_type', 'size_bytes', 'share_token', 'share_token_expires_at',
+    'mime_type', 'size_bytes', 'share_token', 'share_token_expires_at', 'is_confidential',
 ])]
 class FileEntry extends Model
 {
@@ -27,6 +27,7 @@ class FileEntry extends Model
         return [
             'size_bytes' => 'integer',
             'share_token_expires_at' => 'datetime',
+            'is_confidential' => 'boolean',
         ];
     }
 

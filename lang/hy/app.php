@@ -66,6 +66,7 @@ return [
 
     'field_name' => 'Անուն',
     'field_code' => 'Կոդ',
+    'field_parent_department' => 'Ծնող բաժին',
     'field_title' => 'Պաշտոն',
     'field_status' => 'Կարգավիճակ',
     'field_active' => 'Ակտիվ',

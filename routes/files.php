@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('files/folders/{folder}', [FolderController::class, 'destroy'])->name('files.folders.destroy');
     Route::post('files/folders/{id}/restore', [FolderController::class, 'restore'])->name('files.folders.restore');
     Route::post('files/folders/{folder}/move', [FolderController::class, 'move'])->name('files.folders.move');
+    Route::post('files/folders/{folder}/confidential', [FolderController::class, 'toggleConfidential'])->name('files.folders.confidential.toggle');
     Route::post('files/folders/{folder}/shares', [FileShareController::class, 'storeForFolder'])->name('files.folders.shares.store');
     Route::delete('files/folders/{folder}/shares/{share}', [FileShareController::class, 'destroyForFolder'])->name('files.folders.shares.destroy');
 
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('files/entries/{file}', [FileController::class, 'destroy'])->name('files.entries.destroy');
     Route::post('files/entries/{id}/restore', [FileController::class, 'restore'])->name('files.entries.restore');
     Route::post('files/entries/{file}/move', [FileController::class, 'move'])->name('files.entries.move');
+    Route::post('files/entries/{file}/confidential', [FileController::class, 'toggleConfidential'])->name('files.entries.confidential.toggle');
     Route::get('files/entries/{file}/download', [FileController::class, 'download'])->name('files.entries.download');
     Route::post('files/entries/{file}/version', [FileController::class, 'storeVersion'])->name('files.entries.version.store');
     Route::post('files/entries/{file}/share-link/enable', [FileController::class, 'enableShareLink'])->name('files.entries.share-link.enable');

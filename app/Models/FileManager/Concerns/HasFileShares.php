@@ -21,19 +21,31 @@ trait HasFileShares
      * its owner, files.view_all admins, and the explicit grantees only — a share
      * on this item always wins, regardless of how open/restricted a containing
      * folder is.
+     *
+     * An item marked `is_confidential` is a stricter layer on top of all of that:
+     * it is visible ONLY to its owner and its explicit grantees — never via the
+     * "no shares = open to everyone" fallback, and never via files.view_all. This
+     * is intentional and absolute: there is no recovery path for a confidential
+     * item whose owner leaves and whose grantee list goes stale.
      */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->can('files.view_all')) {
-            return $query;
-        }
-
         $roleIds = $user->roles->pluck('id');
 
-        return $query->where(function (Builder $q) use ($user, $roleIds) {
-            $q->where('owner_id', $user->id)
-                ->orWhereDoesntHave('shares')
-                ->orWhereHas('shares', fn (Builder $sq) => $this->applyGranteeMatch($sq, $user, $roleIds));
+        $ownedOrGranted = fn (Builder $q) => $q->where('owner_id', $user->id)
+            ->orWhereHas('shares', fn (Builder $sq) => $this->applyGranteeMatch($sq, $user, $roleIds));
+
+        if ($user->can('files.view_all')) {
+            return $query->where(fn (Builder $q) => $q->where('is_confidential', false)->orWhere($ownedOrGranted));
+        }
+
+        return $query->where(function (Builder $q) use ($user, $roleIds, $ownedOrGranted) {
+            $q->where(function (Builder $qq) use ($user, $roleIds) {
+                $qq->where('is_confidential', false)
+                    ->where(fn (Builder $qqq) => $qqq->where('owner_id', $user->id)
+                        ->orWhereDoesntHave('shares')
+                        ->orWhereHas('shares', fn (Builder $sq) => $this->applyGranteeMatch($sq, $user, $roleIds)));
+            })->orWhere($ownedOrGranted);
         });
     }
 

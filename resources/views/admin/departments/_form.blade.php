@@ -23,6 +23,17 @@
         <x-input-error :messages="$errors->get('code')" class="mt-1" />
     </div>
 
+    <div class="col-md-4">
+        <x-input-label for="parent_id" :value="__('app.field_parent_department')" />
+        <select id="parent_id" name="parent_id" class="form-select mt-1">
+            <option value="">—</option>
+            @foreach ($parents as $parent)
+                <option value="{{ $parent->id }}" @selected(old('parent_id', $department?->parent_id) == $parent->id)>{{ $parent->name }}</option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('parent_id')" class="mt-1" />
+    </div>
+
     <div class="col-12 form-check">
         <input type="hidden" name="is_active" value="0">
         <input type="checkbox" id="is_active" name="is_active" value="1" class="form-check-input" @checked(old('is_active', $department?->is_active ?? true))>

@@ -13,10 +13,17 @@ use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[Fillable(['name', 'parent_id', 'owner_id'])]
+#[Fillable(['name', 'parent_id', 'owner_id', 'is_confidential'])]
 class Folder extends Model
 {
     use HasFileShares, LogsActivity, SoftDeletes;
+
+    protected function casts(): array
+    {
+        return [
+            'is_confidential' => 'boolean',
+        ];
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

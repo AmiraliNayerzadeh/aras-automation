@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class DepartmentController extends Controller implements HasMiddleware
@@ -26,7 +27,7 @@ class DepartmentController extends Controller implements HasMiddleware
     public function index(): View
     {
         return view('admin.departments.index', [
-            'departments' => Department::with('branch')->orderBy('name')->get(),
+            'departments' => Department::with(['branch', 'parent'])->orderBy('name')->get(),
         ]);
     }
 
@@ -34,6 +35,7 @@ class DepartmentController extends Controller implements HasMiddleware
     {
         return view('admin.departments.create', [
             'branches' => Branch::orderBy('name')->get(),
+            'parents' => Department::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -49,6 +51,7 @@ class DepartmentController extends Controller implements HasMiddleware
         return view('admin.departments.edit', [
             'department' => $department,
             'branches' => Branch::orderBy('name')->get(),
+            'parents' => Department::where('id', '!=', $department->id)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -70,6 +73,11 @@ class DepartmentController extends Controller implements HasMiddleware
     {
         return $request->validate([
             'branch_id' => ['required', 'exists:branches,id'],
+            'parent_id' => [
+                'nullable',
+                'exists:departments,id',
+                Rule::notIn($department ? [$department->id] : []),
+            ],
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:50'],
             'is_active' => ['sometimes', 'boolean'],

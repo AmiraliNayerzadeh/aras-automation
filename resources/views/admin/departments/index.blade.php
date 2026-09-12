@@ -16,6 +16,7 @@
                         <th>{{ __('app.field_name') }}</th>
                         <th>{{ __('app.field_code') }}</th>
                         <th>{{ __('app.field_branch') }}</th>
+                        <th>{{ __('app.field_parent_department') }}</th>
                         <th>{{ __('app.field_status') }}</th>
                         <th class="text-end">{{ __('app.actions') }}</th>
                     </tr>
@@ -26,6 +27,7 @@
                             <td>{{ $department->name }}</td>
                             <td>{{ $department->code }}</td>
                             <td>{{ $department->branch->name }}</td>
+                            <td>{{ $department->parent?->name ?? '—' }}</td>
                             <td>
                                 <span class="badge text-sm fw-semibold px-16 py-6 radius-4 {{ $department->is_active ? 'text-success-600 bg-success-100' : 'text-neutral-600 bg-neutral-200' }}">
                                     {{ $department->is_active ? __('app.field_active') : __('app.field_inactive') }}
@@ -45,7 +47,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>

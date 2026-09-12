@@ -83,4 +83,18 @@ class FolderController extends Controller
 
         return redirect()->route('files.index', ['folder' => $destinationId])->with('status', 'folder-moved');
     }
+
+    public function toggleConfidential(Request $request, Folder $folder): RedirectResponse
+    {
+        $this->authorize('markConfidential', $folder);
+
+        $folder->update(['is_confidential' => ! $folder->is_confidential]);
+
+        activity('file_manager')->causedBy($request->user())->performedOn($folder)
+            ->event($folder->is_confidential ? 'marked_confidential' : 'unmarked_confidential')
+            ->log($folder->is_confidential ? 'Folder marked confidential' : 'Folder unmarked confidential');
+
+        return redirect()->route('files.index', ['folder' => $folder->parent_id])
+            ->with('status', $folder->is_confidential ? 'folder-marked-confidential' : 'folder-unmarked-confidential');
+    }
 }

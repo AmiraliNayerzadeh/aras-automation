@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -90,6 +91,15 @@ class User extends Authenticatable
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Org-chart memberships — independent of the primary department() above;
+     * a user can belong to several departments here at once.
+     */
+    public function orgDepartments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class, 'department_user')->withTimestamps();
     }
 
     public function unit(): BelongsTo

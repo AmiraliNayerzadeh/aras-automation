@@ -66,6 +66,7 @@ return [
 
     'field_name' => 'Name',
     'field_code' => 'Code',
+    'field_parent_department' => 'Parent Department',
     'field_title' => 'Title',
     'field_status' => 'Status',
     'field_active' => 'Active',

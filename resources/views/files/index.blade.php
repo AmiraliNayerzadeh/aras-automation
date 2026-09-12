@@ -54,13 +54,16 @@
             </a>
             <nav class="flex-grow-1 overflow-auto">
                 <ol class="breadcrumb mb-0 bg-neutral-50 radius-8 px-16 py-10 border">
-                    <li class="breadcrumb-item">
+                    <li class="breadcrumb-item" data-drop-target data-drop-id="" data-drop-name="{{ __('files.move_confirm_root') }}">
                         <a href="{{ route('files.index', ['tab' => $tab, 'view' => $view]) }}" class="d-flex align-items-center gap-1">
                             <i class="ri-home-4-line"></i> {{ __('files.breadcrumb_home') }}
                         </a>
                     </li>
                     @foreach ($breadcrumb as $crumb)
-                        <li class="breadcrumb-item {{ $loop->last ? 'active fw-semibold' : '' }}">
+                        <li class="breadcrumb-item {{ $loop->last ? 'active fw-semibold' : '' }}"
+                            @if (! $loop->last && auth()->user()->can('update', $crumb))
+                                data-drop-target data-drop-id="{{ $crumb->id }}" data-drop-name="{{ $crumb->name }}"
+                            @endif>
                             @if ($loop->last || ! auth()->user()->can('view', $crumb))
                                 {{ $crumb->name }}
                             @else
@@ -93,10 +96,17 @@
                     </thead>
                     <tbody>
                         @foreach ($folders as $folder)
-                            <tr data-context-menu>
+                            <tr data-context-menu
+                                @can('update', $folder)
+                                    data-drag-item data-drag-id="{{ $folder->id }}" data-drag-type="folder" data-drag-name="{{ $folder->name }}"
+                                    data-drop-target data-drop-id="{{ $folder->id }}" data-drop-name="{{ $folder->name }}"
+                                @endcan>
                                 <td>
                                     <a href="{{ route('files.index', ['folder' => $folder->id, 'view' => $view]) }}" class="text-primary-light d-flex align-items-center gap-2">
                                         <i class="ri-folder-3-fill text-warning-main"></i> {{ $folder->name }}
+                                        @if ($folder->is_confidential)
+                                            <i class="ri-lock-2-fill text-danger-600 text-sm" title="{{ __('files.badge_confidential') }}"></i>
+                                        @endif
                                     </a>
                                 </td>
                                 <td>{{ $folder->owner?->name }}</td>
@@ -118,11 +128,17 @@
                         @endforeach
 
                         @foreach ($files as $file)
-                            <tr data-context-menu>
+                            <tr data-context-menu
+                                @can('update', $file)
+                                    data-drag-item data-drag-id="{{ $file->id }}" data-drag-type="file" data-drag-name="{{ $file->title ?: $file->original_name }}"
+                                @endcan>
                                 <td>
                                     <a href="{{ route('files.entries.show', $file) }}" class="text-primary-light d-flex align-items-center gap-2">
                                         <i class="{{ $file->iconClass() }} {{ $file->iconColorClass() }}"></i>
                                         {{ $file->title ?: $file->original_name }}
+                                        @if ($file->is_confidential)
+                                            <i class="ri-lock-2-fill text-danger-600 text-sm" title="{{ __('files.badge_confidential') }}"></i>
+                                        @endif
                                     </a>
                                 </td>
                                 <td>{{ $file->owner?->name }}</td>
@@ -150,7 +166,11 @@
         <div class="row g-3">
             @foreach ($folders as $folder)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="border radius-12 p-16 h-100 bg-base position-relative" data-context-menu>
+                    <div class="border radius-12 p-16 h-100 bg-base position-relative" data-context-menu
+                        @can('update', $folder)
+                            data-drag-item data-drag-id="{{ $folder->id }}" data-drag-type="folder" data-drag-name="{{ $folder->name }}"
+                            data-drop-target data-drop-id="{{ $folder->id }}" data-drop-name="{{ $folder->name }}"
+                        @endcan>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8">
                             <button type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy": "fixed"}' aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
@@ -159,7 +179,12 @@
                         </div>
                         <a href="{{ route('files.index', ['folder' => $folder->id, 'view' => $view]) }}" class="d-flex flex-column align-items-center text-center text-decoration-none py-16">
                             <i class="ri-folder-3-fill text-warning-main" style="font-size: 48px;"></i>
-                            <span class="text-primary-light fw-medium text-sm mt-8 text-truncate w-100">{{ $folder->name }}</span>
+                            <span class="text-primary-light fw-medium text-sm mt-8 text-truncate w-100">
+                                {{ $folder->name }}
+                                @if ($folder->is_confidential)
+                                    <i class="ri-lock-2-fill text-danger-600" title="{{ __('files.badge_confidential') }}"></i>
+                                @endif
+                            </span>
                             <span class="text-secondary-light text-xs">{{ $folder->owner?->name }}</span>
                         </a>
                         <div class="d-flex justify-content-center mt-4">
@@ -174,7 +199,10 @@
 
             @foreach ($files as $file)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="border radius-12 h-100 bg-base position-relative" data-context-menu>
+                    <div class="border radius-12 h-100 bg-base position-relative" data-context-menu
+                        @can('update', $file)
+                            data-drag-item data-drag-id="{{ $file->id }}" data-drag-type="file" data-drag-name="{{ $file->title ?: $file->original_name }}"
+                        @endcan>
                         <div class="dropdown position-absolute top-0 end-0 me-8 mt-8 z-1">
                             <button type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy": "fixed"}' aria-expanded="false" class="w-32-px h-32-px radius-8 border d-flex justify-content-center align-items-center bg-base">
                                 <i class="ri-more-2-fill"></i>
@@ -191,6 +219,9 @@
                         <div class="p-12">
                             <div class="text-primary-light fw-medium text-sm text-truncate" title="{{ $file->title ?: $file->original_name }}">
                                 <a href="{{ route('files.entries.show', $file) }}" class="text-primary-light">{{ $file->title ?: $file->original_name }}</a>
+                                @if ($file->is_confidential)
+                                    <i class="ri-lock-2-fill text-danger-600" title="{{ __('files.badge_confidential') }}"></i>
+                                @endif
                             </div>
                             <div class="text-secondary-light text-xs d-flex justify-content-between mt-4">
                                 <span>{{ $file->owner?->name }}</span>
@@ -328,6 +359,27 @@
                             <option value="{{ $destination->id }}">{{ $destination->name }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
+                    <button type="submit" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm">{{ __('files.action_move_here') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Drag-and-drop move confirmation modal --}}
+    <div class="modal fade" id="drag-move-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <form method="POST" action="" id="drag-move-form" class="modal-content">
+                @csrf
+                <input type="hidden" name="parent_id" id="drag-move-parent-id" value="">
+                <div class="modal-header">
+                    <h6 class="modal-title">{{ __('files.move_confirm_title') }}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0" id="drag-move-confirm-text"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
@@ -542,6 +594,81 @@
 
                     next();
                 }
+
+                // --- Drag-and-drop reordering: drag a file/folder onto a folder to move it. ---
+                var fileMoveUrlTemplate = @json(route('files.entries.move', ['file' => '__ID__']));
+                var folderMoveUrlTemplate = @json(route('files.folders.move', ['folder' => '__ID__']));
+                var moveConfirmTextTemplate = @json(__('files.move_confirm_text'));
+
+                var draggedItem = null;
+
+                document.querySelectorAll('[data-drag-item]').forEach(function (el) {
+                    el.setAttribute('draggable', 'true');
+
+                    el.addEventListener('dragstart', function (event) {
+                        draggedItem = {
+                            id: el.getAttribute('data-drag-id'),
+                            type: el.getAttribute('data-drag-type'),
+                            name: el.getAttribute('data-drag-name'),
+                        };
+                        event.dataTransfer.effectAllowed = 'move';
+                        event.dataTransfer.setData('text/plain', draggedItem.id);
+                        el.classList.add('opacity-50');
+                    });
+
+                    el.addEventListener('dragend', function () {
+                        el.classList.remove('opacity-50');
+                        draggedItem = null;
+                    });
+                });
+
+                document.querySelectorAll('[data-drop-target]').forEach(function (el) {
+                    el.addEventListener('dragover', function (event) {
+                        if (!draggedItem) {
+                            return;
+                        }
+                        var targetId = el.getAttribute('data-drop-id');
+                        if (draggedItem.type === 'folder' && draggedItem.id === targetId) {
+                            return;
+                        }
+                        event.preventDefault();
+                        event.dataTransfer.dropEffect = 'move';
+                        el.classList.add('border-primary-600');
+                    });
+
+                    el.addEventListener('dragleave', function () {
+                        el.classList.remove('border-primary-600');
+                    });
+
+                    el.addEventListener('drop', function (event) {
+                        event.preventDefault();
+                        el.classList.remove('border-primary-600');
+
+                        if (!draggedItem) {
+                            return;
+                        }
+
+                        var targetId = el.getAttribute('data-drop-id');
+                        var targetName = el.getAttribute('data-drop-name');
+
+                        if (draggedItem.type === 'folder' && draggedItem.id === targetId) {
+                            return;
+                        }
+
+                        var urlTemplate = draggedItem.type === 'folder' ? folderMoveUrlTemplate : fileMoveUrlTemplate;
+
+                        document.getElementById('drag-move-form').action = urlTemplate.replace('__ID__', draggedItem.id);
+                        document.getElementById('drag-move-parent-id').value = targetId || '';
+                        document.getElementById('drag-move-confirm-text').textContent = moveConfirmTextTemplate
+                            .replace(':name', draggedItem.name)
+                            .replace(':destination', targetName);
+
+                        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('drag-move-modal'));
+                        modal.show();
+
+                        draggedItem = null;
+                    });
+                });
             })();
         </script>
     @endpush
