@@ -5,8 +5,12 @@ namespace App\Http\Controllers\FileManager;
 use App\Http\Controllers\Controller;
 use App\Models\FileManager\FileEntry;
 use App\Models\FileManager\Folder;
+use App\Models\User;
+use App\Notifications\FileUploadedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -50,6 +54,10 @@ class FileController extends Controller
             'size_bytes' => $file->getSize(),
         ]);
 
+        if (isset($folder)) {
+            $this->notifyFolderWatchers($folder, $entry, $user);
+        }
+
         return redirect()->route('files.index', ['folder' => $entry->folder_id])->with('status', 'file-uploaded');
     }
 
@@ -57,9 +65,50 @@ class FileController extends Controller
     {
         $this->authorize('view', $file);
 
+        auth()->user()->unreadNotifications()
+            ->where('data->file_id', $file->id)
+            ->update(['read_at' => now()]);
+
         $file->load(['owner', 'folder', 'versions.uploadedBy', 'comments.user', 'shares']);
 
         return view('files.show', ['file' => $file]);
+    }
+
+    /**
+     * Notifies everyone "in" the destination folder — its owner plus its
+     * explicit share grantees (resolved to actual users) — that a new file
+     * landed there, excluding the uploader themselves.
+     */
+    protected function notifyFolderWatchers(Folder $folder, FileEntry $entry, User $uploader): void
+    {
+        $recipients = $this->resolveFolderWatchers($folder, $uploader);
+
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new FileUploadedNotification($entry, $uploader));
+        }
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    protected function resolveFolderWatchers(Folder $folder, User $exclude): Collection
+    {
+        $folder->loadMissing(['owner', 'shares']);
+
+        $recipients = collect([$folder->owner])->filter();
+
+        foreach ($folder->shares as $share) {
+            $recipients = $recipients->merge(match ($share->grantee_type) {
+                'user' => User::whereKey($share->grantee_id)->get(),
+                'role' => User::whereHas('roles', fn ($q) => $q->where('roles.id', $share->grantee_id))->get(),
+                'department' => User::where('department_id', $share->grantee_id)->get(),
+                'position' => User::where('position_id', $share->grantee_id)->get(),
+                'everyone' => User::all(),
+                default => collect(),
+            });
+        }
+
+        return $recipients->unique('id')->reject(fn (User $u) => $u->is($exclude))->values();
     }
 
     public function update(Request $request, FileEntry $file): RedirectResponse

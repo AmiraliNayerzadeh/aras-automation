@@ -31,13 +31,21 @@ class DashboardController extends Controller
             ->latest()
             ->get()
             ->pluck('favoritable')
-            ->filter();
+            ->filter()
+            ->filter(fn ($item) => $item->isVisibleTo($request->user()))
+            ->values();
+
+        $recentNotifications = $request->user()->notifications()
+            ->where('created_at', '>=', now()->subMinutes(30))
+            ->latest()
+            ->get();
 
         return view('dashboard', [
             'birthdaysToday' => $birthdaysToday,
             'actionItems' => $widgets->resolve(),
             'stats' => $stats,
             'quickAccess' => $quickAccess,
+            'recentNotifications' => $recentNotifications,
         ]);
     }
 }

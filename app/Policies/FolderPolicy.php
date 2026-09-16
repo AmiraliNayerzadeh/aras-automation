@@ -52,4 +52,9 @@ class FolderPolicy
         return $user->is($folder->owner)
             || ($user->can('files.mark_confidential') && $folder->isVisibleTo($user));
     }
+
+    public function customizeColor(User $user, Folder $folder): bool
+    {
+        return $user->can('files.customize_color') && $folder->isVisibleTo($user);
+    }
 }

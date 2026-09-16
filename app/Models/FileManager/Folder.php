@@ -13,10 +13,23 @@ use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[Fillable(['name', 'parent_id', 'owner_id', 'is_confidential'])]
+#[Fillable(['name', 'parent_id', 'owner_id', 'is_confidential', 'color'])]
 class Folder extends Model
 {
     use HasFileShares, LogsActivity, SoftDeletes;
+
+    /**
+     * Curated background-color palette for the grid view (super-admin only).
+     * Kept short and pastel so card text/icons stay legible over any of them.
+     */
+    public const COLOR_PALETTE = [
+        'red' => '#FDE2E2',
+        'orange' => '#FDEBD3',
+        'green' => '#DDF3E4',
+        'blue' => '#DCEAFD',
+        'purple' => '#EAE2FB',
+        'gray' => '#E7E8EC',
+    ];
 
     protected function casts(): array
     {

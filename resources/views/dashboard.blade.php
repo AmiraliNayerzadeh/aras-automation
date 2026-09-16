@@ -7,6 +7,30 @@
 
     @include('files._quick_access', ['quickAccess' => $quickAccess])
 
+    @if ($recentNotifications->isNotEmpty())
+        <div class="card radius-12 mb-24">
+            <div class="card-header bg-base fw-semibold d-flex align-items-center gap-2">
+                <i class="ri-notification-3-line text-primary-600"></i> {{ __('notifications.dashboard_recent_title') }}
+            </div>
+            <div class="card-body">
+                @foreach ($recentNotifications as $notification)
+                    <a href="{{ route('files.entries.show', $notification->data['file_id']) }}"
+                        class="d-flex justify-content-between align-items-center text-decoration-none py-12 border-bottom">
+                        <span class="text-primary-light d-flex align-items-center gap-2">
+                            <i class="ri-upload-cloud-2-line text-primary-600"></i>
+                            {{ __('notifications.file_uploaded', [
+                                'uploader' => $notification->data['uploader_name'],
+                                'file' => $notification->data['file_name'],
+                                'folder' => $notification->data['folder_path'] ?? __('notifications.root_folder'),
+                            ]) }}
+                        </span>
+                        <span class="text-secondary-light text-xs flex-shrink-0 ms-8">{{ $notification->created_at->diffForHumans() }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     @foreach ($birthdaysToday as $birthdayUser)
         <div class="alert alert-warning radius-8 alert-dismissible fade show" role="alert">
             {{ __('app.birthday_banner', ['name' => $birthdayUser->name]) }}

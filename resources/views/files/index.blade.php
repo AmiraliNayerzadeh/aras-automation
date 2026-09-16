@@ -166,7 +166,8 @@
         <div class="row g-3">
             @foreach ($folders as $folder)
                 <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="border radius-12 p-16 h-100 bg-base position-relative" data-context-menu
+                    <div class="border radius-12 p-16 h-100 position-relative {{ $folder->color ? '' : 'bg-base' }}" data-context-menu
+                        @if ($folder->color) style="background-color: {{ $folder->color }};" @endif
                         @can('update', $folder)
                             data-drag-item data-drag-id="{{ $folder->id }}" data-drag-type="folder" data-drag-name="{{ $folder->name }}"
                             data-drop-target data-drop-id="{{ $folder->id }}" data-drop-name="{{ $folder->name }}"

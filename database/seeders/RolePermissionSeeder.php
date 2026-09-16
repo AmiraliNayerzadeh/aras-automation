@@ -29,7 +29,7 @@ class RolePermissionSeeder extends Seeder
         'warehouse.view', 'warehouse.manage',
         'stock.view', 'stock.record',
         'tasks.create', 'tasks.view_all', 'tasks.manage',
-        'files.create', 'files.view_all', 'files.manage', 'files.mark_confidential',
+        'files.create', 'files.view_all', 'files.manage', 'files.mark_confidential', 'files.customize_color',
     ];
 
     public function run(): void

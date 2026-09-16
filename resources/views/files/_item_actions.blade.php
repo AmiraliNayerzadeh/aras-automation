@@ -49,6 +49,37 @@
         </li>
     @endcan
 
+    @if ($isFolder)
+        @can('customizeColor', $item)
+            <li>
+                <div class="px-12 py-6">
+                    <div class="text-secondary-light text-xs mb-6">{{ __('files.field_folder_color') }}</div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        @foreach (\App\Models\FileManager\Folder::COLOR_PALETTE as $name => $hex)
+                            <form action="{{ route('files.folders.color.update', $item) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="color" value="{{ $hex }}">
+                                <button type="submit"
+                                    class="d-inline-block rounded-circle border {{ $item->color === $hex ? 'border-primary-600 border-2' : 'border-secondary-light' }}"
+                                    style="width: 20px; height: 20px; background-color: {{ $hex }};"
+                                    title="{{ $name }}"></button>
+                            </form>
+                        @endforeach
+                        <form action="{{ route('files.folders.color.update', $item) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="d-inline-flex align-items-center justify-content-center rounded-circle border border-secondary-light"
+                                style="width: 20px; height: 20px;"
+                                title="{{ __('files.action_reset_color') }}">
+                                <i class="ri-close-line text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </li>
+        @endcan
+    @endif
+
     @can('markConfidential', $item)
         <li>
             <form action="{{ $isFolder ? route('files.folders.confidential.toggle', $item) : route('files.entries.confidential.toggle', $item) }}"

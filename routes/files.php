@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('files/folders/{id}/restore', [FolderController::class, 'restore'])->name('files.folders.restore');
     Route::post('files/folders/{folder}/move', [FolderController::class, 'move'])->name('files.folders.move');
     Route::post('files/folders/{folder}/confidential', [FolderController::class, 'toggleConfidential'])->name('files.folders.confidential.toggle');
+    Route::post('files/folders/{folder}/color', [FolderController::class, 'updateColor'])->name('files.folders.color.update');
     Route::post('files/folders/{folder}/shares', [FileShareController::class, 'storeForFolder'])->name('files.folders.shares.store');
     Route::delete('files/folders/{folder}/shares/{share}', [FileShareController::class, 'destroyForFolder'])->name('files.folders.shares.destroy');
 

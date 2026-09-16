@@ -7,6 +7,7 @@ use App\Models\FileManager\Folder;
 use App\Services\FileManager\FolderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class FolderController extends Controller
 {
@@ -96,5 +97,18 @@ class FolderController extends Controller
 
         return redirect()->route('files.index', ['folder' => $folder->parent_id])
             ->with('status', $folder->is_confidential ? 'folder-marked-confidential' : 'folder-unmarked-confidential');
+    }
+
+    public function updateColor(Request $request, Folder $folder): RedirectResponse
+    {
+        $this->authorize('customizeColor', $folder);
+
+        $data = $request->validate([
+            'color' => ['nullable', Rule::in(Folder::COLOR_PALETTE)],
+        ]);
+
+        $folder->update(['color' => $data['color'] ?? null]);
+
+        return redirect()->route('files.index', ['folder' => $folder->parent_id])->with('status', 'folder-color-updated');
     }
 }

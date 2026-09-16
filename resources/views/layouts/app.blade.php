@@ -52,6 +52,43 @@
 
                     <div class="col-auto">
                         <div class="d-flex flex-wrap align-items-center gap-3">
+                            @php
+                                $headerUnreadNotifications = auth()->user()->unreadNotifications()->latest()->take(10)->get();
+                                $headerUnreadNotificationsCount = auth()->user()->unreadNotifications()->count();
+                            @endphp
+                            <div class="dropdown">
+                                <button class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center position-relative" type="button" data-bs-toggle="dropdown">
+                                    <i class="ri-notification-3-line text-xl"></i>
+                                    @if ($headerUnreadNotificationsCount > 0)
+                                        <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger-600 text-white" style="font-size: 10px; padding: 3px 6px;">
+                                            {{ $headerUnreadNotificationsCount > 9 ? '9+' : $headerUnreadNotificationsCount }}
+                                        </span>
+                                    @endif
+                                </button>
+                                <div class="dropdown-menu to-top p-0" style="width: 360px;">
+                                    <div class="px-16 py-12 border-bottom fw-semibold">{{ __('notifications.title') }}</div>
+                                    <div style="max-height: 360px; overflow-y: auto;">
+                                        @forelse ($headerUnreadNotifications as $notification)
+                                            <a href="{{ route('files.entries.show', $notification->data['file_id']) }}"
+                                                class="d-flex gap-2 px-16 py-12 border-bottom text-decoration-none">
+                                                <i class="ri-upload-cloud-2-line text-primary-600 text-xl flex-shrink-0"></i>
+                                                <div>
+                                                    <div class="text-primary-light text-sm">
+                                                        {{ __('notifications.file_uploaded', [
+                                                            'uploader' => $notification->data['uploader_name'],
+                                                            'file' => $notification->data['file_name'],
+                                                            'folder' => $notification->data['folder_path'] ?? __('notifications.root_folder'),
+                                                        ]) }}
+                                                    </div>
+                                                    <div class="text-secondary-light text-xs mt-4">{{ $notification->created_at->diffForHumans() }}</div>
+                                                </div>
+                                            </a>
+                                        @empty
+                                            <div class="px-16 py-24 text-center text-secondary-light text-sm">{{ __('notifications.empty') }}</div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
                             <div class="dropdown">
                                 <button class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center fw-semibold text-sm" type="button" data-bs-toggle="dropdown">
                                     {{ strtoupper(app()->getLocale()) }}
