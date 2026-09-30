@@ -37,7 +37,10 @@ class FileController extends Controller
 
         if (! empty($data['folder_id'])) {
             $folder = Folder::findOrFail($data['folder_id']);
-            $this->authorize('update', $folder);
+            // Uploading into a folder is "adding content", not "editing the
+            // folder" — anyone who can see the folder may drop a file into it,
+            // same as anyone with a link to a shared Drive folder could.
+            $this->authorize('view', $folder);
         }
 
         $file = $request->file('file');
@@ -179,7 +182,9 @@ class FileController extends Controller
 
         if ($destinationId) {
             $destination = Folder::findOrFail($destinationId);
-            $this->authorize('update', $destination);
+            // Same "adding content" logic as store(): landing a file in a
+            // folder only requires being able to see that folder.
+            $this->authorize('view', $destination);
         }
 
         $file->update(['folder_id' => $destinationId]);

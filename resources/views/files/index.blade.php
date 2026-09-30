@@ -607,6 +607,16 @@
                     el.setAttribute('draggable', 'true');
 
                     el.addEventListener('dragstart', function (event) {
+                        // A click that starts on the "..." menu (or anything
+                        // interactive inside it — rename, move, delete, share,
+                        // color swatches...) must never be hijacked into a
+                        // drag: a tiny mouse jitter during that click was
+                        // otherwise enough to swallow the click entirely.
+                        if (event.target.closest('.dropdown, form, button')) {
+                            event.preventDefault();
+                            return;
+                        }
+
                         draggedItem = {
                             id: el.getAttribute('data-drag-id'),
                             type: el.getAttribute('data-drag-type'),

@@ -24,7 +24,9 @@ class FolderController extends Controller
 
         if (! empty($data['parent_id'])) {
             $parent = Folder::findOrFail($data['parent_id']);
-            $this->authorize('update', $parent);
+            // Creating a subfolder is "adding content" — anyone who can see
+            // the parent folder may add one, same as uploading a file into it.
+            $this->authorize('view', $parent);
         }
 
         $folder = Folder::create($data + ['owner_id' => $request->user()->id]);
@@ -71,7 +73,9 @@ class FolderController extends Controller
 
         if ($destinationId) {
             $destination = Folder::findOrFail($destinationId);
-            $this->authorize('update', $destination);
+            // Same "adding content" logic as creating a subfolder: landing a
+            // folder inside another only requires being able to see it.
+            $this->authorize('view', $destination);
 
             abort_if(
                 $destination->id === $folder->id || $destination->ancestors()->contains('id', $folder->id),

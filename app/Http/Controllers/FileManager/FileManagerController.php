@@ -140,9 +140,13 @@ class FileManagerController extends Controller
 
     /**
      * Attaches, to each item, up to 5 avatars of the people who have direct
-     * "user" access (owner + user-type shares) and a count of any remaining
-     * access (extra users, or group shares via role/department/position/everyone),
-     * resolved with a single bulk query per collection to avoid N+1s.
+     * "user" access and a count of any remaining access (extra users, or
+     * group shares via role/department/position/everyone), resolved with a
+     * single bulk query per collection to avoid N+1s.
+     *
+     * An item with no explicit shares is open to everyone by default, so
+     * there's nothing meaningful to show here — displaying just the owner's
+     * avatar would wrongly suggest the item is restricted to them.
      *
      * @param  Collection<int, Folder|FileEntry>  $items
      */
@@ -155,6 +159,7 @@ class FileManagerController extends Controller
         $items->load('shares');
 
         $userIds = $items
+            ->filter(fn ($item) => $item->shares->isNotEmpty())
             ->flatMap(fn ($item) => collect([$item->owner_id])
                 ->merge($item->shares->where('grantee_type', 'user')->pluck('grantee_id')))
             ->unique()
@@ -163,6 +168,10 @@ class FileManagerController extends Controller
         $users = User::whereIn('id', $userIds)->get(['id', 'name', 'profile_photo_path'])->keyBy('id');
 
         $items->each(function ($item) use ($users) {
+            if ($item->shares->isEmpty()) {
+                return;
+            }
+
             $ids = collect([$item->owner_id])
                 ->merge($item->shares->where('grantee_type', 'user')->pluck('grantee_id'))
                 ->unique()
