@@ -150,5 +150,18 @@ return [
     'event_shared' => 'Կիսվեց',
     'event_unshared' => 'Կիսումը չեղարկվեց',
     'event_share_link_enabled' => 'Հղումը միացվեց',
-    'event_share_link_disabled' => 'Հղումը անջատվեց',
+    'event_marked_confidential' => 'Նշվել է որպես գաղտնի',
+    'event_unmarked_confidential' => 'Գաղտնիության նշանը հանվել է',
+    'event_labels_updated' => 'Պիտակները փոխվել են',
+    'event_task_created' => 'Առաջադրանք է ստեղծվել',
+
+    'action_create_task' => 'Ստեղծել առաջադրանք այս ֆայլից',
+    'action_labels' => 'Պիտակներ',
+    'labels_title' => 'Պիտակներ',
+    'filter_all_labels' => 'Բոլոր պիտակները',
+    'filter_clear' => 'Մաքրել ֆիլտրը',
+    'linked_tasks_title' => 'Առնչվող առաջադրանքներ',
+    'flash_labels_updated' => 'Պիտակները թարմացվեցին։',
+
+    'event_share_link_disabled' =>'Հղումը անջատվեց',
 ];

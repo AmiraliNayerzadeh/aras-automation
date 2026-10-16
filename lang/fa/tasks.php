@@ -23,6 +23,9 @@ return [
     'action_add_note' => 'افزودن یادداشت',
 
     'attachments_title' => 'پیوست‌ها',
+    'linked_files_title' => 'فایل‌های مرتبط',
+    'linked_file_restricted' => 'فایل محدود — دسترسی ندارید',
+    'linked_file_notice' => 'فایل «:file» به این وظیفه پیوست می‌شود.',
     'attachments_empty' => 'هنوز فایلی پیوست نشده است.',
     'field_attachment_title' => 'عنوان (اختیاری)',
     'field_attachment_file' => 'فایل',

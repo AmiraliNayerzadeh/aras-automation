@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FileManager;
 use App\Http\Controllers\Controller;
 use App\Models\FileManager\FileEntry;
 use App\Models\FileManager\Folder;
+use App\Models\Settings\LookupValue;
 use App\Models\User;
 use App\Notifications\FileUploadedNotification;
 use Illuminate\Http\RedirectResponse;
@@ -72,9 +73,15 @@ class FileController extends Controller
             ->where('data->file_id', $file->id)
             ->update(['read_at' => now()]);
 
-        $file->load(['owner', 'folder', 'versions.uploadedBy', 'comments.user', 'shares']);
+        $file->load(['owner', 'folder', 'versions.uploadedBy', 'comments.user', 'shares', 'labels']);
 
-        return view('files.show', ['file' => $file]);
+        return view('files.show', [
+            'file' => $file,
+            'fileLabels' => LookupValue::whereHas('lookupType', fn ($q) => $q->where('code', 'file_label'))
+                ->where('is_active', true)->orderBy('sort_order')->get(),
+            // Only tasks the viewer may see — a linked task never leaks its title to outsiders.
+            'linkedTasks' => $file->tasks()->visibleTo(auth()->user())->get(),
+        ]);
     }
 
     /**

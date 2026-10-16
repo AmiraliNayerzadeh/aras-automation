@@ -20,6 +20,7 @@ class LookupTypeSeeder extends Seeder
         'generic_status' => 'Generic Status',
         'order_stage' => 'Order Stage',
         'transport_method' => 'Transport Method',
+        'file_label' => 'File Label',
     ];
 
     public function run(): void
@@ -181,6 +182,30 @@ class LookupTypeSeeder extends Seeder
                     'label' => $priority['label'],
                     'color' => $priority['color'],
                     'sort_order' => $priority['sort_order'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $fileLabel = LookupType::where('code', 'file_label')->firstOrFail();
+
+        $fileLabels = [
+            ['code' => 'order_registered', 'label' => ['en' => 'Order Registered', 'hy' => 'Պատվերի գրանցում', 'fa' => 'ثبت سفارش'], 'color' => 'info', 'sort_order' => 1],
+            ['code' => 'in_transit', 'label' => ['en' => 'In Transit', 'hy' => 'Ճանապարհին', 'fa' => 'در حال حمل'], 'color' => 'warning', 'sort_order' => 2],
+            ['code' => 'customs', 'label' => ['en' => 'Customs', 'hy' => 'Մաքսային ձևակերպում', 'fa' => 'در گمرک'], 'color' => 'cyan', 'sort_order' => 3],
+            ['code' => 'arrived_warehouse', 'label' => ['en' => 'Arrived — In Warehouse', 'hy' => 'Ժամանել է՝ պահեստում', 'fa' => 'رسیده — در انبار'], 'color' => 'success', 'sort_order' => 4],
+            ['code' => 'closed', 'label' => ['en' => 'Closed', 'hy' => 'Փակված', 'fa' => 'بسته شده'], 'color' => 'neutral', 'sort_order' => 5],
+        ];
+
+        // firstOrCreate (not updateOrCreate): admins edit these from the lookup
+        // UI, and re-running the seeder must never overwrite their changes.
+        foreach ($fileLabels as $label) {
+            $fileLabel->values()->firstOrCreate(
+                ['code' => $label['code']],
+                [
+                    'label' => $label['label'],
+                    'color' => $label['color'],
+                    'sort_order' => $label['sort_order'],
                     'is_active' => true,
                 ]
             );

@@ -23,6 +23,9 @@ return [
     'action_add_note' => 'Ավելացնել նշում',
 
     'attachments_title' => 'Կցորդներ',
+    'linked_files_title' => 'Կապված ֆայլեր',
+    'linked_file_restricted' => 'Սահմանափակ ֆայլ — մուտք չկա',
+    'linked_file_notice' => '«:file» ֆայլը կկցվի այս առաջադրանքին։',
     'attachments_empty' => 'Դեռ ֆայլեր կցված չեն։',
     'field_attachment_title' => 'Վերնագիր (ըստ ցանկության)',
     'field_attachment_file' => 'Ֆայլ',

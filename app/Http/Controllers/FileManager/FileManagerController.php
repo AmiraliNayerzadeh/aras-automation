@@ -8,6 +8,7 @@ use App\Models\FileManager\FileFavorite;
 use App\Models\FileManager\Folder;
 use App\Models\Organization\Department;
 use App\Models\Organization\Position;
+use App\Models\Settings\LookupValue;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -42,6 +43,13 @@ class FileManagerController extends Controller
         $currentFolder = null;
         $breadcrumb = collect();
 
+        // Label filter: while active (and not inside a folder) it searches every
+        // item you can see regardless of nesting, so a labelled file buried in a
+        // subfolder is still found — "show me everything that's in transit".
+        $labelFilterId = $request->integer('label') ?: null;
+        $withLabel = fn ($q) => $labelFilterId ? $q->withLabel($labelFilterId) : $q;
+        $topLevelOnly = fn ($q, string $column) => $labelFilterId ? $q : $q->whereNull($column);
+
         if ($folderId) {
             $currentFolder = Folder::findOrFail($folderId);
             $this->authorize('view', $currentFolder);
@@ -50,25 +58,25 @@ class FileManagerController extends Controller
             // own (more restrictive) share must stay hidden unless you're one of
             // its explicit grantees - folder access never overrides an item's own
             // sharing.
-            $folders = $currentFolder->children()->visibleTo($user)->with('owner')->latest()->get();
-            $files = $currentFolder->files()->visibleTo($user)->with('owner')->latest()->get();
+            $folders = $withLabel($currentFolder->children()->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
+            $files = $withLabel($currentFolder->files()->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
             $breadcrumb = $currentFolder->ancestors()->push($currentFolder);
         } elseif ($tab === 'shared') {
             // Lists every folder/file directly shared with the user, regardless of
             // nesting depth in the owner's tree (Google-Drive-style "Shared with me"),
             // so a single file shared without its parent folder stays discoverable.
-            $folders = Folder::where('owner_id', '!=', $user->id)->sharedWithUser($user)->with('owner')->latest()->get();
-            $files = FileEntry::where('owner_id', '!=', $user->id)->sharedWithUser($user)->with('owner')->latest()->get();
+            $folders = $withLabel(Folder::where('owner_id', '!=', $user->id)->sharedWithUser($user))->with(['owner', 'labels'])->latest()->get();
+            $files = $withLabel(FileEntry::where('owner_id', '!=', $user->id)->sharedWithUser($user))->with(['owner', 'labels'])->latest()->get();
         } elseif ($tab === 'all') {
             // Open to everyone: unrestricted (no-share) items are visible to the
             // whole company by default; items with an explicit share are scoped
             // to their owner/grantees; files.view_all admins always see everything.
-            $folders = Folder::whereNull('parent_id')->visibleTo($user)->with('owner')->latest()->get();
-            $files = FileEntry::whereNull('folder_id')->visibleTo($user)->with('owner')->latest()->get();
+            $folders = $withLabel($topLevelOnly(Folder::query(), 'parent_id')->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
+            $files = $withLabel($topLevelOnly(FileEntry::query(), 'folder_id')->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
         } else {
             $tab = 'mine';
-            $folders = Folder::whereNull('parent_id')->where('owner_id', $user->id)->with('owner')->latest()->get();
-            $files = FileEntry::whereNull('folder_id')->where('owner_id', $user->id)->with('owner')->latest()->get();
+            $folders = $withLabel($topLevelOnly(Folder::where('owner_id', $user->id), 'parent_id'))->with(['owner', 'labels'])->latest()->get();
+            $files = $withLabel($topLevelOnly(FileEntry::where('owner_id', $user->id), 'folder_id'))->with(['owner', 'labels'])->latest()->get();
         }
 
         $this->attachAccessAvatars($folders);
@@ -112,6 +120,9 @@ class FileManagerController extends Controller
             'positions' => Position::orderBy('title')->get(['id', 'title']),
             'favoriteKeys' => $favoriteKeys,
             'quickAccess' => $quickAccess,
+            'fileLabels' => LookupValue::whereHas('lookupType', fn ($q) => $q->where('code', 'file_label'))
+                ->where('is_active', true)->orderBy('sort_order')->get(),
+            'labelFilterId' => $labelFilterId,
         ]);
     }
 

@@ -15,7 +15,7 @@ class FileActivityLogController extends Controller implements HasMiddleware
     protected const EVENTS = [
         'created', 'updated', 'deleted', 'restored',
         'downloaded', 'shared', 'unshared', 'share_link_enabled', 'share_link_disabled',
-        'marked_confidential', 'unmarked_confidential',
+        'marked_confidential', 'unmarked_confidential', 'labels_updated', 'task_created',
     ];
 
     public static function middleware(): array

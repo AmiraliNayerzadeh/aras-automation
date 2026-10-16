@@ -4,6 +4,7 @@ namespace App\Models\Tasks;
 
 use App\Enums\TaskStatus;
 use App\Models\Document;
+use App\Models\FileManager\FileEntry;
 use App\Models\Settings\LookupValue;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -61,6 +62,11 @@ class Task extends Model
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function files(): BelongsToMany
+    {
+        return $this->belongsToMany(FileEntry::class, 'file_entry_task')->withTimestamps();
     }
 
     public function comments(): HasMany

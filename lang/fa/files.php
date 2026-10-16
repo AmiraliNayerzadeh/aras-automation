@@ -151,4 +151,16 @@ return [
     'event_unshared' => 'اشتراک‌گذاری لغو شد',
     'event_share_link_enabled' => 'لینک فعال شد',
     'event_share_link_disabled' => 'لینک غیرفعال شد',
+    'event_marked_confidential' => 'محرمانه علامت زده شد',
+    'event_unmarked_confidential' => 'علامت محرمانه برداشته شد',
+    'event_labels_updated' => 'برچسب‌ها تغییر کرد',
+    'event_task_created' => 'وظیفه ایجاد شد',
+
+    'action_create_task' => 'ایجاد وظیفه از این فایل',
+    'action_labels' => 'برچسب‌ها',
+    'labels_title' => 'برچسب‌ها',
+    'filter_all_labels' => 'همه برچسب‌ها',
+    'filter_clear' => 'پاک کردن فیلتر',
+    'linked_tasks_title' => 'وظایف مرتبط',
+    'flash_labels_updated' => 'برچسب‌ها به‌روزرسانی شد.',
 ];

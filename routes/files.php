@@ -4,6 +4,7 @@ use App\Http\Controllers\FileManager\FileActivityLogController;
 use App\Http\Controllers\FileManager\FileCommentController;
 use App\Http\Controllers\FileManager\FileController;
 use App\Http\Controllers\FileManager\FileFavoriteController;
+use App\Http\Controllers\FileManager\FileLabelController;
 use App\Http\Controllers\FileManager\FileManagerController;
 use App\Http\Controllers\FileManager\FileShareController;
 use App\Http\Controllers\FileManager\FileVersionController;
@@ -24,6 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('files/folders/{folder}/move', [FolderController::class, 'move'])->name('files.folders.move');
     Route::post('files/folders/{folder}/confidential', [FolderController::class, 'toggleConfidential'])->name('files.folders.confidential.toggle');
     Route::post('files/folders/{folder}/color', [FolderController::class, 'updateColor'])->name('files.folders.color.update');
+    Route::post('files/folders/{folder}/labels', [FileLabelController::class, 'syncForFolder'])->name('files.folders.labels.sync');
+    Route::post('files/entries/{file}/labels', [FileLabelController::class, 'syncForFile'])->name('files.entries.labels.sync');
     Route::post('files/folders/{folder}/shares', [FileShareController::class, 'storeForFolder'])->name('files.folders.shares.store');
     Route::delete('files/folders/{folder}/shares/{share}', [FileShareController::class, 'destroyForFolder'])->name('files.folders.shares.destroy');
 

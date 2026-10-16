@@ -76,6 +76,30 @@
         </div>
     @endunless
 
+    @if ($fileLabels->isNotEmpty())
+        <form method="GET" action="{{ route('files.index') }}" class="d-flex align-items-center gap-2 mb-16 flex-wrap">
+            @if ($currentFolder)
+                <input type="hidden" name="folder" value="{{ $currentFolder->id }}">
+            @endif
+            <input type="hidden" name="tab" value="{{ $tab }}">
+            <input type="hidden" name="view" value="{{ $view }}">
+            <i class="ri-price-tag-3-line text-secondary-light"></i>
+            <select name="label" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                <option value="">{{ __('files.filter_all_labels') }}</option>
+                @foreach ($fileLabels as $fileLabel)
+                    <option value="{{ $fileLabel->id }}" @selected($labelFilterId === $fileLabel->id)>
+                        {{ $fileLabel->label[app()->getLocale()] ?? $fileLabel->code }}
+                    </option>
+                @endforeach
+            </select>
+            @if ($labelFilterId)
+                <a href="{{ route('files.index', array_filter(['folder' => $currentFolder?->id, 'tab' => $tab, 'view' => $view])) }}" class="text-sm text-secondary-light">
+                    <i class="ri-close-line"></i> {{ __('files.filter_clear') }}
+                </a>
+            @endif
+        </form>
+    @endif
+
     @if ($folders->isEmpty() && $files->isEmpty())
         <div class="card radius-12">
             <div class="card-body text-center text-muted py-4">{{ __('files.empty_folder') }}</div>
@@ -108,6 +132,7 @@
                                             <i class="ri-lock-2-fill text-danger-600 text-sm" title="{{ __('files.badge_confidential') }}"></i>
                                         @endif
                                     </a>
+                                    @include('files._labels', ['item' => $folder, 'class' => 'mt-4'])
                                 </td>
                                 <td>{{ $folder->owner?->name }}</td>
                                 <td>@include('files._access_avatars', ['item' => $folder])</td>
@@ -140,6 +165,7 @@
                                             <i class="ri-lock-2-fill text-danger-600 text-sm" title="{{ __('files.badge_confidential') }}"></i>
                                         @endif
                                     </a>
+                                    @include('files._labels', ['item' => $file, 'class' => 'mt-4'])
                                 </td>
                                 <td>{{ $file->owner?->name }}</td>
                                 <td>@include('files._access_avatars', ['item' => $file])</td>
@@ -188,6 +214,7 @@
                             </span>
                             <span class="text-secondary-light text-xs">{{ $folder->owner?->name }}</span>
                         </a>
+                        @include('files._labels', ['item' => $folder, 'class' => 'justify-content-center'])
                         <div class="d-flex justify-content-center mt-4">
                             @include('files._access_avatars', ['item' => $folder])
                         </div>
@@ -228,6 +255,7 @@
                                 <span>{{ $file->owner?->name }}</span>
                                 <span>{{ $file->human_size }}</span>
                             </div>
+                            @include('files._labels', ['item' => $file, 'class' => 'mt-8'])
                             <div class="mt-8">
                                 @include('files._access_avatars', ['item' => $file])
                             </div>
@@ -369,6 +397,35 @@
         </div>
     </div>
 
+    {{-- Labels modal (shared, JS-populated) --}}
+    <div class="modal fade" id="labels-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <form method="POST" action="" id="labels-form" class="modal-content">
+                @csrf
+                <div class="modal-header">
+                    <h6 class="modal-title">{{ __('files.labels_title') }}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @foreach ($fileLabels as $fileLabel)
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="labels[]" value="{{ $fileLabel->id }}" id="label-check-{{ $fileLabel->id }}">
+                            <label class="form-check-label" for="label-check-{{ $fileLabel->id }}">
+                                <span class="badge text-xs fw-semibold px-8 py-2 radius-4 text-{{ $fileLabel->color }}-600 bg-{{ $fileLabel->color }}-100">
+                                    {{ $fileLabel->label[app()->getLocale()] ?? $fileLabel->code }}
+                                </span>
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
+                    <button type="submit" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm">{{ __('app.save') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- Drag-and-drop move confirmation modal --}}
     <div class="modal fade" id="drag-move-modal" tabindex="-1">
         <div class="modal-dialog">
@@ -402,6 +459,14 @@
                 document.getElementById('move-modal').addEventListener('show.bs.modal', function (event) {
                     var trigger = event.relatedTarget;
                     document.getElementById('move-form').action = trigger.getAttribute('data-action');
+                });
+                document.getElementById('labels-modal').addEventListener('show.bs.modal', function (event) {
+                    var trigger = event.relatedTarget;
+                    var current = JSON.parse(trigger.getAttribute('data-label-ids') || '[]').map(String);
+                    document.getElementById('labels-form').action = trigger.getAttribute('data-action');
+                    document.querySelectorAll('#labels-form input[name="labels[]"]').forEach(function (box) {
+                        box.checked = current.indexOf(box.value) !== -1;
+                    });
                 });
 
                 // Right-click: reuse each card/row's own "..." dropdown-menu as a

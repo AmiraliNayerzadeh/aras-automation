@@ -2,6 +2,7 @@
 
 namespace App\Models\FileManager;
 
+use App\Models\FileManager\Concerns\HasFileLabels;
 use App\Models\FileManager\Concerns\HasFileShares;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,7 +17,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 #[Fillable(['name', 'parent_id', 'owner_id', 'is_confidential', 'color'])]
 class Folder extends Model
 {
-    use HasFileShares, LogsActivity, SoftDeletes;
+    use HasFileLabels, HasFileShares, LogsActivity, SoftDeletes;
 
     /**
      * Curated background-color palette for the grid view (super-admin only).

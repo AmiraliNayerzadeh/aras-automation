@@ -16,6 +16,16 @@
                         <i class="ri-share-line"></i> {{ __('files.action_share') }}
                     </button>
                 @endcan
+                @can('create', \App\Models\Tasks\Task::class)
+                    <a href="{{ route('tasks.create', ['file' => $file->id]) }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">
+                        <i class="ri-task-line"></i> {{ __('files.action_create_task') }}
+                    </a>
+                @endcan
+                @if ($fileLabels->isNotEmpty())
+                    <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-toggle="modal" data-bs-target="#labels-modal">
+                        <i class="ri-price-tag-3-line"></i> {{ __('files.action_labels') }}
+                    </button>
+                @endif
                 @can('markConfidential', $file)
                     <form action="{{ route('files.entries.confidential.toggle', $file) }}" method="POST"
                         onsubmit="return confirm('{{ $file->is_confidential ? __('files.confirm_unmark_confidential') : __('files.confirm_mark_confidential') }}');">
@@ -71,6 +81,8 @@
                         @endif
                     </div>
 
+                    @include('files._labels', ['item' => $file, 'class' => 'mb-12'])
+
                     <div class="d-flex align-items-center gap-2 mb-8">
                         <img src="{{ $file->owner?->avatar_url }}" alt="" class="w-24-px h-24-px rounded-circle object-fit-cover">
                         <span class="text-secondary-light text-sm">
@@ -116,6 +128,20 @@
         </div>
 
         <div class="col-lg-4">
+            @if ($linkedTasks->isNotEmpty())
+                <div class="card radius-12 mb-24">
+                    <div class="card-header bg-base fw-semibold">{{ __('files.linked_tasks_title') }}</div>
+                    <div class="card-body">
+                        @foreach ($linkedTasks as $linkedTask)
+                            <a href="{{ route('tasks.show', $linkedTask) }}" class="d-flex justify-content-between align-items-center text-decoration-none border-bottom pb-8 mb-8">
+                                <span class="text-primary-light text-sm text-truncate"><i class="ri-task-line"></i> {{ $linkedTask->title }}</span>
+                                <span class="badge text-xs px-8 py-2 radius-4 text-info-600 bg-info-100 flex-shrink-0 ms-8">{{ __('tasks.status_'.$linkedTask->status->value) }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <div class="card radius-12">
                 <div class="card-header bg-base fw-semibold">{{ __('files.version_history_title') }}</div>
                 <div class="card-body">
@@ -159,6 +185,37 @@
     @can('update', $file)
         @include('files._share_modal', ['shareable' => $file, 'modalId' => 'share-modal-file-'.$file->id, 'storeRoute' => route('files.entries.shares.store', $file), 'destroyRouteBase' => 'files.entries.shares.destroy', 'destroyParam' => $file])
     @endcan
+
+    @if ($fileLabels->isNotEmpty())
+        <div class="modal fade" id="labels-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <form method="POST" action="{{ route('files.entries.labels.sync', $file) }}" class="modal-content">
+                    @csrf
+                    <div class="modal-header">
+                        <h6 class="modal-title">{{ __('files.labels_title') }}</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        @php($currentLabelIds = $file->labels->pluck('id'))
+                        @foreach ($fileLabels as $fileLabel)
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="labels[]" value="{{ $fileLabel->id }}" id="label-check-{{ $fileLabel->id }}" @checked($currentLabelIds->contains($fileLabel->id))>
+                                <label class="form-check-label" for="label-check-{{ $fileLabel->id }}">
+                                    <span class="badge text-xs fw-semibold px-8 py-2 radius-4 text-{{ $fileLabel->color }}-600 bg-{{ $fileLabel->color }}-100">
+                                        {{ $fileLabel->label[app()->getLocale()] ?? $fileLabel->code }}
+                                    </span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
+                        <button type="submit" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm">{{ __('app.save') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     @if ($file->isSpreadsheet())
         @push('scripts')

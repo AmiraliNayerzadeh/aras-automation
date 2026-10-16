@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TaskStatus;
 use App\Models\Document;
+use App\Models\FileManager\FileEntry;
 use App\Models\Settings\LookupValue;
 use App\Models\Tasks\Task;
 use App\Models\User;
@@ -41,11 +42,19 @@ class TaskController extends Controller
         return view('tasks.index', ['view' => $view, 'tasks' => $tasks] + $this->formOptions());
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $this->authorize('create', Task::class);
 
-        return view('tasks.create', $this->formOptions());
+        // "Create task from a file" lands here with ?file=ID; the file is only
+        // honored if the user can actually see it.
+        $linkedFile = $request->filled('file') ? FileEntry::find($request->integer('file')) : null;
+
+        if ($linkedFile) {
+            $this->authorize('view', $linkedFile);
+        }
+
+        return view('tasks.create', ['linkedFile' => $linkedFile] + $this->formOptions());
     }
 
     public function store(Request $request): RedirectResponse
@@ -53,8 +62,15 @@ class TaskController extends Controller
         $this->authorize('create', Task::class);
 
         $data = $this->validateBaseData($request);
+        $fileId = $request->validate(['file_entry_id' => ['nullable', 'exists:file_entries,id']])['file_entry_id'] ?? null;
         $assigneeIds = $data['assigned_to_ids'] ?? [];
         unset($data['assigned_to_ids']);
+
+        $linkedFile = $fileId ? FileEntry::findOrFail($fileId) : null;
+
+        if ($linkedFile) {
+            $this->authorize('view', $linkedFile);
+        }
 
         $task = Task::create($data + [
             'status' => TaskStatus::Todo->value,
@@ -63,6 +79,14 @@ class TaskController extends Controller
 
         $task->assignees()->sync($assigneeIds);
 
+        if ($linkedFile) {
+            $task->files()->attach($linkedFile->id, ['attached_by_id' => $request->user()->id]);
+
+            activity('file_manager')->causedBy($request->user())->performedOn($linkedFile)
+                ->event('task_created')->withProperties(['task' => $task->title])
+                ->log('Task created from file');
+        }
+
         return redirect()->route('tasks.show', $task)->with('status', 'task-created');
     }
 
@@ -70,7 +94,7 @@ class TaskController extends Controller
     {
         $this->authorize('view', $task);
 
-        $task->load(['assignees', 'createdBy', 'priority', 'documents.uploadedBy', 'comments.user']);
+        $task->load(['assignees', 'createdBy', 'priority', 'documents.uploadedBy', 'comments.user', 'files']);
 
         return view('tasks.show', ['task' => $task]);
     }

@@ -2,12 +2,15 @@
 
 namespace App\Models\FileManager;
 
+use App\Models\FileManager\Concerns\HasFileLabels;
 use App\Models\FileManager\Concerns\HasFileShares;
+use App\Models\Tasks\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -20,7 +23,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 ])]
 class FileEntry extends Model
 {
-    use HasFileShares, LogsActivity, SoftDeletes;
+    use HasFileLabels, HasFileShares, LogsActivity, SoftDeletes;
 
     protected function casts(): array
     {
@@ -44,6 +47,11 @@ class FileEntry extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function tasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'file_entry_task')->withTimestamps();
     }
 
     public function versions(): HasMany

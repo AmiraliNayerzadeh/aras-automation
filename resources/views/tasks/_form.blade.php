@@ -1,9 +1,20 @@
 @php($task = $task ?? null)
+@php($linkedFile = $linkedFile ?? null)
 
 <div class="row g-3">
+    @if ($linkedFile)
+        <div class="col-12">
+            <input type="hidden" name="file_entry_id" value="{{ $linkedFile->id }}">
+            <div class="alert alert-info-100 text-info-600 radius-8 mb-0 text-sm d-flex align-items-center gap-2">
+                <i class="ri-attachment-2"></i>
+                {{ __('tasks.linked_file_notice', ['file' => $linkedFile->title ?: $linkedFile->original_name]) }}
+            </div>
+        </div>
+    @endif
+
     <div class="col-12">
         <x-input-label for="title" :value="__('tasks.field_title')" />
-        <x-text-input id="title" name="title" class="mt-1 w-100" :value="old('title', $task?->title)" required autofocus />
+        <x-text-input id="title" name="title" class="mt-1 w-100" :value="old('title', $task?->title ?? ($linkedFile ? ($linkedFile->title ?: $linkedFile->original_name) : null))" required autofocus />
         <x-input-error :messages="$errors->get('title')" class="mt-1" />
     </div>
 

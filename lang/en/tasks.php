@@ -23,6 +23,9 @@ return [
     'action_add_note' => 'Add Note',
 
     'attachments_title' => 'Attachments',
+    'linked_files_title' => 'Linked Files',
+    'linked_file_restricted' => 'Restricted file — no access',
+    'linked_file_notice' => 'The file ":file" will be attached to this task.',
     'attachments_empty' => 'No files attached yet.',
     'field_attachment_title' => 'Title (optional)',
     'field_attachment_file' => 'File',

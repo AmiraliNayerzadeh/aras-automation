@@ -106,6 +106,26 @@
         </div>
 
         <div class="col-lg-4">
+            @if ($task->files->isNotEmpty())
+                <div class="card radius-12 mb-24">
+                    <div class="card-header bg-base fw-semibold">{{ __('tasks.linked_files_title') }}</div>
+                    <div class="card-body">
+                        @foreach ($task->files as $linkedFile)
+                            @can('view', $linkedFile)
+                                <a href="{{ route('files.entries.show', $linkedFile) }}" class="d-flex align-items-center gap-2 text-decoration-none border-bottom pb-8 mb-8">
+                                    <i class="{{ $linkedFile->iconClass() }} {{ $linkedFile->iconColorClass() }}"></i>
+                                    <span class="text-primary-light text-sm text-truncate">{{ $linkedFile->title ?: $linkedFile->original_name }}</span>
+                                </a>
+                            @else
+                                <div class="d-flex align-items-center gap-2 text-secondary-light text-sm border-bottom pb-8 mb-8">
+                                    <i class="ri-lock-2-line"></i> {{ __('tasks.linked_file_restricted') }}
+                                </div>
+                            @endcan
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <div class="card radius-12">
                 <div class="card-header bg-base fw-semibold">{{ __('tasks.attachments_title') }}</div>
                 <div class="card-body">

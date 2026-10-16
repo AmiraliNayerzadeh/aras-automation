@@ -150,5 +150,18 @@ return [
     'event_shared' => 'Shared',
     'event_unshared' => 'Unshared',
     'event_share_link_enabled' => 'Share link enabled',
-    'event_share_link_disabled' => 'Share link disabled',
+    'event_marked_confidential' => 'Marked confidential',
+    'event_unmarked_confidential' => 'Confidential mark removed',
+    'event_labels_updated' => 'Labels changed',
+    'event_task_created' => 'Task created',
+
+    'action_create_task' => 'Create Task from this File',
+    'action_labels' => 'Labels',
+    'labels_title' => 'Labels',
+    'filter_all_labels' => 'All labels',
+    'filter_clear' => 'Clear filter',
+    'linked_tasks_title' => 'Linked Tasks',
+    'flash_labels_updated' => 'Labels updated.',
+
+    'event_share_link_disabled' =>'Share link disabled',
 ];

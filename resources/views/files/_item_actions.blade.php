@@ -49,6 +49,19 @@
         </li>
     @endcan
 
+    @if (($fileLabels ?? collect())->isNotEmpty())
+        @can('view', $item)
+            <li>
+                <button type="button" class="dropdown-item px-12 py-6 rounded text-secondary-light w-100 text-start border-0 bg-transparent"
+                    data-bs-toggle="modal" data-bs-target="#labels-modal"
+                    data-action="{{ $isFolder ? route('files.folders.labels.sync', $item) : route('files.entries.labels.sync', $item) }}"
+                    data-label-ids='@json($item->labels->pluck('id')->values())'>
+                    <i class="ri-price-tag-3-line"></i> {{ __('files.action_labels') }}
+                </button>
+            </li>
+        @endcan
+    @endif
+
     @if ($isFolder)
         @can('customizeColor', $item)
             <li>
