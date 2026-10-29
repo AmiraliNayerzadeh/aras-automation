@@ -76,14 +76,20 @@
         </div>
     @endunless
 
-    @if ($fileLabels->isNotEmpty())
-        <form method="GET" action="{{ route('files.index') }}" class="d-flex align-items-center gap-2 mb-16 flex-wrap">
-            @if ($currentFolder)
-                <input type="hidden" name="folder" value="{{ $currentFolder->id }}">
-            @endif
-            <input type="hidden" name="tab" value="{{ $tab }}">
-            <input type="hidden" name="view" value="{{ $view }}">
-            <i class="ri-price-tag-3-line text-secondary-light"></i>
+    <form method="GET" action="{{ route('files.index') }}" class="d-flex align-items-center gap-2 mb-16 flex-wrap">
+        @if ($currentFolder)
+            <input type="hidden" name="folder" value="{{ $currentFolder->id }}">
+        @endif
+        <input type="hidden" name="tab" value="{{ $tab }}">
+        <input type="hidden" name="view" value="{{ $view }}">
+        <i class="ri-sort-desc text-secondary-light"></i>
+        <select name="sort" class="form-select form-select-sm w-auto" onchange="this.form.submit()" aria-label="{{ __('files.sort_label') }}">
+            @foreach (\App\Http\Controllers\FileManager\FileManagerController::SORTS as $sortOption)
+                <option value="{{ $sortOption }}" @selected($sort === $sortOption)>{{ __('files.sort_'.$sortOption) }}</option>
+            @endforeach
+        </select>
+        @if ($fileLabels->isNotEmpty())
+            <i class="ri-price-tag-3-line text-secondary-light ms-8"></i>
             <select name="label" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
                 <option value="">{{ __('files.filter_all_labels') }}</option>
                 @foreach ($fileLabels as $fileLabel)
@@ -93,12 +99,12 @@
                 @endforeach
             </select>
             @if ($labelFilterId)
-                <a href="{{ route('files.index', array_filter(['folder' => $currentFolder?->id, 'tab' => $tab, 'view' => $view])) }}" class="text-sm text-secondary-light">
+                <a href="{{ route('files.index', array_filter(['folder' => $currentFolder?->id, 'tab' => $tab, 'view' => $view, 'sort' => $sort])) }}" class="text-sm text-secondary-light">
                     <i class="ri-close-line"></i> {{ __('files.filter_clear') }}
                 </a>
             @endif
-        </form>
-    @endif
+        @endif
+    </form>
 
     @if ($folders->isEmpty() && $files->isEmpty())
         <div class="card radius-12">

@@ -164,4 +164,10 @@ return [
     'flash_labels_updated' => 'Labels updated.',
 
     'event_share_link_disabled' =>'Share link disabled',
+
+    'sort_label' => 'Sort by',
+    'sort_newest' => 'Newest first',
+    'sort_oldest' => 'Oldest first',
+    'sort_name_asc' => 'Name (A to Z)',
+    'sort_name_desc' => 'Name (Z to A)',
 ];

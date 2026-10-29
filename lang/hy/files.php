@@ -164,4 +164,10 @@ return [
     'flash_labels_updated' => 'Պիտակները թարմացվեցին։',
 
     'event_share_link_disabled' =>'Հղումը անջատվեց',
+
+    'sort_label' => 'Դասավորել',
+    'sort_newest' => 'Նորերը սկզբում',
+    'sort_oldest' => 'Հները սկզբում',
+    'sort_name_asc' => 'Անուն (Ա-ից Ֆ)',
+    'sort_name_desc' => 'Անուն (Ֆ-ից Ա)',
 ];

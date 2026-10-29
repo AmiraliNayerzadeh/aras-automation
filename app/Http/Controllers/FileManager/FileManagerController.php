@@ -10,6 +10,7 @@ use App\Models\Organization\Department;
 use App\Models\Organization\Position;
 use App\Models\Settings\LookupValue;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -18,6 +19,8 @@ use Spatie\Permission\Models\Role;
 
 class FileManagerController extends Controller
 {
+    public const SORTS = ['newest', 'oldest', 'name_asc', 'name_desc'];
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Folder::class);
@@ -25,7 +28,7 @@ class FileManagerController extends Controller
         $user = $request->user();
         $folderId = $request->integer('folder') ?: null;
 
-        // The view mode (grid/list) and tab persist across requests via cookie,
+        // The view mode (grid/list), sort order and tab persist across requests via cookie,
         // so a redirect after creating/uploading/moving something (which can't
         // carry every query param) still lands the user back where they were,
         // instead of silently resetting to the defaults.
@@ -40,6 +43,13 @@ class FileManagerController extends Controller
             Cookie::queue('files_view', $view, 60 * 24 * 365);
         }
 
+        $sort = $request->input('sort', $request->cookie('files_sort', 'newest'));
+        $sort = in_array($sort, self::SORTS, true) ? $sort : 'newest';
+
+        if ($request->has('sort')) {
+            Cookie::queue('files_sort', $sort, 60 * 24 * 365);
+        }
+
         $currentFolder = null;
         $breadcrumb = collect();
 
@@ -49,6 +59,7 @@ class FileManagerController extends Controller
         $labelFilterId = $request->integer('label') ?: null;
         $withLabel = fn ($q) => $labelFilterId ? $q->withLabel($labelFilterId) : $q;
         $topLevelOnly = fn ($q, string $column) => $labelFilterId ? $q : $q->whereNull($column);
+        $sorted = fn ($q) => $this->applySort($q, $sort);
 
         if ($folderId) {
             $currentFolder = Folder::findOrFail($folderId);
@@ -58,25 +69,25 @@ class FileManagerController extends Controller
             // own (more restrictive) share must stay hidden unless you're one of
             // its explicit grantees - folder access never overrides an item's own
             // sharing.
-            $folders = $withLabel($currentFolder->children()->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
-            $files = $withLabel($currentFolder->files()->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
+            $folders = $withLabel($currentFolder->children()->visibleTo($user))->with(['owner', 'labels'])->tap($sorted)->get();
+            $files = $withLabel($currentFolder->files()->visibleTo($user))->with(['owner', 'labels'])->tap($sorted)->get();
             $breadcrumb = $currentFolder->ancestors()->push($currentFolder);
         } elseif ($tab === 'shared') {
             // Lists every folder/file directly shared with the user, regardless of
             // nesting depth in the owner's tree (Google-Drive-style "Shared with me"),
             // so a single file shared without its parent folder stays discoverable.
-            $folders = $withLabel(Folder::where('owner_id', '!=', $user->id)->sharedWithUser($user))->with(['owner', 'labels'])->latest()->get();
-            $files = $withLabel(FileEntry::where('owner_id', '!=', $user->id)->sharedWithUser($user))->with(['owner', 'labels'])->latest()->get();
+            $folders = $withLabel(Folder::where('owner_id', '!=', $user->id)->sharedWithUser($user))->with(['owner', 'labels'])->tap($sorted)->get();
+            $files = $withLabel(FileEntry::where('owner_id', '!=', $user->id)->sharedWithUser($user))->with(['owner', 'labels'])->tap($sorted)->get();
         } elseif ($tab === 'all') {
             // Open to everyone: unrestricted (no-share) items are visible to the
             // whole company by default; items with an explicit share are scoped
             // to their owner/grantees; files.view_all admins always see everything.
-            $folders = $withLabel($topLevelOnly(Folder::query(), 'parent_id')->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
-            $files = $withLabel($topLevelOnly(FileEntry::query(), 'folder_id')->visibleTo($user))->with(['owner', 'labels'])->latest()->get();
+            $folders = $withLabel($topLevelOnly(Folder::query(), 'parent_id')->visibleTo($user))->with(['owner', 'labels'])->tap($sorted)->get();
+            $files = $withLabel($topLevelOnly(FileEntry::query(), 'folder_id')->visibleTo($user))->with(['owner', 'labels'])->tap($sorted)->get();
         } else {
             $tab = 'mine';
-            $folders = $withLabel($topLevelOnly(Folder::where('owner_id', $user->id), 'parent_id'))->with(['owner', 'labels'])->latest()->get();
-            $files = $withLabel($topLevelOnly(FileEntry::where('owner_id', $user->id), 'folder_id'))->with(['owner', 'labels'])->latest()->get();
+            $folders = $withLabel($topLevelOnly(Folder::where('owner_id', $user->id), 'parent_id'))->with(['owner', 'labels'])->tap($sorted)->get();
+            $files = $withLabel($topLevelOnly(FileEntry::where('owner_id', $user->id), 'folder_id'))->with(['owner', 'labels'])->tap($sorted)->get();
         }
 
         $this->attachAccessAvatars($folders);
@@ -123,6 +134,7 @@ class FileManagerController extends Controller
             'fileLabels' => LookupValue::whereHas('lookupType', fn ($q) => $q->where('code', 'file_label'))
                 ->where('is_active', true)->orderBy('sort_order')->get(),
             'labelFilterId' => $labelFilterId,
+            'sort' => $sort,
         ]);
     }
 
@@ -147,6 +159,28 @@ class FileManagerController extends Controller
             ->with('owner')->latest('deleted_at')->get();
 
         return view('files.trash', ['folders' => $folders, 'files' => $files]);
+    }
+
+    /**
+     * Folders sort by name; files by their displayed name (title, falling back
+     * to the original file name — the same rule the views use). The id
+     * tie-breaker keeps the order stable when names/timestamps are equal.
+     *
+     * @param  Builder<Folder|FileEntry>  $query
+     */
+    protected function applySort(Builder $query, string $sort): void
+    {
+        $model = $query->getModel();
+        $nameExpression = $model instanceof FileEntry
+            ? 'COALESCE(NULLIF('.$model->qualifyColumn('title').", ''), ".$model->qualifyColumn('original_name').')'
+            : $model->qualifyColumn('name');
+
+        match ($sort) {
+            'oldest' => $query->oldest($model->qualifyColumn('created_at'))->orderBy($model->getQualifiedKeyName()),
+            'name_asc' => $query->orderByRaw($nameExpression.' asc')->orderBy($model->getQualifiedKeyName()),
+            'name_desc' => $query->orderByRaw($nameExpression.' desc')->orderByDesc($model->getQualifiedKeyName()),
+            default => $query->latest($model->qualifyColumn('created_at'))->orderByDesc($model->getQualifiedKeyName()),
+        };
     }
 
     /**

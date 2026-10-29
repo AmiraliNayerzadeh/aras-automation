@@ -163,4 +163,10 @@ return [
     'filter_clear' => 'پاک کردن فیلتر',
     'linked_tasks_title' => 'وظایف مرتبط',
     'flash_labels_updated' => 'برچسب‌ها به‌روزرسانی شد.',
+
+    'sort_label' => 'مرتب‌سازی',
+    'sort_newest' => 'جدیدترین',
+    'sort_oldest' => 'قدیمی‌ترین',
+    'sort_name_asc' => 'عنوان (الف تا ی)',
+    'sort_name_desc' => 'عنوان (ی تا الف)',
 ];
