@@ -170,4 +170,14 @@ return [
     'sort_oldest' => 'Oldest first',
     'sort_name_asc' => 'Name (A to Z)',
     'sort_name_desc' => 'Name (Z to A)',
+
+    'tree_title' => 'Folders',
+    'tree_toggle' => 'Show/hide folder tree',
+    'tree_hide' => 'Hide folder tree',
+    'tree_expand' => 'Expand',
+    'tree_collapse' => 'Collapse',
+    'tree_loading' => 'Loading…',
+    'tree_load_error' => 'Could not load.',
+    'tree_retry' => 'Try again',
+    'tree_empty' => 'Empty',
 ];

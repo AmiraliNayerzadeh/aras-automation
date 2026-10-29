@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/lib/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/style.css') }}">
         @include('partials.theme-color')
+        @stack('styles')
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

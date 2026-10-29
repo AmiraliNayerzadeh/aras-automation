@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('files', [FileManagerController::class, 'index'])->name('files.index');
+    Route::get('files/tree', [FileManagerController::class, 'tree'])->name('files.tree');
     Route::get('files/trash', [FileManagerController::class, 'trash'])->name('files.trash');
     Route::get('files/activity-log', [FileActivityLogController::class, 'index'])->name('files.activity-log.index');
     Route::get('files/link/{token}', [FileController::class, 'downloadByToken'])->name('files.link');

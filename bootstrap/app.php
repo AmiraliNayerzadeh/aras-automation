@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
         ]);
 
+        // Written by the file manager's JS (tree panel shown/hidden) and only
+        // ever compared against a fixed value server-side.
+        $middleware->encryptCookies(except: ['files_tree']);
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

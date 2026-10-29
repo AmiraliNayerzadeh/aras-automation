@@ -170,4 +170,14 @@ return [
     'sort_oldest' => 'Հները սկզբում',
     'sort_name_asc' => 'Անուն (Ա-ից Ֆ)',
     'sort_name_desc' => 'Անուն (Ֆ-ից Ա)',
+
+    'tree_title' => 'Թղթապանակներ',
+    'tree_toggle' => 'Ցույց տալ/թաքցնել թղթապանակների ծառը',
+    'tree_hide' => 'Թաքցնել թղթապանակների ծառը',
+    'tree_expand' => 'Բացել',
+    'tree_collapse' => 'Փակել',
+    'tree_loading' => 'Բեռնվում է…',
+    'tree_load_error' => 'Չհաջողվեց բեռնել։',
+    'tree_retry' => 'Կրկին փորձել',
+    'tree_empty' => 'Դատարկ',
 ];

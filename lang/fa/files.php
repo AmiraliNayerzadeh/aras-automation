@@ -169,4 +169,14 @@ return [
     'sort_oldest' => 'قدیمی‌ترین',
     'sort_name_asc' => 'عنوان (الف تا ی)',
     'sort_name_desc' => 'عنوان (ی تا الف)',
+
+    'tree_title' => 'پوشه‌ها',
+    'tree_toggle' => 'نمایش/پنهان کردن درخت پوشه‌ها',
+    'tree_hide' => 'پنهان کردن درخت پوشه‌ها',
+    'tree_expand' => 'باز کردن',
+    'tree_collapse' => 'بستن',
+    'tree_loading' => 'در حال بارگذاری…',
+    'tree_load_error' => 'بارگذاری نشد.',
+    'tree_retry' => 'تلاش دوباره',
+    'tree_empty' => 'خالی',
 ];

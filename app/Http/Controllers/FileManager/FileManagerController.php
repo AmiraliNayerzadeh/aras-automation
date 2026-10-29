@@ -12,6 +12,7 @@ use App\Models\Settings\LookupValue;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
@@ -93,6 +94,25 @@ class FileManagerController extends Controller
         $this->attachAccessAvatars($folders);
         $this->attachAccessAvatars($files);
 
+        // The tree's levels along the current path are embedded in the page so
+        // it renders expanded down to the current folder without extra round
+        // trips; every other branch is fetched on demand via tree(). The walk
+        // stops at the first ancestor the user can't see (e.g. a folder shared
+        // without its parent) rather than revealing anything above it.
+        $treeLevels = ['root' => $this->treeLevel($user, null)];
+        $treePath = [];
+        $previousLevel = $treeLevels['root'];
+
+        foreach ($breadcrumb as $crumb) {
+            if (! collect($previousLevel['folders'])->contains('id', $crumb->id)) {
+                $treePath = [];
+                break;
+            }
+
+            $treePath[] = $crumb->id;
+            $previousLevel = $treeLevels[$crumb->id] = $this->treeLevel($user, $crumb);
+        }
+
         // A confidential folder's name must not leak into this dropdown for a
         // files.manage holder who isn't its owner — same rule as everywhere else.
         $moveDestinations = $user->can('files.manage')
@@ -135,7 +155,27 @@ class FileManagerController extends Controller
                 ->where('is_active', true)->orderBy('sort_order')->get(),
             'labelFilterId' => $labelFilterId,
             'sort' => $sort,
+            'treeLevels' => $treeLevels,
+            'treePath' => $treePath,
+            'treeHidden' => $request->cookie('files_tree') === 'hidden',
         ]);
+    }
+
+    /**
+     * One level of the folder tree (lazy-loaded as the user expands a node).
+     */
+    public function tree(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', Folder::class);
+
+        $folder = null;
+
+        if ($request->filled('folder')) {
+            $folder = Folder::findOrFail($request->integer('folder'));
+            $this->authorize('view', $folder);
+        }
+
+        return response()->json($this->treeLevel($request->user(), $folder));
     }
 
     public function trash(Request $request): View
@@ -159,6 +199,48 @@ class FileManagerController extends Controller
             ->with('owner')->latest('deleted_at')->get();
 
         return view('files.trash', ['folders' => $folders, 'files' => $files]);
+    }
+
+    /**
+     * The visible subfolders and files directly inside $parent (or at the top
+     * level), using the same visibility rules as the listing, so the tree never
+     * shows anything the main view wouldn't. `has_children` is resolved in two
+     * bulk queries so each folder knows whether to offer an expand toggle.
+     *
+     * @return array{folders: list<array<string, mixed>>, files: list<array<string, mixed>>}
+     */
+    protected function treeLevel(User $user, ?Folder $parent): array
+    {
+        $inParent = fn ($q, string $column) => $parent ? $q->where($column, $parent->id) : $q->whereNull($column);
+
+        $folders = $inParent(Folder::query(), 'parent_id')->visibleTo($user)
+            ->orderBy('name')->orderBy('id')
+            ->get(['id', 'name', 'is_confidential']);
+
+        $files = $inParent(FileEntry::query(), 'folder_id')->visibleTo($user)
+            ->tap(fn ($q) => $this->applySort($q, 'name_asc'))
+            ->get(['id', 'title', 'original_name', 'mime_type', 'is_confidential']);
+
+        $folderIds = $folders->pluck('id');
+        $nonEmptyIds = $folderIds->isEmpty() ? collect() : Folder::whereIn('parent_id', $folderIds)->visibleTo($user)->distinct()->pluck('parent_id')
+            ->merge(FileEntry::whereIn('folder_id', $folderIds)->visibleTo($user)->distinct()->pluck('folder_id'))
+            ->flip();
+
+        return [
+            'folders' => $folders->map(fn (Folder $folder) => [
+                'id' => $folder->id,
+                'name' => $folder->name,
+                'confidential' => $folder->is_confidential,
+                'has_children' => $nonEmptyIds->has($folder->id),
+            ])->values()->all(),
+            'files' => $files->map(fn (FileEntry $file) => [
+                'id' => $file->id,
+                'name' => $file->title ?: $file->original_name,
+                'icon' => $file->iconClass().' '.$file->iconColorClass(),
+                'url' => route('files.entries.show', $file),
+                'confidential' => $file->is_confidential,
+            ])->values()->all(),
+        ];
     }
 
     /**

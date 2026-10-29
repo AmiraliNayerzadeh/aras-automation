@@ -3,6 +3,11 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h2 class="h4 fw-semibold mb-0">{{ __('files.title_index') }}</h2>
             <div class="d-flex gap-2">
+                <button type="button" data-tree-toggle aria-controls="files-tree-panel" aria-pressed="{{ $treeHidden ? 'false' : 'true' }}"
+                    class="btn btn-sm {{ $treeHidden ? 'btn-outline-secondary-600' : 'btn-primary-600' }} radius-8 px-12"
+                    title="{{ __('files.tree_toggle') }}" aria-label="{{ __('files.tree_toggle') }}">
+                    <i class="ri-node-tree"></i>
+                </button>
                 <div class="btn-group" role="group">
                     <a href="{{ route('files.index', array_merge(request()->except('view'), ['view' => 'grid'])) }}"
                         class="btn btn-sm {{ $view === 'grid' ? 'btn-primary-600' : 'btn-outline-secondary-600' }} radius-8 px-12"
@@ -33,6 +38,23 @@
     @endif
 
     @include('files._quick_access', ['quickAccess' => $quickAccess])
+
+    <div class="files-layout {{ $treeHidden ? 'is-tree-hidden' : '' }}" data-files-layout>
+    <aside class="files-tree card radius-12" id="files-tree-panel">
+        <div class="files-tree__head">
+            <span class="fw-semibold text-sm d-flex align-items-center gap-2">
+                <i class="ri-node-tree text-primary-600"></i> {{ __('files.tree_title') }}
+            </span>
+            <button type="button" class="files-tree__close" data-tree-close title="{{ __('files.tree_hide') }}" aria-label="{{ __('files.tree_hide') }}">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <nav class="files-tree__body" aria-label="{{ __('files.tree_title') }}">
+            <ul class="ft" data-tree-root></ul>
+        </nav>
+    </aside>
+
+    <div class="files-main">
 
     @unless ($currentFolder)
         <ul class="nav nav-pills mb-24">
@@ -195,9 +217,9 @@
             </div>
         </div>
     @else
-        <div class="row g-3">
+        <div class="files-grid">
             @foreach ($folders as $folder)
-                <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div>
                     <div class="border radius-12 p-16 h-100 position-relative {{ $folder->color ? '' : 'bg-base' }}" data-context-menu
                         @if ($folder->color) style="background-color: {{ $folder->color }};" @endif
                         @can('update', $folder)
@@ -232,7 +254,7 @@
             @endforeach
 
             @foreach ($files as $file)
-                <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div>
                     <div class="border radius-12 h-100 bg-base position-relative" data-context-menu
                         @can('update', $file)
                             data-drag-item data-drag-id="{{ $file->id }}" data-drag-type="file" data-drag-name="{{ $file->title ?: $file->original_name }}"
@@ -274,6 +296,9 @@
             @endforeach
         </div>
     @endif
+
+    </div>{{-- .files-main --}}
+    </div>{{-- .files-layout --}}
 
     {{-- New Folder modal --}}
     <div class="modal fade" id="folder-create-modal" tabindex="-1">
@@ -452,6 +477,411 @@
             </form>
         </div>
     </div>
+
+    @push('styles')
+        <style>
+            .files-layout { display: flex; align-items: flex-start; gap: 24px; }
+            .files-main { flex: 1 1 auto; min-width: 0; }
+            .files-tree {
+                flex: 0 0 280px; width: 280px; position: sticky; top: 5.5rem;
+                max-height: calc(100vh - 7rem); display: flex; flex-direction: column; overflow: hidden;
+            }
+            .files-layout.is-tree-hidden .files-tree { display: none; }
+            .files-tree__head {
+                display: flex; align-items: center; justify-content: space-between; gap: 8px;
+                padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--border-color);
+                color: var(--text-primary-light);
+            }
+            [dir="rtl"] .files-tree__head { padding: 12px 16px 12px 12px; }
+            .files-tree__close {
+                width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent;
+                color: var(--text-secondary-light); display: inline-flex; align-items: center; justify-content: center;
+            }
+            .files-tree__close:hover { background: var(--neutral-100); color: var(--text-primary-light); }
+            .files-tree__body { flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; padding: 8px; }
+            .ft, .ft ul { list-style: none; margin: 0; padding: 0; }
+            .ft ul { margin-inline-start: 11px; padding-inline-start: 6px; border-inline-start: 1px solid var(--neutral-200); }
+            .ft ul[hidden] { display: none; }
+            .ft-row {
+                display: flex; align-items: center; gap: 2px; min-height: 34px; border-radius: 8px;
+                padding-inline-end: 6px; transition: background-color .15s ease;
+            }
+            .ft-row:hover { background: var(--neutral-100); }
+            .ft-row.is-active { background: rgba(72, 127, 255, .12); }
+            .ft-toggle, .ft-spacer { flex: 0 0 22px; width: 22px; height: 22px; }
+            .ft-toggle {
+                border: 0; padding: 0; border-radius: 6px; background: transparent; color: var(--text-secondary-light);
+                display: inline-flex; align-items: center; justify-content: center;
+            }
+            .ft-toggle:hover { background: var(--neutral-200); color: var(--text-primary-light); }
+            .ft-toggle i { font-size: 18px; line-height: 1; transition: transform .15s ease; }
+            [dir="rtl"] .ft-toggle i { transform: scaleX(-1); }
+            .ft-item.is-expanded > .ft-row .ft-toggle i { transform: rotate(90deg); }
+            .ft-link {
+                display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; padding: 6px 4px;
+                border-radius: 6px; color: var(--text-primary-light); font-size: 14px; text-decoration: none;
+            }
+            .ft-link:hover { color: var(--primary-600); }
+            .ft-link:focus-visible { outline: 2px solid var(--primary-600); outline-offset: -2px; }
+            .ft-link > i { flex: 0 0 auto; font-size: 18px; line-height: 1; }
+            .ft-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .ft-row.is-path .ft-link { font-weight: 500; }
+            .ft-row.is-active .ft-link { color: var(--primary-600); font-weight: 600; }
+            .ft-file .ft-link { font-size: 13px; color: var(--text-secondary-light); }
+            .ft-file .ft-link:hover { color: var(--primary-600); }
+            .ft-lock { flex: 0 0 auto; font-size: 13px; }
+            .ft-status { display: flex; align-items: center; gap: 6px; padding: 6px 8px; font-size: 13px; color: var(--text-secondary-light); }
+            .ft-status button { border: 0; background: none; padding: 0; color: var(--primary-600); text-decoration: underline; font-size: 13px; }
+            .ft-spin { display: inline-block; animation: ft-spin .8s linear infinite; }
+            @keyframes ft-spin { to { transform: rotate(360deg); } }
+            /* Bootstrap's LTR-only breadcrumb separator, mirrored for RTL. */
+            [dir="rtl"] .breadcrumb-item + .breadcrumb-item { padding-left: 0; padding-right: var(--bs-breadcrumb-item-padding-x, .5rem); }
+            [dir="rtl"] .breadcrumb-item + .breadcrumb-item::before { float: right; padding-right: 0; padding-left: var(--bs-breadcrumb-item-padding-x, .5rem); }
+            .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
+            @media (max-width: 991.98px) {
+                .files-layout { flex-direction: column; align-items: stretch; }
+                .files-tree { flex: 0 0 auto; width: 100%; position: static; max-height: 360px; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .ft-row, .ft-toggle i { transition: none; }
+                .ft-spin { animation-duration: 2s; }
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script>
+            // --- Folder tree: lazy-loaded, expanded along the current path, hideable. ---
+            (function () {
+                var layout = document.querySelector('[data-files-layout]');
+                var treeRoot = document.querySelector('[data-tree-root]');
+                var treeBody = treeRoot.closest('.files-tree__body');
+                var toggleBtn = document.querySelector('[data-tree-toggle]');
+                var closeBtn = document.querySelector('[data-tree-close]');
+                var isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+                var levels = @json($treeLevels);
+                var path = @json($treePath);
+                var currentId = @json($currentFolder?->id);
+                var treeUrl = @json(route('files.tree'));
+                var homeUrl = @json(route('files.index'));
+                var folderUrlTemplate = @json(route('files.index', ['folder' => '__ID__']));
+                var t = {
+                    home: @json(__('files.breadcrumb_home')),
+                    expand: @json(__('files.tree_expand')),
+                    collapse: @json(__('files.tree_collapse')),
+                    loading: @json(__('files.tree_loading')),
+                    error: @json(__('files.tree_load_error')),
+                    retry: @json(__('files.tree_retry')),
+                    empty: @json(__('files.tree_empty')),
+                    confidential: @json(__('files.badge_confidential')),
+                };
+
+                function make(tag, className, text) {
+                    var node = document.createElement(tag);
+                    if (className) {
+                        node.className = className;
+                    }
+                    if (text !== undefined) {
+                        node.textContent = text;
+                    }
+                    return node;
+                }
+
+                function icon(className) {
+                    var i = make('i', className);
+                    i.setAttribute('aria-hidden', 'true');
+                    return i;
+                }
+
+                function buildLink(href, iconClass, name, confidential) {
+                    var link = make('a', 'ft-link');
+                    link.href = href;
+                    link.title = name;
+                    link.tabIndex = -1;
+                    link.appendChild(icon(iconClass));
+                    var label = make('span', 'ft-name', name);
+                    label.dir = 'auto';
+                    link.appendChild(label);
+                    if (confidential) {
+                        var lock = icon('ri-lock-2-fill text-danger-600 ft-lock');
+                        lock.title = t.confidential;
+                        link.appendChild(lock);
+                    }
+                    return link;
+                }
+
+                // A folder node. `folderId` is null for the "Home" root, which is
+                // always expanded and has no toggle.
+                function buildFolder(folderId, name, confidential, hasChildren) {
+                    var item = make('li', 'ft-item');
+                    var row = make('div', 'ft-row');
+                    var href = folderId === null ? homeUrl : folderUrlTemplate.replace('__ID__', folderId);
+                    var link = buildLink(href, folderId === null ? 'ri-home-4-line text-primary-600' : 'ri-folder-3-fill text-warning-main', name, confidential);
+
+                    item._folderId = folderId;
+                    item._loaded = false;
+                    item._loading = false;
+
+                    if (hasChildren && folderId !== null) {
+                        var toggle = make('button', 'ft-toggle');
+                        toggle.type = 'button';
+                        toggle.tabIndex = -1;
+                        toggle.setAttribute('aria-expanded', 'false');
+                        toggle.setAttribute('aria-label', t.expand + ': ' + name);
+                        toggle.appendChild(icon('ri-arrow-right-s-line'));
+                        toggle.addEventListener('click', function () {
+                            setExpanded(item, !item.classList.contains('is-expanded'));
+                        });
+                        row.appendChild(toggle);
+                        item._toggle = toggle;
+                    } else {
+                        row.appendChild(make('span', 'ft-spacer'));
+                    }
+
+                    row.appendChild(link);
+                    item.appendChild(row);
+
+                    if (hasChildren || folderId === null) {
+                        var group = make('ul');
+                        group.hidden = true;
+                        item.appendChild(group);
+                        item._group = group;
+                    }
+
+                    item._row = row;
+                    item._link = link;
+                    return item;
+                }
+
+                function buildFile(file) {
+                    var item = make('li', 'ft-item ft-file');
+                    var row = make('div', 'ft-row');
+                    row.appendChild(make('span', 'ft-spacer'));
+                    row.appendChild(buildLink(file.url, file.icon, file.name, file.confidential));
+                    item.appendChild(row);
+                    return item;
+                }
+
+                function setStatus(group, content) {
+                    group.textContent = '';
+                    var li = make('li', 'ft-status');
+                    content.forEach(function (part) {
+                        li.appendChild(part);
+                    });
+                    group.appendChild(li);
+                }
+
+                function renderLevel(item, level) {
+                    var group = item._group;
+                    group.textContent = '';
+                    if (!level.folders.length && !level.files.length) {
+                        setStatus(group, [make('span', null, t.empty)]);
+                    }
+                    level.folders.forEach(function (folder) {
+                        group.appendChild(buildFolder(folder.id, folder.name, folder.confidential, folder.has_children));
+                    });
+                    level.files.forEach(function (file) {
+                        group.appendChild(buildFile(file));
+                    });
+                    item._loaded = true;
+                }
+
+                function load(item) {
+                    if (item._loaded || item._loading) {
+                        return;
+                    }
+                    var key = item._folderId === null ? 'root' : item._folderId;
+                    if (levels[key]) {
+                        renderLevel(item, levels[key]);
+                        return;
+                    }
+
+                    item._loading = true;
+                    setStatus(item._group, [icon('ri-loader-4-line ft-spin'), make('span', null, t.loading)]);
+
+                    fetch(treeUrl + '?folder=' + encodeURIComponent(item._folderId), {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        credentials: 'same-origin',
+                    }).then(function (response) {
+                        if (!response.ok) {
+                            throw new Error(response.status);
+                        }
+                        return response.json();
+                    }).then(function (level) {
+                        levels[key] = level;
+                        item._loading = false;
+                        renderLevel(item, level);
+                    }).catch(function () {
+                        item._loading = false;
+                        var retry = make('button', null, t.retry);
+                        retry.type = 'button';
+                        retry.addEventListener('click', function () {
+                            load(item);
+                        });
+                        setStatus(item._group, [icon('ri-error-warning-line text-danger-600'), make('span', null, t.error), retry]);
+                    });
+                }
+
+                function setExpanded(item, expanded) {
+                    if (!item._group || item._folderId === null) {
+                        return;
+                    }
+                    item.classList.toggle('is-expanded', expanded);
+                    item._group.hidden = !expanded;
+                    item._toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                    item._toggle.setAttribute('aria-label', (expanded ? t.collapse : t.expand) + ': ' + item._link.title);
+                    var folderIcon = item._link.querySelector('i');
+                    folderIcon.className = (expanded ? 'ri-folder-open-fill' : 'ri-folder-3-fill') + ' text-warning-main';
+                    if (expanded) {
+                        load(item);
+                    }
+                }
+
+                function findChildFolder(item, folderId) {
+                    var children = item._group ? item._group.children : [];
+                    for (var i = 0; i < children.length; i++) {
+                        if (children[i]._folderId === folderId) {
+                            return children[i];
+                        }
+                    }
+                    return null;
+                }
+
+                // Build: Home > ... > current folder, expanded along the way.
+                var home = buildFolder(null, t.home, false, true);
+                home.classList.add('is-expanded');
+                home._group.hidden = false;
+                treeRoot.appendChild(home);
+                load(home);
+
+                var active = home;
+                path.forEach(function (folderId) {
+                    var next = findChildFolder(active, folderId);
+                    if (!next) {
+                        return;
+                    }
+                    active._row.classList.add('is-path');
+                    active = next;
+                    setExpanded(active, true);
+                });
+
+                // A current folder that couldn't be placed in the tree (an
+                // ancestor isn't visible to you) is simply left unhighlighted.
+                if (currentId === null || active._folderId === currentId) {
+                    active._row.classList.add('is-active');
+                    active._link.setAttribute('aria-current', 'page');
+                }
+                active._link.tabIndex = 0;
+
+                function scrollActiveIntoView() {
+                    if (layout.classList.contains('is-tree-hidden')) {
+                        return;
+                    }
+                    var rowRect = active._row.getBoundingClientRect();
+                    var bodyRect = treeBody.getBoundingClientRect();
+                    if (rowRect.top < bodyRect.top || rowRect.bottom > bodyRect.bottom) {
+                        treeBody.scrollTop += rowRect.top - bodyRect.top - (treeBody.clientHeight / 2);
+                    }
+                }
+                scrollActiveIntoView();
+
+                // Keyboard: one tab stop for the whole tree, arrows to move
+                // around (mirrored for RTL), Enter follows the link.
+                function visibleLinks() {
+                    return Array.prototype.filter.call(treeRoot.querySelectorAll('.ft-link'), function (link) {
+                        return link.offsetParent !== null;
+                    });
+                }
+
+                function focusLink(link) {
+                    if (!link) {
+                        return;
+                    }
+                    treeRoot.querySelectorAll('.ft-link[tabindex="0"]').forEach(function (other) {
+                        other.tabIndex = -1;
+                    });
+                    link.tabIndex = 0;
+                    link.focus();
+                }
+
+                treeRoot.addEventListener('keydown', function (event) {
+                    var link = event.target.closest('.ft-link');
+                    if (!link) {
+                        return;
+                    }
+                    var item = link.closest('.ft-item');
+                    var links = visibleLinks();
+                    var index = links.indexOf(link);
+                    var forward = isRtl ? 'ArrowLeft' : 'ArrowRight';
+                    var back = isRtl ? 'ArrowRight' : 'ArrowLeft';
+
+                    if (event.key === 'ArrowDown') {
+                        focusLink(links[index + 1]);
+                    } else if (event.key === 'ArrowUp') {
+                        focusLink(links[index - 1]);
+                    } else if (event.key === 'Home') {
+                        focusLink(links[0]);
+                    } else if (event.key === 'End') {
+                        focusLink(links[links.length - 1]);
+                    } else if (event.key === forward) {
+                        if (item._toggle && !item.classList.contains('is-expanded')) {
+                            setExpanded(item, true);
+                        } else if (item._group && item.classList.contains('is-expanded')) {
+                            var firstChild = item._group.querySelector('.ft-link');
+                            focusLink(firstChild);
+                        }
+                    } else if (event.key === back) {
+                        if (item._toggle && item.classList.contains('is-expanded')) {
+                            setExpanded(item, false);
+                        } else {
+                            var parentItem = item.parentElement.closest('.ft-item');
+                            focusLink(parentItem ? parentItem._link : null);
+                        }
+                    } else {
+                        return;
+                    }
+                    event.preventDefault();
+                });
+
+                treeRoot.addEventListener('focusin', function (event) {
+                    if (event.target.classList.contains('ft-link')) {
+                        focusLink(event.target);
+                    }
+                });
+
+                // Show/hide the panel; remembered in a cookie so the server
+                // renders the right state on the next load (no flash).
+                function setTreeHidden(hidden, remember) {
+                    layout.classList.toggle('is-tree-hidden', hidden);
+                    toggleBtn.setAttribute('aria-pressed', hidden ? 'false' : 'true');
+                    toggleBtn.classList.toggle('btn-primary-600', !hidden);
+                    toggleBtn.classList.toggle('btn-outline-secondary-600', hidden);
+                    if (remember) {
+                        document.cookie = 'files_tree=' + (hidden ? 'hidden' : 'shown') + '; path=/; max-age=31536000; SameSite=Lax'
+                            + (window.location.protocol === 'https:' ? '; Secure' : '');
+                    }
+                    if (!hidden) {
+                        scrollActiveIntoView();
+                    }
+                }
+
+                // On a phone the stacked tree would push the listing below the
+                // fold, so it starts collapsed there until the user opts in.
+                if (!/(?:^|;\s*)files_tree=/.test(document.cookie) && window.matchMedia('(max-width: 991.98px)').matches) {
+                    setTreeHidden(true, false);
+                }
+
+                toggleBtn.addEventListener('click', function () {
+                    setTreeHidden(!layout.classList.contains('is-tree-hidden'), true);
+                });
+                closeBtn.addEventListener('click', function () {
+                    setTreeHidden(true, true);
+                    toggleBtn.focus();
+                });
+            })();
+        </script>
+    @endpush
 
     @push('scripts')
         <script>
