@@ -219,7 +219,7 @@
 
     @if ($file->isSpreadsheet())
         @push('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+            <script src="{{ asset('assets/vendor/xlsx-0.18.5/xlsx.full.min.js') }}"></script>
             <script>
                 (function () {
                     var container = document.getElementById('office-preview');
@@ -254,7 +254,9 @@
         @endpush
     @elseif ($file->isWordDocument())
         @push('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3/dist/docx-preview.min.js"></script>
+            {{-- docx-preview needs JSZip as a global. --}}
+            <script src="{{ asset('assets/vendor/jszip-3.10.2/jszip.min.js') }}"></script>
+            <script src="{{ asset('assets/vendor/docx-preview-0.3.7/docx-preview.min.js') }}"></script>
             <script>
                 (function () {
                     var container = document.getElementById('office-preview');

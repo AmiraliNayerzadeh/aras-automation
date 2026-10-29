@@ -5,8 +5,8 @@
 @isset($shareable)
 @once
     @push('scripts')
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+        <link rel="stylesheet" href="{{ asset('assets/vendor/select2-4.1.0-rc.0/select2.min.css') }}">
+        <script src="{{ asset('assets/vendor/select2-4.1.0-rc.0/select2.min.js') }}"></script>
         <style>
             .select2-avatar-img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-inline-end: 8px; vertical-align: middle; }
             .select2-container .select2-selection--multiple,

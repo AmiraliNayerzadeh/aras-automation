@@ -122,10 +122,10 @@
     </style>
 
     @push('scripts')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/orgchart@6.0.0/dist/css/orgchart.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/orgchart@6.0.0/dist/js/orgchart.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+        <link rel="stylesheet" href="{{ asset('assets/vendor/orgchart-6.0.0/orgchart.min.css') }}">
+        <script src="{{ asset('assets/vendor/orgchart-6.0.0/orgchart.min.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('assets/vendor/select2-4.1.0-rc.0/select2.min.css') }}">
+        <script src="{{ asset('assets/vendor/select2-4.1.0-rc.0/select2.min.js') }}"></script>
         <script>
             (function () {
                 var chartData = @json($chartData);
