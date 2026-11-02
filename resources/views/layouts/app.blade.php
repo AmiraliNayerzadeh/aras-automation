@@ -70,20 +70,17 @@
                                     <div class="px-16 py-12 border-bottom fw-semibold">{{ __('notifications.title') }}</div>
                                     <div style="max-height: 360px; overflow-y: auto;">
                                         @forelse ($headerUnreadNotifications as $notification)
-                                            <a href="{{ route('files.entries.show', $notification->data['file_id']) }}"
-                                                class="d-flex gap-2 px-16 py-12 border-bottom text-decoration-none">
-                                                <i class="ri-upload-cloud-2-line text-primary-600 text-xl flex-shrink-0"></i>
-                                                <div>
-                                                    <div class="text-primary-light text-sm">
-                                                        {{ __('notifications.file_uploaded', [
-                                                            'uploader' => $notification->data['uploader_name'],
-                                                            'file' => $notification->data['file_name'],
-                                                            'folder' => $notification->data['folder_path'] ?? __('notifications.root_folder'),
-                                                        ]) }}
+                                            @php($presented = \App\Support\NotificationPresenter::present($notification))
+                                            @if ($presented)
+                                                <a href="{{ $presented['url'] }}"
+                                                    class="d-flex gap-2 px-16 py-12 border-bottom text-decoration-none">
+                                                    <i class="{{ $presented['icon'] }} text-primary-600 text-xl flex-shrink-0"></i>
+                                                    <div>
+                                                        <div class="text-primary-light text-sm">{{ $presented['text'] }}</div>
+                                                        <div class="text-secondary-light text-xs mt-4">{{ $notification->created_at->diffForHumans() }}</div>
                                                     </div>
-                                                    <div class="text-secondary-light text-xs mt-4">{{ $notification->created_at->diffForHumans() }}</div>
-                                                </div>
-                                            </a>
+                                                </a>
+                                            @endif
                                         @empty
                                             <div class="px-16 py-24 text-center text-secondary-light text-sm">{{ __('notifications.empty') }}</div>
                                         @endforelse

@@ -32,7 +32,7 @@ beforeEach(function () {
     $folder('Charlie folder', '2026-01-03');
 
     // An empty title falls back to the original name, as in the views.
-    $file('Bravo file', 'zzz.pdf', '2026-02-03');
+    $file('bravo file', 'zzz.pdf', '2026-02-03');
     $file('', 'alpha-file.pdf', '2026-02-01');
     $file(null, 'charlie-file.pdf', '2026-02-02');
 });
@@ -53,7 +53,7 @@ test('items are sorted newest first by default', function () {
         ->assertSee('<option value="newest" selected>', false);
     expect(listedNames($response))->toBe([
         ['Charlie folder', 'Bravo folder', 'Alpha folder'],
-        ['Bravo file', 'charlie-file.pdf', 'alpha-file.pdf'],
+        ['bravo file', 'charlie-file.pdf', 'alpha-file.pdf'],
     ]);
 });
 
@@ -62,7 +62,7 @@ test('items can be sorted oldest first', function () {
 
     expect(listedNames($response))->toBe([
         ['Alpha folder', 'Bravo folder', 'Charlie folder'],
-        ['alpha-file.pdf', 'charlie-file.pdf', 'Bravo file'],
+        ['alpha-file.pdf', 'charlie-file.pdf', 'bravo file'],
     ]);
 });
 
@@ -70,13 +70,13 @@ test('items can be sorted by name in both directions', function () {
     $asc = $this->actingAs($this->user)->get(route('files.index', ['tab' => 'mine', 'sort' => 'name_asc']));
     expect(listedNames($asc))->toBe([
         ['Alpha folder', 'Bravo folder', 'Charlie folder'],
-        ['alpha-file.pdf', 'Bravo file', 'charlie-file.pdf'],
+        ['alpha-file.pdf', 'bravo file', 'charlie-file.pdf'],
     ]);
 
     $desc = $this->actingAs($this->user)->get(route('files.index', ['tab' => 'mine', 'sort' => 'name_desc']));
     expect(listedNames($desc))->toBe([
         ['Charlie folder', 'Bravo folder', 'Alpha folder'],
-        ['charlie-file.pdf', 'Bravo file', 'alpha-file.pdf'],
+        ['charlie-file.pdf', 'bravo file', 'alpha-file.pdf'],
     ]);
 });
 
@@ -90,7 +90,7 @@ test('sorting applies inside a folder', function () {
     $response->assertOk();
     expect(listedNames($response))->toBe([
         ['Charlie folder', 'Bravo folder'],
-        ['charlie-file.pdf', 'Bravo file', 'alpha-file.pdf'],
+        ['charlie-file.pdf', 'bravo file', 'alpha-file.pdf'],
     ]);
 });
 

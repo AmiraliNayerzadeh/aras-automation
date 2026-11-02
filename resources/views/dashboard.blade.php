@@ -7,6 +7,40 @@
 
     @include('files._quick_access', ['quickAccess' => $quickAccess])
 
+    @include('admin.payment-reminders._status')
+
+    @if ($dueReminders->isNotEmpty())
+        <div class="card radius-12 mb-24">
+            <div class="card-header bg-base fw-semibold d-flex justify-content-between align-items-center gap-2">
+                <span class="d-flex align-items-center gap-2">
+                    <i class="ri-bank-card-line text-danger-600"></i> {{ __('payments.dashboard_title') }}
+                </span>
+                <a href="{{ route('admin.payment-reminders.index') }}" class="text-sm text-primary-600 fw-normal">{{ __('app.view_details') }}</a>
+            </div>
+            <div class="card-body py-8">
+                @foreach ($dueReminders as $reminder)
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 py-12 {{ $loop->last ? '' : 'border-bottom' }}">
+                        <div>
+                            <div class="text-primary-light fw-medium">{{ $reminder->title }}</div>
+                            <div class="text-secondary-light text-sm">
+                                {{ $reminder->next_due_date->toDateString() }}
+                                @if ($reminder->formattedAmount())
+                                    · {{ $reminder->formattedAmount() }}
+                                @endif
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            @include('admin.payment-reminders._badge')
+                            @include('admin.payment-reminders._pay_button')
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        @include('admin.payment-reminders._pay_modal')
+    @endif
+
     @if ($recentNotifications->isNotEmpty())
         <div class="card radius-12 mb-24">
             <div class="card-header bg-base fw-semibold d-flex align-items-center gap-2">
@@ -14,18 +48,17 @@
             </div>
             <div class="card-body">
                 @foreach ($recentNotifications as $notification)
-                    <a href="{{ route('files.entries.show', $notification->data['file_id']) }}"
-                        class="d-flex justify-content-between align-items-center text-decoration-none py-12 border-bottom">
-                        <span class="text-primary-light d-flex align-items-center gap-2">
-                            <i class="ri-upload-cloud-2-line text-primary-600"></i>
-                            {{ __('notifications.file_uploaded', [
-                                'uploader' => $notification->data['uploader_name'],
-                                'file' => $notification->data['file_name'],
-                                'folder' => $notification->data['folder_path'] ?? __('notifications.root_folder'),
-                            ]) }}
-                        </span>
-                        <span class="text-secondary-light text-xs flex-shrink-0 ms-8">{{ $notification->created_at->diffForHumans() }}</span>
-                    </a>
+                    @php($presented = \App\Support\NotificationPresenter::present($notification))
+                    @if ($presented)
+                        <a href="{{ $presented['url'] }}"
+                            class="d-flex justify-content-between align-items-center text-decoration-none py-12 border-bottom">
+                            <span class="text-primary-light d-flex align-items-center gap-2">
+                                <i class="{{ $presented['icon'] }} text-primary-600"></i>
+                                {{ $presented['text'] }}
+                            </span>
+                            <span class="text-secondary-light text-xs flex-shrink-0 ms-8">{{ $notification->created_at->diffForHumans() }}</span>
+                        </a>
+                    @endif
                 @endforeach
             </div>
         </div>

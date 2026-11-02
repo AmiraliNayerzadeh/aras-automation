@@ -158,7 +158,7 @@
         @endcan
     @endcan
 
-    @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view', 'org-chart.manage'])
+    @canany(['users.view', 'organization.view', 'roles.manage', 'settings.manage', 'activitylog.view', 'face-device-events.view', 'org-chart.manage', 'payment-reminders.manage'])
         <li class="sidebar-menu-group-title">{{ __('app.nav_administration') }}</li>
     @endcanany
 
@@ -243,6 +243,15 @@
                     </a>
                 </li>
             </ul>
+        </li>
+    @endcan
+
+    @can('payment-reminders.manage')
+        <li>
+            <x-nav-link :href="route('admin.payment-reminders.index')" :active="request()->routeIs('admin.payment-reminders.*')">
+                <i class="ri-bank-card-line menu-icon"></i>
+                <span>{{ __('payments.nav') }}</span>
+            </x-nav-link>
         </li>
     @endcan
 

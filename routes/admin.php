@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AssetCategoryController;
 use App\Http\Controllers\Admin\AssetController;
+use App\Http\Controllers\Admin\AttendanceCorrectionController;
 use App\Http\Controllers\Admin\AttendanceReportController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BusinessPartnerController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\FaceDeviceEventController;
 use App\Http\Controllers\Admin\LookupTypeController;
 use App\Http\Controllers\Admin\OrgChartController;
+use App\Http\Controllers\Admin\PaymentReminderController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\ProductBrandController;
 use App\Http\Controllers\Admin\ProductCategoryController;
@@ -49,6 +51,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     Route::get('face-device-events', [FaceDeviceEventController::class, 'index'])->name('face-device-events.index');
     Route::get('attendance-report', [AttendanceReportController::class, 'index'])->name('attendance-report.index');
+    Route::get('attendance-report/excel', [AttendanceReportController::class, 'excel'])->name('attendance-report.excel');
+    Route::post('attendance-corrections', [AttendanceCorrectionController::class, 'store'])->name('attendance-corrections.store');
+    Route::delete('attendance-corrections/{attendanceCorrection}', [AttendanceCorrectionController::class, 'destroy'])->name('attendance-corrections.destroy');
+
+    Route::resource('payment-reminders', PaymentReminderController::class)->except(['show']);
+    Route::post('payment-reminders/{paymentReminder}/pay', [PaymentReminderController::class, 'pay'])->name('payment-reminders.pay');
+    Route::delete('payment-reminders/{paymentReminder}/payments/{payment}', [PaymentReminderController::class, 'undoPayment'])
+        ->scopeBindings()->name('payment-reminders.payments.undo');
 
     Route::get('work-shifts', [WorkShiftController::class, 'index'])->name('work-shifts.index');
     Route::get('work-shifts/{user}/edit', [WorkShiftController::class, 'edit'])->name('work-shifts.edit');

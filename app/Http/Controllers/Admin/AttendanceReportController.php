@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserStatus;
+use App\Exports\AttendanceReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Organization\Branch;
 use App\Models\Organization\Department;
 use App\Models\User;
 use App\Services\AttendanceCalculator;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AttendanceReportController extends Controller implements HasMiddleware
 {
@@ -26,17 +29,8 @@ class AttendanceReportController extends Controller implements HasMiddleware
 
     public function index(Request $request, AttendanceCalculator $calculator): View
     {
-        $dateFrom = $request->filled('date_from') ? Carbon::parse($request->input('date_from')) : now()->startOfMonth();
-        $dateTo = $request->filled('date_to') ? Carbon::parse($request->input('date_to')) : now();
-
-        $users = User::query()
-            ->with('workShifts')
-            ->where('status', UserStatus::Active->value)
-            ->when($request->filled('user_id'), fn ($q) => $q->where('id', $request->input('user_id')))
-            ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->input('department_id')))
-            ->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id', $request->input('branch_id')))
-            ->orderBy('name')
-            ->get();
+        [$dateFrom, $dateTo] = $this->dateRange($request);
+        $users = $this->reportUsers($request);
 
         $daily = $calculator->forDateRange($users, $dateFrom, $dateTo);
 
@@ -62,26 +56,7 @@ class AttendanceReportController extends Controller implements HasMiddleware
             ]);
         }
 
-        $summary = $daily
-            ->groupBy('user_id')
-            ->map(function (Collection $rows) {
-                $present = $rows->where('status', 'present');
-
-                return [
-                    'user' => $rows->first()['user'],
-                    'present_days' => $present->count(),
-                    'absent_days' => $rows->where('status', 'absent')->count(),
-                    'on_leave_days' => $rows->where('status', 'on_leave')->count(),
-                    'remote_days' => $rows->where('status', 'remote')->count(),
-                    'incomplete_days' => $rows->where('status', 'incomplete')->count(),
-                    'total_minutes' => $present->sum('worked_minutes'),
-                    'avg_minutes' => $present->count() > 0 ? (int) round($present->sum('worked_minutes') / $present->count()) : null,
-                    'total_overtime_minutes' => $present->sum('overtime_minutes'),
-                    'total_shortfall_minutes' => $present->sum('shortfall_minutes'),
-                ];
-            })
-            ->sortByDesc('total_minutes')
-            ->values();
+        $summary = $calculator->summarize($daily);
 
         return view('admin.attendance-report.index', $viewData + [
             'mode' => 'summary',
@@ -91,5 +66,57 @@ class AttendanceReportController extends Controller implements HasMiddleware
                 'values' => $summary->take(20)->map(fn ($s) => round($s['total_minutes'] / 60, 2))->all(),
             ],
         ]);
+    }
+
+    /**
+     * With a user_id: that employee's own report. Otherwise a group workbook
+     * for the current filters: a summary sheet plus one sheet per employee.
+     */
+    public function excel(Request $request, AttendanceCalculator $calculator): BinaryFileResponse
+    {
+        $request->validate([
+            'date_from' => ['nullable', 'date_format:Y-m-d'],
+            'date_to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date_from'],
+        ]);
+
+        [$dateFrom, $dateTo] = $this->dateRange($request);
+        $users = $this->reportUsers($request)->load('department');
+
+        abort_if($users->isEmpty(), 404);
+
+        $single = $request->filled('user_id');
+        $daily = $calculator->forDateRange($users, $dateFrom, $dateTo);
+
+        $export = new AttendanceReportExport($calculator->summarize($daily), $daily->groupBy('user_id'), $single, $dateFrom, $dateTo);
+
+        $scope = $single ? ($users->first()->employee_number ?: $users->first()->id).'_' : '';
+
+        return Excel::download($export, 'attendance_'.$scope.$dateFrom->toDateString().'_'.$dateTo->toDateString().'.xlsx');
+    }
+
+    /**
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    protected function dateRange(Request $request): array
+    {
+        return [
+            $request->filled('date_from') ? Carbon::parse($request->input('date_from')) : now()->startOfMonth(),
+            $request->filled('date_to') ? Carbon::parse($request->input('date_to')) : now(),
+        ];
+    }
+
+    /**
+     * @return EloquentCollection<int, User>
+     */
+    protected function reportUsers(Request $request): EloquentCollection
+    {
+        return User::query()
+            ->with('workShifts')
+            ->where('status', UserStatus::Active->value)
+            ->when($request->filled('user_id'), fn ($q) => $q->where('id', $request->input('user_id')))
+            ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->input('department_id')))
+            ->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id', $request->input('branch_id')))
+            ->orderBy('name')
+            ->get();
     }
 }

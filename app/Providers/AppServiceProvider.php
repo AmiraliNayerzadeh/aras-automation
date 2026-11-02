@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Middleware\SetLocale;
+use App\Models\Hr\AttendanceCorrection;
 use App\Models\FileManager\FileEntry;
 use App\Models\FileManager\Folder;
 use App\Models\Hr\LeaveRequest;
@@ -15,6 +16,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        Gate::define('correct-attendance', fn (User $user) => AttendanceCorrection::canBeEditedBy($user));
 
         Relation::morphMap([
             'leave_request' => LeaveRequest::class,

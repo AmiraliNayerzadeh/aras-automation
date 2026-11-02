@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FileManager\FileFavorite;
+use App\Models\Finance\PaymentReminder;
 use App\Models\Organization\Company;
 use App\Models\Organization\Department;
 use App\Models\User;
@@ -46,6 +47,7 @@ class DashboardController extends Controller
             'stats' => $stats,
             'quickAccess' => $quickAccess,
             'recentNotifications' => $recentNotifications,
+            'dueReminders' => $request->user()->can('payment-reminders.manage') ? PaymentReminder::needingAttention() : collect(),
         ]);
     }
 }

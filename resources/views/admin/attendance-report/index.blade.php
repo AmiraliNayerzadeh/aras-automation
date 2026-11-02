@@ -2,13 +2,26 @@
     <x-slot name="header">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h2 class="h4 fw-semibold mb-0">{{ __('app.title_attendance_report') }}</h2>
-            @if ($mode === 'detail')
-                <a href="{{ route('admin.attendance-report.index', request()->except('user_id')) }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">
-                    <i class="ri-arrow-go-back-line"></i> {{ __('app.back_to_summary') }}
+            <div class="d-flex gap-2 flex-wrap">
+                @if ($mode === 'detail')
+                    <a href="{{ route('admin.attendance-report.index', request()->except('user_id')) }}" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm">
+                        <i class="ri-arrow-go-back-line"></i> {{ __('app.back_to_summary') }}
+                    </a>
+                @endif
+                <a href="{{ route('admin.attendance-report.excel', array_merge(request()->query(), ['date_from' => $dateFrom, 'date_to' => $dateTo])) }}" class="btn btn-success-600 radius-8 px-16 py-8 text-sm">
+                    <i class="ri-file-excel-2-line"></i> {{ $mode === 'detail' ? __('app.attendance_excel_employee') : __('app.attendance_excel_group') }}
                 </a>
-            @endif
+            </div>
         </div>
     </x-slot>
+
+    @if (in_array(session('status'), ['attendance-corrected', 'attendance-correction-removed'], true))
+        <div class="alert alert-success radius-8 mb-24">{{ __('app.flash_'.str_replace('-', '_', session('status'))) }}</div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger radius-8 mb-24">{{ $errors->first() }}</div>
+    @endif
 
     <div class="card radius-12 mb-24">
         <div class="card-body">
@@ -111,9 +124,14 @@
                                 <td class="text-success-600">{{ $minutesToHours($row['total_overtime_minutes']) }}</td>
                                 <td class="text-danger-600">{{ $minutesToHours($row['total_shortfall_minutes']) }}</td>
                                 <td>
-                                    <a href="{{ route('admin.attendance-report.index', array_merge(request()->except('user_id'), ['user_id' => $row['user']?->id])) }}" class="text-primary-600">
-                                        {{ __('app.view_details') }}
-                                    </a>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <a href="{{ route('admin.attendance-report.index', array_merge(request()->except('user_id'), ['user_id' => $row['user']?->id])) }}" class="text-primary-600">
+                                            {{ __('app.view_details') }}
+                                        </a>
+                                        <a href="{{ route('admin.attendance-report.excel', array_merge(request()->query(), ['date_from' => $dateFrom, 'date_to' => $dateTo, 'user_id' => $row['user']?->id])) }}" class="text-success-600 text-xl" title="{{ __('app.attendance_excel_employee') }}" aria-label="{{ __('app.attendance_excel_employee') }}">
+                                            <i class="ri-file-excel-2-line"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -146,6 +164,9 @@
                             <th>{{ __('app.field_duration') }}</th>
                             <th>{{ __('app.field_overtime') }}</th>
                             <th>{{ __('app.field_shortfall') }}</th>
+                            @can('correct-attendance')
+                                <th class="text-end">{{ __('app.actions') }}</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody>
@@ -156,6 +177,9 @@
                                     <span class="badge text-sm fw-semibold px-16 py-6 radius-4 {{ $statusBadge($row['status']) }}">
                                         {{ __('app.status_'.$row['status']) }}
                                     </span>
+                                    @if ($row['correction']?->reason)
+                                        <div class="text-secondary-light text-xs mt-4">{{ $row['correction']->reason }}</div>
+                                    @endif
                                 </td>
                                 <td>{{ $row['check_in']?->format('H:i:s') ?? '—' }}</td>
                                 <td>{{ $row['check_out']?->format('H:i:s') ?? '—' }}</td>
@@ -168,14 +192,85 @@
                                 </td>
                                 <td class="text-success-600">{{ $row['overtime_minutes'] ? $minutesToHours($row['overtime_minutes']) : '—' }}</td>
                                 <td class="text-danger-600">{{ $row['shortfall_minutes'] ? $minutesToHours($row['shortfall_minutes']) : '—' }}</td>
+                                @can('correct-attendance')
+                                    <td class="text-end text-nowrap">
+                                        @if ($row['date'] <= today()->toDateString())
+                                            <button type="button" class="btn btn-outline-secondary-600 radius-8 px-12 py-6 text-sm"
+                                                data-bs-toggle="modal" data-bs-target="#attendance-correction-modal"
+                                                data-date="{{ $row['date'] }}"
+                                                data-check-in="{{ $row['check_in']?->format('H:i') }}"
+                                                data-check-out="{{ $row['check_out']?->format('H:i') }}"
+                                                data-reason="{{ $row['correction']?->reason }}">
+                                                <i class="ri-edit-2-line"></i> {{ __('app.edit') }}
+                                            </button>
+                                        @endif
+                                        @if ($row['correction'])
+                                            <form action="{{ route('admin.attendance-corrections.destroy', $row['correction']) }}" method="POST" class="d-inline" onsubmit="return confirm(@js(__('app.attendance_confirm_restore')));">
+                                                @csrf
+                                                @method('delete')
+                                                <button type="submit" class="btn btn-outline-danger-600 radius-8 px-12 py-6 text-sm">{{ __('app.attendance_restore') }}</button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                @endcan
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
+                            <tr><td colspan="8" class="text-center text-muted py-4">{{ __('app.no_records') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
+        @can('correct-attendance')
+            <div class="modal fade" id="attendance-correction-modal" tabindex="-1">
+                <div class="modal-dialog">
+                    <form method="POST" action="{{ route('admin.attendance-corrections.store') }}" class="modal-content">
+                        @csrf
+                        <input type="hidden" name="user_id" value="{{ $employee?->id }}">
+                        <input type="hidden" name="date" id="correction-date">
+                        <div class="modal-header">
+                            <h6 class="modal-title">{{ __('app.attendance_correct_title') }}</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-secondary-light text-sm mb-16">{{ $employee?->name }} — <span id="correction-date-label"></span></p>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <x-input-label for="correction-check-in" :value="__('app.field_check_in')" />
+                                    <input type="time" id="correction-check-in" name="check_in" class="form-control mt-1">
+                                </div>
+                                <div class="col-6">
+                                    <x-input-label for="correction-check-out" :value="__('app.field_check_out')" />
+                                    <input type="time" id="correction-check-out" name="check_out" class="form-control mt-1">
+                                </div>
+                                <div class="col-12">
+                                    <x-input-label for="correction-reason" :value="__('app.attendance_correct_reason')" />
+                                    <input type="text" id="correction-reason" name="reason" maxlength="500" class="form-control mt-1">
+                                </div>
+                            </div>
+                            <p class="text-secondary-light text-xs mt-16 mb-0">{{ __('app.attendance_correct_hint') }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary-600 radius-8 px-16 py-8 text-sm" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
+                            <button type="submit" class="btn btn-primary-600 radius-8 px-16 py-8 text-sm">{{ __('app.save') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @push('scripts')
+                <script>
+                    document.getElementById('attendance-correction-modal').addEventListener('show.bs.modal', function (event) {
+                        var trigger = event.relatedTarget;
+                        document.getElementById('correction-date').value = trigger.getAttribute('data-date');
+                        document.getElementById('correction-date-label').textContent = trigger.getAttribute('data-date');
+                        document.getElementById('correction-check-in').value = trigger.getAttribute('data-check-in');
+                        document.getElementById('correction-check-out').value = trigger.getAttribute('data-check-out');
+                        document.getElementById('correction-reason').value = trigger.getAttribute('data-reason');
+                    });
+                </script>
+            @endpush
+        @endcan
     @endif
 
     @push('scripts')

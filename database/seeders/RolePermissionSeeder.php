@@ -30,6 +30,7 @@ class RolePermissionSeeder extends Seeder
         'stock.view', 'stock.record',
         'tasks.create', 'tasks.view_all', 'tasks.manage',
         'files.create', 'files.view_all', 'files.manage', 'files.mark_confidential', 'files.customize_color',
+        'payment-reminders.manage',
     ];
 
     public function run(): void
@@ -58,6 +59,7 @@ class RolePermissionSeeder extends Seeder
             'stock.view', 'stock.record',
             'tasks.create', 'tasks.view_all', 'tasks.manage',
             'files.create', 'files.manage',
+            'payment-reminders.manage',
         ]);
 
         $hr = Role::findOrCreate('hr', 'web');

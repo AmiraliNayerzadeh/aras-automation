@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\RequestStatus;
+use App\Models\Hr\AttendanceCorrection;
 use App\Models\Hr\FaceDeviceEvent;
 use App\Models\Hr\LeaveRequest;
 use App\Models\User;
@@ -15,7 +16,8 @@ use Illuminate\Support\Collection;
  * day_off / on_leave / present / incomplete / remote / absent and computing
  * overtime/shortfall for complete "present" days against the employee's
  * effective work schedule for that weekday. Shared by the attendance report
- * page and the nightly PDF report so both stay in sync.
+ * page, its Excel export and the nightly PDF report so all stay in sync. An
+ * AttendanceCorrection replaces what the device recorded for that day.
  */
 class AttendanceCalculator
 {
@@ -45,6 +47,13 @@ class AttendanceCalculator
             ->get()
             ->groupBy('user_id');
 
+        $correctionsByUserDay = AttendanceCorrection::query()
+            ->whereIn('user_id', $userIds)
+            ->whereDate('date', '>=', $dateFrom->toDateString())
+            ->whereDate('date', '<=', $dateTo->toDateString())
+            ->get()
+            ->keyBy(fn (AttendanceCorrection $c) => $c->user_id.'|'.$c->date->toDateString());
+
         $rows = collect();
 
         foreach ($users as $user) {
@@ -55,11 +64,15 @@ class AttendanceCalculator
                 $day = $schedule[$date->dayOfWeek];
                 $dayEvents = $eventsByUserDay->get($user->id.'|'.$date->toDateString());
 
-                $checkIn = $dayEvents?->min('event_time');
-                $checkOut = $dayEvents && $dayEvents->count() > 1 ? $dayEvents->max('event_time') : null;
-                $workedMinutes = $checkOut ? $checkIn->diffInMinutes($checkOut) : null;
+                $correction = $correctionsByUserDay->get($user->id.'|'.$date->toDateString());
 
-                $status = $this->classifyDay($day, $leaves, $date, $dayEvents, $user);
+                $checkIn = $correction ? $correction->check_in : $dayEvents?->min('event_time');
+                $checkOut = $correction
+                    ? $correction->check_out
+                    : ($dayEvents && $dayEvents->count() > 1 ? $dayEvents->max('event_time') : null);
+                $workedMinutes = $checkIn && $checkOut ? (int) $checkIn->diffInMinutes($checkOut) : null;
+
+                $status = $this->classifyDay($day, $leaves, $date, $checkIn, $checkOut, $user);
 
                 $scheduledMinutes = $this->resolver->scheduledMinutes($day);
                 $overtime = null;
@@ -82,6 +95,7 @@ class AttendanceCalculator
                     'worked_minutes' => $workedMinutes,
                     'overtime_minutes' => $overtime,
                     'shortfall_minutes' => $shortfall,
+                    'correction' => $correction,
                 ]);
             }
         }
@@ -90,11 +104,37 @@ class AttendanceCalculator
     }
 
     /**
+     * Per-employee totals for rows from forDateRange(), busiest first.
+     */
+    public function summarize(Collection $daily): Collection
+    {
+        return $daily
+            ->groupBy('user_id')
+            ->map(function (Collection $rows) {
+                $present = $rows->where('status', 'present');
+
+                return [
+                    'user' => $rows->first()['user'],
+                    'present_days' => $present->count(),
+                    'absent_days' => $rows->where('status', 'absent')->count(),
+                    'on_leave_days' => $rows->where('status', 'on_leave')->count(),
+                    'remote_days' => $rows->where('status', 'remote')->count(),
+                    'incomplete_days' => $rows->where('status', 'incomplete')->count(),
+                    'total_minutes' => $present->sum('worked_minutes'),
+                    'avg_minutes' => $present->count() > 0 ? (int) round($present->sum('worked_minutes') / $present->count()) : null,
+                    'total_overtime_minutes' => $present->sum('overtime_minutes'),
+                    'total_shortfall_minutes' => $present->sum('shortfall_minutes'),
+                ];
+            })
+            ->sortByDesc('total_minutes')
+            ->values();
+    }
+
+    /**
      * @param  array{is_day_off: bool, start_time: ?string, end_time: ?string}  $day
      * @param  Collection<int, LeaveRequest>  $leaves
-     * @param  ?Collection<int, FaceDeviceEvent>  $dayEvents
      */
-    private function classifyDay(array $day, Collection $leaves, Carbon $date, ?Collection $dayEvents, User $user): string
+    private function classifyDay(array $day, Collection $leaves, Carbon $date, ?Carbon $checkIn, ?Carbon $checkOut, User $user): string
     {
         if ($day['is_day_off']) {
             return 'day_off';
@@ -106,11 +146,11 @@ class AttendanceCalculator
             return 'on_leave';
         }
 
-        if ($dayEvents && $dayEvents->count() > 1) {
+        if ($checkIn && $checkOut) {
             return 'present';
         }
 
-        if ($dayEvents && $dayEvents->count() === 1) {
+        if ($checkIn || $checkOut) {
             return 'incomplete';
         }
 
