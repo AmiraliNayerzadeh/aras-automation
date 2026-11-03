@@ -20,10 +20,13 @@ class AttendanceCorrection extends Model
     use LogsActivity;
 
     /**
-     * Deliberately not a role or permission: only this one account may change
+     * Deliberately not a role or permission: only these accounts may change
      * attendance times, so it can't be granted by editing roles.
      */
-    public const EDITOR_EMAIL = 'amiralinayerzadeh@gmail.com';
+    public const EDITOR_EMAILS = [
+        'amiralinayerzadeh@gmail.com',
+        'hokmabadi.morteza63@gmail.com',
+    ];
 
     protected function casts(): array
     {
@@ -44,6 +47,6 @@ class AttendanceCorrection extends Model
 
     public static function canBeEditedBy(User $user): bool
     {
-        return strcasecmp($user->email, self::EDITOR_EMAIL) === 0;
+        return in_array(mb_strtolower((string) $user->email), self::EDITOR_EMAILS, true);
     }
 }

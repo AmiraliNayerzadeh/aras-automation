@@ -13,7 +13,7 @@ beforeEach(function () {
 
     Permission::findOrCreate('face-device-events.view');
 
-    $this->owner = User::factory()->create(['email' => AttendanceCorrection::EDITOR_EMAIL, 'status' => 'active']);
+    $this->owner = User::factory()->create(['email' => AttendanceCorrection::EDITOR_EMAILS[0], 'status' => 'active']);
     $this->owner->givePermissionTo('face-device-events.view');
 
     $this->superAdmin = User::factory()->create(['status' => 'active']);
@@ -61,8 +61,24 @@ test('nobody but the named account can correct attendance', function () {
     expect(AttendanceCorrection::count())->toBe(1);
 });
 
+test('both named accounts can correct attendance', function () {
+    $second = User::factory()->create(['email' => 'hokmabadi.morteza63@gmail.com', 'status' => 'active']);
+
+    $this->actingAs($second)->post(route('admin.attendance-corrections.store'), ($this->payload)())
+        ->assertSessionHasNoErrors()->assertRedirect();
+
+    expect(AttendanceCorrection::count())->toBe(1)
+        ->and(AttendanceCorrection::first()->edited_by)->toBe($second->id);
+});
+
+test('a similar email is not enough', function () {
+    $lookalike = User::factory()->create(['email' => 'hokmabadi.morteza63@gmail.com.evil.test', 'status' => 'active']);
+
+    $this->actingAs($lookalike)->post(route('admin.attendance-corrections.store'), ($this->payload)())->assertForbidden();
+});
+
 test('the email check ignores case', function () {
-    $this->owner->update(['email' => strtoupper(AttendanceCorrection::EDITOR_EMAIL)]);
+    $this->owner->update(['email' => strtoupper(AttendanceCorrection::EDITOR_EMAILS[0])]);
 
     $this->actingAs($this->owner->fresh())->post(route('admin.attendance-corrections.store'), ($this->payload)())
         ->assertSessionHasNoErrors()->assertRedirect();
