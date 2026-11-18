@@ -140,6 +140,46 @@
         </li>
     @endcan
 
+    @canany(['merchandising.create', 'merchandising.view_all', 'stores.manage'])
+        <li class="sidebar-menu-group-title">{{ __('merchandising.nav_section') }}</li>
+        @can('merchandising.create')
+            <li>
+                <x-nav-link :href="route('merchandising.visits.create')" :active="request()->routeIs('merchandising.visits.create')">
+                    <i class="ri-camera-lens-line menu-icon"></i>
+                    <span>{{ __('merchandising.nav_new_visit') }}</span>
+                </x-nav-link>
+            </li>
+        @endcan
+        <li>
+            <x-nav-link :href="route('merchandising.visits.index')" :active="request()->routeIs('merchandising.visits.index', 'merchandising.visits.show')">
+                <i class="ri-map-pin-user-line menu-icon"></i>
+                <span>{{ __('merchandising.nav_visits') }}</span>
+            </x-nav-link>
+        </li>
+        @can('merchandising.view_all')
+            <li>
+                <x-nav-link :href="route('merchandising.reports.index')" :active="request()->routeIs('merchandising.reports.*')">
+                    <i class="ri-bar-chart-box-line menu-icon"></i>
+                    <span>{{ __('merchandising.nav_reports') }}</span>
+                </x-nav-link>
+            </li>
+        @endcan
+        @can('stores.manage')
+            <li>
+                <x-nav-link :href="route('merchandising.stores.index')" :active="request()->routeIs('merchandising.stores.*')">
+                    <i class="ri-store-2-line menu-icon"></i>
+                    <span>{{ __('merchandising.nav_stores') }}</span>
+                </x-nav-link>
+            </li>
+            <li>
+                <x-nav-link :href="route('merchandising.setup')" :active="request()->routeIs('merchandising.setup')">
+                    <i class="ri-settings-4-line menu-icon"></i>
+                    <span>{{ __('merchandising.nav_setup') }}</span>
+                </x-nav-link>
+            </li>
+        @endcan
+    @endcanany
+
     @can('files.create')
         <li class="sidebar-menu-group-title">{{ __('app.nav_files') }}</li>
         <li>

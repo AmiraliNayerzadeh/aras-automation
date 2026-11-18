@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[Fillable(['title', 'description', 'parent_id', 'sort_order', 'is_active'])]
+#[Fillable(['title', 'description', 'parent_id', 'division', 'sort_order', 'is_active'])]
 class ProductCategory extends Model
 {
     use LogsActivity, SoftDeletes;

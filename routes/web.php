@@ -27,3 +27,4 @@ require __DIR__.'/requests.php';
 require __DIR__.'/orders.php';
 require __DIR__.'/tasks.php';
 require __DIR__.'/files.php';
+require __DIR__.'/merchandising.php';

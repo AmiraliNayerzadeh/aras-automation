@@ -16,7 +16,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 #[Fillable([
-    'sku', 'barcode', 'title', 'subtitle', 'category_id', 'brand_id',
+    'sku', 'barcode', 'title', 'subtitle', 'category_id', 'brand_id', 'line',
     'unit', 'package_quantity', 'price', 'description', 'image_path', 'is_active',
 ])]
 class Product extends Model

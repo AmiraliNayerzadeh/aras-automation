@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             LookupTypeSeeder::class,
             WarehouseSeeder::class,
+            MerchandisingSeeder::class,
         ]);
     }
 }

@@ -58,6 +58,7 @@ class User extends Authenticatable
             'employment_type' => EmploymentType::class,
             'status' => UserStatus::class,
             'is_remote' => 'boolean',
+            'merchandising_divisions' => 'array',
         ];
     }
 

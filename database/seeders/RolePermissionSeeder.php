@@ -31,6 +31,7 @@ class RolePermissionSeeder extends Seeder
         'tasks.create', 'tasks.view_all', 'tasks.manage',
         'files.create', 'files.view_all', 'files.manage', 'files.mark_confidential', 'files.customize_color',
         'payment-reminders.manage',
+        'merchandising.create', 'merchandising.view_all', 'stores.manage',
     ];
 
     public function run(): void
@@ -60,6 +61,7 @@ class RolePermissionSeeder extends Seeder
             'tasks.create', 'tasks.view_all', 'tasks.manage',
             'files.create', 'files.manage',
             'payment-reminders.manage',
+            'merchandising.create', 'merchandising.view_all', 'stores.manage',
         ]);
 
         $hr = Role::findOrCreate('hr', 'web');
@@ -79,6 +81,8 @@ class RolePermissionSeeder extends Seeder
             'assets.view', 'assets.create', 'assets.edit', 'assets.delete', 'assets.assign',
             'tasks.create', 'files.create',
         ]);
+
+        Role::findOrCreate('merchandiser', 'web')->syncPermissions(['merchandising.create']);
 
         $employee = Role::findOrCreate('employee', 'web');
         $employee->syncPermissions(['leaves.create', 'leaves.approve', 'missions.create', 'missions.approve', 'tasks.create', 'files.create']);
