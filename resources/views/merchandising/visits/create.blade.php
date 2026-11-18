@@ -102,13 +102,20 @@
                 </div>
             @endif
 
-            <div class="mv-search mb-12">
-                <i class="ri-search-line"></i>
-                <input type="search" id="mv-product-search" class="form-control mv-input" placeholder="{{ __('merchandising.products_search_placeholder') }}" autocomplete="off">
+            <div class="row g-2 mb-12">
+                <div class="col-md-7">
+                    <div class="mv-search">
+                        <i class="ri-search-line"></i>
+                        <input type="search" id="mv-product-search" class="form-control mv-input" placeholder="{{ __('merchandising.products_search_placeholder') }}" autocomplete="off" aria-label="{{ __('merchandising.products_search_placeholder') }}">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <select id="mv-line" class="form-select mv-input" aria-label="{{ __('merchandising.field_line') }}"></select>
+                </div>
             </div>
-            <div class="mv-chips mv-chips--scroll mb-12" id="mv-lines"></div>
+            <div class="mv-catalog-count" id="mv-catalog-count" aria-live="polite"></div>
             <div class="mv-catalog" id="mv-catalog"></div>
-            <button type="button" class="btn btn-outline-secondary-600 radius-8 w-100 mt-12 d-none" id="mv-catalog-more"></button>
+            <button type="button" class="btn btn-outline-primary-600 radius-8 w-100 mt-12 d-none" id="mv-catalog-more"></button>
 
             <div class="mv-custom mt-16">
                 <label class="mv-label" for="mv-custom-name">{{ __('merchandising.product_custom_add') }}</label>

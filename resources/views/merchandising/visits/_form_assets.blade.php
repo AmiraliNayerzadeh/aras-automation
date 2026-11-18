@@ -1,6 +1,9 @@
 @push('styles')
     <style>
-        .mv { padding-bottom: 96px; }
+        /* clip, not hidden: never lets the form widen the page sideways on a
+           phone, without turning it into its own scroll area. */
+        .mv { padding-bottom: 96px; max-width: 100%; overflow-x: clip; }
+        .mv-card, .mv-item, .mv-product { min-width: 0; overflow-wrap: anywhere; }
         .mv-card { background: var(--white); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
         .mv-card.is-invalid { border-color: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, .12); }
         .mv-card__title { display: flex; align-items: center; gap: 10px; font-size: 17px !important; font-weight: 600; margin-bottom: 14px; color: var(--text-primary-light); }
@@ -10,7 +13,12 @@
         .mv-label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--text-primary-light); }
         .mv-hint { font-size: 13px; color: var(--text-secondary-light); margin-bottom: 12px; }
         .mv-empty { font-size: 13px; color: var(--text-secondary-light); margin: 8px 0 0; }
-        .mv-input { min-height: 46px; font-size: 15px; border-radius: 10px; }
+        /* 16px: iPhone Safari zooms into any smaller field on tap, and the
+           zoomed page then scrolls sideways. */
+        .mv-input, .mv textarea, .mv select { min-height: 46px; font-size: 16px !important; border-radius: 10px; }
+        /* Safari gives date-time fields a minimum width wider than small phones. */
+        .mv input[type="datetime-local"] { display: block; width: 100%; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; }
+        .mv-catalog-count { font-size: 12px; color: var(--text-secondary-light); margin-bottom: 8px; }
         .mv-static { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 12px; border-radius: 10px; background: var(--neutral-50); color: var(--text-primary-light); }
         .mv-static img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .mv-link { border: 0; background: none; padding: 0; color: #487FFF; font-size: 14px; text-decoration: underline; }
@@ -126,7 +134,8 @@
             var DRAFT_KEY = 'merch-visit-draft-' + @json(auth()->id());
             var OLD = @json(old('payload'));
             var MAX_BYTES = @json(\App\Models\Merchandising\Upload::MAX_BYTES);
-            var PAGE = 60;
+            // A dozen cards at a time: on a phone the whole catalog is an endless page.
+            var PAGE = 12;
 
             var form = document.getElementById('mv-form');
             var byId = function (id) { return document.getElementById(id); };
@@ -301,19 +310,25 @@
                 });
             }
 
+            var lineSelect = byId('mv-line');
+
             function renderLines() {
                 var lines = {};
                 CATALOG.forEach(function (p) { if (!filter.division || p.division === filter.division) { lines[p.line] = (lines[p.line] || 0) + 1; } });
-                var box = byId('mv-lines');
-                box.textContent = '';
-                [''].concat(Object.keys(lines).sort()).forEach(function (line) {
-                    var b = el('button', 'mv-chip', line || T.products_all_lines);
-                    b.type = 'button';
-                    b.setAttribute('aria-pressed', String(filter.line === line));
-                    b.addEventListener('click', function () { filter.line = line; filter.limit = PAGE; renderLines(); renderCatalog(); });
-                    box.appendChild(b);
+                lineSelect.textContent = '';
+                var all = el('option', null, T.products_all_lines_option);
+                all.value = '';
+                lineSelect.appendChild(all);
+                Object.keys(lines).sort().forEach(function (line) {
+                    var option = el('option', null, line + ' (' + lines[line] + ')');
+                    option.value = line;
+                    lineSelect.appendChild(option);
                 });
+                lineSelect.value = lines[filter.line] ? filter.line : '';
+                filter.line = lineSelect.value;
             }
+
+            lineSelect.addEventListener('change', function () { filter.line = lineSelect.value; filter.limit = PAGE; renderCatalog(); });
 
             function renderCatalog() {
                 var list = matching();
@@ -341,9 +356,11 @@
                     card.addEventListener('click', function () { toggleProduct(p); });
                     catalogEl.appendChild(card);
                 });
-                var rest = list.length - filter.limit;
+                var shown = Math.min(filter.limit, list.length);
+                var rest = list.length - shown;
+                byId('mv-catalog-count').textContent = list.length ? T.products_showing.replace(':shown', shown).replace(':total', list.length) : '';
                 moreBtn.classList.toggle('d-none', rest <= 0);
-                moreBtn.textContent = '+ ' + rest;
+                moreBtn.textContent = T.products_show_more.replace(':count', Math.min(PAGE, rest));
             }
 
             moreBtn.addEventListener('click', function () { filter.limit += PAGE; renderCatalog(); });
