@@ -155,6 +155,7 @@ return [
     'import_button' => 'ایمپورت',
     'import_result' => ':created اضافه، :updated به‌روز، :unchanged بدون تغییر، :skipped رد شد.',
     'import_conflicts' => 'ردیف‌هایی که نیاز به بررسی دارند',
+    'import_unreadable' => 'فایل خوانده نشد. آن را با فرمت ‎.xlsx یا ‎.csv ذخیره کنید و دوباره امتحان کنید.',
     'import_unknown_format' => 'ستون‌های این فایل شناخته نشد.',
     'flash_store_created' => 'فروشگاه اضافه شد.',
     'flash_store_updated' => 'فروشگاه به‌روز شد.',

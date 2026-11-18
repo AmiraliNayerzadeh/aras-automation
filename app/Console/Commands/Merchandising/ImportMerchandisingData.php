@@ -37,14 +37,14 @@ class ImportMerchandisingData extends Command
             $upload = new UploadedFile($path, basename($path), test: true);
 
             if ($type === 'products') {
-                $result = $products->import(ImportRows::fromUpload($upload, 'item_code') ?: ImportRows::fromUpload($upload, 'code'));
+                $result = $products->import(ImportRows::fromUpload($upload, ['item_main_group_desc', 'item_code', 'code']));
                 $this->info(basename($path).": {$result['created']} created, {$result['updated']} updated, {$result['skipped']} skipped.");
                 array_map(fn ($error) => $this->warn('  '.$error), array_slice($result['errors'], 0, 20));
 
                 continue;
             }
 
-            $rows = ImportRows::fromUpload($upload, 'name') ?: ImportRows::fromUpload($upload, 'acc_code');
+            $rows = ImportRows::fromUpload($upload, ['name', 'acc_code', 'food_acc_code']);
             $result = $stores->import($rows);
 
             if ($result['format'] === 'unknown') {

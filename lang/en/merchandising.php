@@ -156,6 +156,7 @@ return [
     'import_button' => 'Import',
     'import_result' => ':created added, :updated updated, :unchanged unchanged, :skipped skipped.',
     'import_conflicts' => 'Rows needing a look',
+    'import_unreadable' => 'The file could not be read. Save it as .xlsx or .csv and try again.',
     'import_unknown_format' => 'The columns of this file were not recognised.',
     'flash_store_created' => 'Store added.',
     'flash_store_updated' => 'Store updated.',

@@ -43,7 +43,7 @@ class MerchandisingSeeder extends Seeder
 
         foreach ($files as $file) {
             $upload = new UploadedFile($file->getPathname(), $file->getFilename(), test: true);
-            $result = $stores->import(ImportRows::fromUpload($upload, 'name') ?: ImportRows::fromUpload($upload, 'acc_code'));
+            $result = $stores->import(ImportRows::fromUpload($upload, ['name', 'acc_code', 'food_acc_code']));
 
             $this->command?->info("Stores from {$file->getFilename()} ({$result['format']}): {$result['created']} created, {$result['updated']} updated, {$result['unchanged']} unchanged, {$result['skipped']} skipped, ".count($result['conflicts']).' conflicts.');
         }

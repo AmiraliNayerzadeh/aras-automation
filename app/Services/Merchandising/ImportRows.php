@@ -15,6 +15,13 @@ use Maatwebsite\Excel\Facades\Excel;
 class ImportRows
 {
     /**
+     * Checked by name, not content: servers commonly identify a CSV as
+     * application/octet-stream and an .xlsx as application/zip, which made
+     * Laravel's "mimes" rule refuse perfectly good files.
+     */
+    public const EXTENSIONS = 'xlsx,xls,csv,txt';
+
+    /**
      * @return list<array<string, ?string>>
      */
     public static function fromCsv(string $path): array
@@ -44,29 +51,39 @@ class ImportRows
     }
 
     /**
-     * Picks the sheet that looks most like the data asked for: the one whose
-     * headings include $requiredHeading and that has the most rows. Product
-     * workbooks from the ERP carry a dozen scratch sheets next to the master.
+     * Reads the file once and picks the sheet that looks most like the data
+     * asked for: the first heading in $headings (in priority order) that any
+     * sheet has wins, and among those sheets the one with the most rows.
+     * Product workbooks from the ERP carry a dozen scratch sheets next to the
+     * master. A CSV is a single sheet, returned as is.
      *
+     * @param  list<string>  $headings
      * @return list<array<string, ?string>>
+     *
+     * @throws \Throwable when the file can't be read as a spreadsheet
      */
-    public static function fromUpload(UploadedFile $file, string $requiredHeading): array
+    public static function fromUpload(UploadedFile $file, array $headings): array
     {
         if (in_array(strtolower($file->getClientOriginalExtension()), ['csv', 'txt'], true)) {
             return self::fromCsv($file->getRealPath());
         }
 
-        $best = [];
+        $sheets = array_map(
+            fn ($sheet) => array_map(fn ($row) => self::clean(array_combine(array_map(fn ($k) => self::key((string) $k), array_keys($row)), array_values($row))), $sheet),
+            Excel::toArray(new class implements WithHeadingRow {}, $file),
+        );
 
-        foreach (Excel::toArray(new class implements WithHeadingRow {}, $file) as $sheet) {
-            $rows = array_map(fn ($row) => self::clean(array_combine(array_map(fn ($k) => self::key((string) $k), array_keys($row)), array_values($row))), $sheet);
+        foreach ($headings as $heading) {
+            $matching = array_filter($sheets, fn ($rows) => $rows && array_key_exists($heading, $rows[0]));
 
-            if ($rows && array_key_exists($requiredHeading, $rows[0]) && count($rows) > count($best)) {
-                $best = $rows;
+            if ($matching) {
+                usort($matching, fn ($a, $b) => count($b) <=> count($a));
+
+                return $matching[0];
             }
         }
 
-        return $best;
+        return [];
     }
 
     public static function key(string $heading): string

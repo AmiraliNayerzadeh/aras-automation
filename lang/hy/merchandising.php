@@ -155,6 +155,7 @@ return [
     'import_button' => 'Ներմուծել',
     'import_result' => ':created ավելացվեց, :updated թարմացվեց, :unchanged անփոփոխ, :skipped բաց թողնվեց։',
     'import_conflicts' => 'Ստուգման կարիք ունեցող տողեր',
+    'import_unreadable' => 'Ֆայլը չհաջողվեց կարդալ։ Պահպանեք այն .xlsx կամ .csv ձևաչափով և փորձեք կրկին։',
     'import_unknown_format' => 'Այս ֆայլի սյունակները չճանաչվեցին։',
     'flash_store_created' => 'Խանութը ավելացվեց։',
     'flash_store_updated' => 'Խանութը թարմացվեց։',

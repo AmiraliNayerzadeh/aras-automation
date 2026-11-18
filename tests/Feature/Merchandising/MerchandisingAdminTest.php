@@ -89,3 +89,30 @@ test('products import from the panel', function () {
 
     expect(Product::where('sku', '30101')->first()->line)->toBe('TOP SUN KETCHUP');
 });
+
+test('a real xlsx is accepted even though servers see it as a zip', function () {
+    $book = new PhpOffice\PhpSpreadsheet\Spreadsheet;
+    $book->getActiveSheet()->fromArray([['Acc code', 'Account Name'], ['11706001', 'SHOP FROM ERP'], ['11600001', 'OIL CO']]);
+    $path = tempnam(sys_get_temp_dir(), 'erp').'.xlsx';
+    (new PhpOffice\PhpSpreadsheet\Writer\Xlsx($book))->save($path);
+
+    $this->actingAs($this->admin)
+        ->post(route('merchandising.stores.import'), ['file' => new UploadedFile($path, 'master customer.xlsx', null, null, true)])
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('import_result', fn ($r) => $r['format'] === 'erp' && $r['created'] === 1);
+
+    @unlink($path);
+});
+
+test('a corrupt spreadsheet gets a clear message instead of an error page', function () {
+    $file = UploadedFile::fake()->createWithContent('broken.xlsx', 'this is not a spreadsheet');
+
+    $this->actingAs($this->admin)->post(route('merchandising.stores.import'), ['file' => $file])
+        ->assertRedirect()
+        ->assertSessionHasErrors(['file' => __('merchandising.import_unreadable')]);
+});
+
+test('other file types are still refused', function () {
+    $this->actingAs($this->admin)->post(route('merchandising.stores.import'), ['file' => UploadedFile::fake()->create('photo.jpg', 10)])
+        ->assertSessionHasErrors('file');
+});

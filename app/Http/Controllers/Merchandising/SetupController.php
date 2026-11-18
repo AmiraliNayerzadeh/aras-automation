@@ -81,12 +81,15 @@ class SetupController extends Controller implements HasMiddleware
 
     public function importProducts(Request $request, ProductCatalogImporter $importer): RedirectResponse
     {
-        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,xls,csv,txt', 'max:102400']]);
+        $request->validate(['file' => ['required', 'file', 'extensions:'.ImportRows::EXTENSIONS, 'max:102400']]);
         ini_set('memory_limit', '2048M');
         set_time_limit(600);
 
-        $file = $request->file('file');
-        $rows = ImportRows::fromUpload($file, 'item_main_group_desc') ?: ImportRows::fromUpload($file, 'item_code') ?: ImportRows::fromUpload($file, 'code');
+        try {
+            $rows = ImportRows::fromUpload($request->file('file'), ['item_main_group_desc', 'item_code', 'code']);
+        } catch (\Throwable) {
+            return back()->withErrors(['file' => __('merchandising.import_unreadable')]);
+        }
 
         if (! $rows) {
             return back()->withErrors(['file' => __('merchandising.import_unknown_format')]);

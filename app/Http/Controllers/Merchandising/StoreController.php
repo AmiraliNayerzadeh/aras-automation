@@ -80,12 +80,16 @@ class StoreController extends Controller implements HasMiddleware
 
     public function import(Request $request, StoreImporter $importer): RedirectResponse
     {
-        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,xls,csv,txt', 'max:51200']]);
+        $request->validate(['file' => ['required', 'file', 'extensions:'.ImportRows::EXTENSIONS, 'max:51200']]);
         ini_set('memory_limit', '1024M');
         set_time_limit(300);
 
-        $file = $request->file('file');
-        $rows = ImportRows::fromUpload($file, 'name') ?: ImportRows::fromUpload($file, 'acc_code');
+        try {
+            $rows = ImportRows::fromUpload($request->file('file'), ['name', 'acc_code', 'food_acc_code']);
+        } catch (\Throwable) {
+            return back()->withErrors(['file' => __('merchandising.import_unreadable')]);
+        }
+
         $result = $importer->import($rows, $request->user()->id);
 
         if ($result['format'] === 'unknown') {
