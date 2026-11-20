@@ -65,6 +65,16 @@
                         <button type="button" class="mv-link mt-8" id="mv-store-search-toggle">{{ __('merchandising.store_back_to_search') }}</button>
                     </div>
                 </div>
+                <div class="col-12">
+                    <div class="mv-location" id="mv-location" role="status" aria-live="polite">
+                        <i class="ri-loader-4-line mv-spin" id="mv-location-icon"></i>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold" id="mv-location-title">{{ __('merchandising.location_checking') }}</div>
+                            <div class="text-xs" id="mv-location-detail"></div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary-600 radius-8 d-none flex-shrink-0" id="mv-location-retry">{{ __('merchandising.location_recheck') }}</button>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -78,7 +88,7 @@
                         <div class="mv-label">{{ __('merchandising.photos_'.$kind) }} <span class="text-danger-600">*</span></div>
                         <div class="mv-uploads" data-kind="{{ $kind }}">
                             <label class="mv-upload-add">
-                                <input type="file" accept="image/*" multiple data-upload-input="{{ $kind }}">
+                                <input type="file" accept="image/*" capture="environment" data-upload-input="{{ $kind }}">
                                 <i class="ri-camera-line"></i>
                                 <span>{{ __('merchandising.add_photo') }}</span>
                             </label>
@@ -174,7 +184,7 @@
             <p class="mv-hint">{{ __('merchandising.photos_extra_hint') }}</p>
             <div class="mv-uploads" data-kind="extra">
                 <label class="mv-upload-add">
-                    <input type="file" accept="image/*,video/*" multiple data-upload-input="extra">
+                    <input type="file" accept="image/*,video/*" capture="environment" data-upload-input="extra">
                     <i class="ri-image-add-line"></i>
                     <span>{{ __('merchandising.add_media') }}</span>
                 </label>

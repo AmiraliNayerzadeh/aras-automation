@@ -107,3 +107,13 @@ test('bad filters are refused', function () {
     $this->actingAs($this->admin)->get(route('merchandising.reports.index', ['date_from' => '2026-11-18', 'date_to' => '2026-11-01']))
         ->assertSessionHasErrors('date_to');
 });
+
+test('the report shows how many visits were confirmed at the store and can list the rest', function () {
+    Visit::query()->orderBy('id')->first()->update(['location_status' => 'verified', 'distance_m' => 30]);
+
+    $this->actingAs($this->admin)->get(route('merchandising.reports.index', ['date_from' => '2026-11-01', 'date_to' => '2026-11-18']))
+        ->assertViewHas('kpis', fn ($k) => $k['location_verified'] === 1 && $k['location_verified_rate'] === 50.0);
+
+    $this->actingAs($this->admin)->get(route('merchandising.reports.index', ['date_from' => '2026-11-01', 'date_to' => '2026-11-18', 'location' => 'unverified']))
+        ->assertViewHas('kpis', fn ($k) => $k['visits'] === 1);
+});

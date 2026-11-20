@@ -93,6 +93,7 @@ class ReportController extends Controller implements HasMiddleware
             'store_id' => ['nullable', 'integer'],
             'store_type' => ['nullable', Rule::in(Store::TYPES)],
             'region' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', Rule::in(['unverified'])],
         ]);
     }
 

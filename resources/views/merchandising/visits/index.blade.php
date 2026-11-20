@@ -39,6 +39,15 @@
                         </select>
                     </div>
                 @endif
+                @can('merchandising.view_all')
+                    <div class="col-md-2">
+                        <x-input-label for="location" :value="__('merchandising.field_location')" />
+                        <select id="location" name="location" class="form-select mt-1">
+                            <option value="">{{ __('merchandising.filter_location_all') }}</option>
+                            <option value="unverified" @selected(request('location') === 'unverified')>{{ __('merchandising.filter_location_unverified') }}</option>
+                        </select>
+                    </div>
+                @endcan
                 <div class="col">
                     <x-input-label for="q" :value="__('merchandising.field_store')" />
                     <x-text-input id="q" name="q" class="mt-1 w-100" :value="request('q')" />
@@ -61,6 +70,7 @@
                         <th>{{ __('merchandising.field_products_checked') }}</th>
                         <th>{{ __('merchandising.field_out_of_stock') }}</th>
                         <th>{{ __('merchandising.field_photos') }}</th>
+                        <th>{{ __('merchandising.field_location') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,9 +89,10 @@
                                 @else <span class="text-secondary-light">0</span> @endif
                             </td>
                             <td>{{ $visit->media_count }}</td>
+                            <td>@include('merchandising.visits._location_badge')</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center text-secondary-light py-4">{{ __('merchandising.no_visits') }}</td></tr>
+                        <tr><td colspan="7" class="text-center text-secondary-light py-4">{{ __('merchandising.no_visits') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>

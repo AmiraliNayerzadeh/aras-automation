@@ -28,6 +28,8 @@
     <div class="card radius-12 mb-24">
         <div class="card-body">
             <div class="d-flex flex-wrap gap-2 mb-12">
+                <a href="{{ route('merchandising.reports.index', request('location') ? \Illuminate\Support\Arr::except($query, 'location') : array_merge($query, ['location' => 'unverified'])) }}"
+                    class="btn btn-sm radius-8 px-12 {{ request('location') ? 'btn-danger-600' : 'btn-outline-danger-600' }}"><i class="ri-map-pin-off-line"></i> {{ __('merchandising.filter_location_unverified') }}</a>
                 @foreach ($ranges as $label => [$from, $to])
                     @php($isActive = $report->from->toDateString() === $from && $report->to->toDateString() === $to)
                     <a href="{{ route('merchandising.reports.index', array_merge($query, ['date_from' => $from, 'date_to' => $to])) }}" class="btn btn-sm radius-8 px-12 {{ $isActive ? 'btn-primary-600' : 'btn-outline-secondary-600' }}">{{ __('merchandising.'.$label) }}</a>
@@ -81,6 +83,9 @@
                 @if ($selectedStore)
                     <input type="hidden" name="store_id" value="{{ $selectedStore->id }}">
                 @endif
+                @if (request('location'))
+                    <input type="hidden" name="location" value="{{ request('location') }}">
+                @endif
                 <div class="col-lg-1 col-12">
                     <button class="btn btn-primary-600 radius-8 w-100 py-8">{{ __('merchandising.report_apply') }}</button>
                 </div>
@@ -106,6 +111,7 @@
                 ['kpi_products', $kpis['products_checked'], 'ri-shopping-basket-2-line', 'purple'],
                 ['kpi_out_rate', $kpis['out_of_stock_rate'] !== null ? $kpis['out_of_stock_rate'].'%' : '—', 'ri-error-warning-line', 'danger', $kpis['out_of_stock'].' / '.$kpis['products_checked']],
                 ['kpi_price_ok', $kpis['price_tag_ok_rate'] !== null ? $kpis['price_tag_ok_rate'].'%' : '—', 'ri-price-tag-3-line', 'success'],
+                ['kpi_location_verified', $kpis['location_verified_rate'] !== null ? $kpis['location_verified_rate'].'%' : '—', 'ri-map-pin-2-line', 'info', $kpis['location_verified'].' / '.$kpis['visits']],
                 ['kpi_orders', $kpis['orders_needed'], 'ri-shopping-cart-2-line', 'warning'],
             ] as $kpi)
                 <div class="mr-kpi mr-tone-{{ $kpi[3] }}">
@@ -198,7 +204,7 @@
             <div class="card-header bg-base fw-semibold">{{ __('merchandising.table_visits') }} ({{ $report->visits->count() }})</div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle text-sm">
-                    <thead><tr><th>{{ __('merchandising.col_time') }}</th><th>{{ __('merchandising.field_store') }}</th><th>{{ __('merchandising.field_merchandiser') }}</th><th class="text-end">{{ __('merchandising.kpi_products') }}</th><th class="text-end">{{ __('merchandising.kpi_out_of_stock') }}</th><th class="text-end">{{ __('merchandising.kpi_photos') }}</th></tr></thead>
+                    <thead><tr><th>{{ __('merchandising.col_time') }}</th><th>{{ __('merchandising.field_store') }}</th><th>{{ __('merchandising.field_merchandiser') }}</th><th class="text-end">{{ __('merchandising.kpi_products') }}</th><th class="text-end">{{ __('merchandising.kpi_out_of_stock') }}</th><th class="text-end">{{ __('merchandising.kpi_photos') }}</th><th>{{ __('merchandising.field_location') }}</th></tr></thead>
                     <tbody>
                         @foreach ($report->visits->sortByDesc('visited_at') as $visit)
                             @php($items = $report->itemsOf($visit))
@@ -215,6 +221,7 @@
                                 <td class="text-end">{{ $items->count() }}</td>
                                 <td class="text-end">{{ $items->whereIn('stock_status', \App\Services\Merchandising\MerchandisingReport::OUT_STATUSES)->count() }}</td>
                                 <td class="text-end">{{ $visit->media->count() }}</td>
+                                <td>@include('merchandising.visits._location_badge')</td>
                             </tr>
                         @endforeach
                     </tbody>

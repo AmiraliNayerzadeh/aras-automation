@@ -46,6 +46,18 @@
                         <div class="col-sm-4"><div class="text-secondary-light">{{ __('merchandising.field_visited_at') }}</div><div class="fw-semibold">{{ $visit->visited_at->format('Y-m-d H:i') }}</div></div>
                         <div class="col-sm-4"><div class="text-secondary-light">{{ __('merchandising.field_merchandiser') }}</div><div class="fw-semibold">{{ $visit->user?->name }}</div></div>
                         <div class="col-sm-4"><div class="text-secondary-light">{{ __('merchandising.field_divisions') }}</div><div class="fw-semibold">{{ collect($visit->divisions)->map(fn ($d) => __('merchandising.division_'.$d))->implode(', ') ?: '—' }}</div></div>
+                        <div class="col-12">
+                            <div class="text-secondary-light">{{ __('merchandising.field_location') }}</div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mt-4">
+                                @include('merchandising.visits._location_badge')
+                                @if ($visit->distance_m !== null)
+                                    <span class="text-secondary-light">{{ __('merchandising.location_distance', ['distance' => $visit->distance_m]) }}</span>
+                                @endif
+                                @if ($visit->mapUrl())
+                                    <a href="{{ $visit->mapUrl() }}" target="_blank" rel="noopener" class="text-primary-600"><i class="ri-map-2-line"></i> {{ __('merchandising.location_open_map') }}</a>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -35,7 +35,7 @@ class MerchandisingReportExport implements WithMultipleSheets
             $summary[] = [ucfirst(str_replace('_', ' ', $key)), $value ?? '—'];
         }
 
-        $visits = [['Date', 'Time', 'Merchandiser', 'Store', 'Store codes', 'Region', 'Products checked', 'Out of stock', 'Actions', 'Store feedback', 'Order needed', 'Note', 'Photos']];
+        $visits = [['Date', 'Time', 'Merchandiser', 'Store', 'Store codes', 'Region', 'Products checked', 'Out of stock', 'Actions', 'Store feedback', 'Order needed', 'Note', 'Photos', 'Location', 'Distance (m)']];
 
         foreach ($this->report->visits as $visit) {
             $items = $this->report->itemsOf($visit);
@@ -45,6 +45,7 @@ class MerchandisingReportExport implements WithMultipleSheets
                 $items->count(), $items->whereIn('stock_status', MerchandisingReport::OUT_STATUSES)->count(),
                 $list('actions', $visit->actions), $list('feedback', $visit->store_feedback),
                 $visit->needs_order ? 'Yes' : 'No', $visit->note, $visit->media->count(),
+                __('merchandising.location_'.($visit->location_status ?? 'no_location')), $visit->distance_m,
             ];
         }
 

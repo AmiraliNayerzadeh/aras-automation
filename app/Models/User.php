@@ -59,6 +59,7 @@ class User extends Authenticatable
             'status' => UserStatus::class,
             'is_remote' => 'boolean',
             'merchandising_divisions' => 'array',
+            'merchandising_visits_seen_at' => 'datetime',
         ];
     }
 

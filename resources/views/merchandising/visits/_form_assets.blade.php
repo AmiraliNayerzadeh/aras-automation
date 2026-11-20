@@ -3,7 +3,10 @@
         /* clip, not hidden: never lets the form widen the page sideways on a
            phone, without turning it into its own scroll area. */
         .mv { padding-bottom: 96px; max-width: 100%; overflow-x: clip; }
-        .mv-card, .mv-item, .mv-product { min-width: 0; overflow-wrap: anywhere; }
+        /* break-word (not anywhere) only splits words too long for the line,
+           so short labels like button text never wrap mid-word. */
+        .mv-card, .mv-item, .mv-product { min-width: 0; overflow-wrap: break-word; }
+        .mv .btn { white-space: nowrap; }
         .mv-card { background: var(--white); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
         .mv-card.is-invalid { border-color: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, .12); }
         .mv-card__title { display: flex; align-items: center; gap: 10px; font-size: 17px !important; font-weight: 600; margin-bottom: 14px; color: var(--text-primary-light); }
@@ -19,6 +22,15 @@
         /* Safari gives date-time fields a minimum width wider than small phones. */
         .mv input[type="datetime-local"] { display: block; width: 100%; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; }
         .mv-catalog-count { font-size: 12px; color: var(--text-secondary-light); margin-bottom: 8px; }
+        .mv-location { --tone: 107, 114, 128; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: rgba(var(--tone), .1); border: 1px solid rgba(var(--tone), .35); color: var(--text-primary-light); }
+        .mv-location > i { font-size: 22px; color: rgb(var(--tone)); flex: 0 0 auto; }
+        .mv-location .text-xs { color: var(--text-secondary-light); }
+        .mv-location.is-ok { --tone: 34, 167, 94; }
+        .mv-location.is-warn { --tone: 240, 145, 30; }
+        .mv-location.is-bad { --tone: 239, 68, 68; }
+        .mv-spin { display: inline-block; animation: mv-spin .9s linear infinite; }
+        @keyframes mv-spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .mv-spin { animation-duration: 2.5s; } }
         .mv-static { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 12px; border-radius: 10px; background: var(--neutral-50); color: var(--text-primary-light); }
         .mv-static img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .mv-link { border: 0; background: none; padding: 0; color: #487FFF; font-size: 14px; text-decoration: underline; }
@@ -134,6 +146,12 @@
             var DRAFT_KEY = 'merch-visit-draft-' + @json(auth()->id());
             var OLD = @json(old('payload'));
             var MAX_BYTES = @json(\App\Models\Merchandising\Upload::MAX_BYTES);
+            var RADIUS_M = @json(\App\Services\Merchandising\VisitLocation::RADIUS_M);
+            var ACCURACY_ALLOWANCE_M = @json(\App\Services\Merchandising\VisitLocation::MAX_ACCURACY_ALLOWANCE_M);
+            // A photo the camera just took is seconds old; anything older came
+            // from the gallery. The capture attribute asks phones to open the
+            // camera; this catches browsers that offer the gallery anyway.
+            var FRESH_MS = 10 * 60 * 1000;
             // A dozen cards at a time: on a phone the whole catalog is an endless page.
             var PAGE = 12;
 
@@ -245,6 +263,7 @@
                 storeSearch.setAttribute('aria-expanded', 'false');
                 clearInvalid('mv-section-visit');
                 renderStore();
+                renderLocation();
                 saveSoon();
             }
 
@@ -280,13 +299,13 @@
             });
 
             byId('mv-store-change').addEventListener('click', function () {
-                state.store = null; renderStore(); storeSearch.focus(); saveSoon();
+                state.store = null; renderStore(); renderLocation(); storeSearch.focus(); saveSoon();
             });
             byId('mv-store-type-toggle').addEventListener('click', function () {
-                state.store_mode = 'typed'; state.store = null; renderStore(); byId('mv-store-name').focus(); saveSoon();
+                state.store_mode = 'typed'; state.store = null; renderStore(); renderLocation(); byId('mv-store-name').focus(); saveSoon();
             });
             byId('mv-store-search-toggle').addEventListener('click', function () {
-                state.store_mode = 'search'; state.store_name = ''; renderStore(); storeSearch.focus(); saveSoon();
+                state.store_mode = 'search'; state.store_name = ''; renderStore(); renderLocation(); storeSearch.focus(); saveSoon();
             });
             byId('mv-store-name').addEventListener('input', function (e) {
                 state.store_name = e.target.value; clearInvalid('mv-section-visit'); saveSoon();
@@ -557,6 +576,7 @@
                     var upload = { id: uid(), kind: kind, file: file, name: file.name, type: file.type, size: file.size, status: 'queued', progress: 0, token: null, error: '' };
                     if (file.size > MAX_BYTES) { upload.status = 'error'; upload.error = T.upload_too_large; upload.fatal = true; }
                     if (kind !== 'extra' && file.type && file.type.indexOf('image/') !== 0) { upload.status = 'error'; upload.error = T.upload_wrong_type; upload.fatal = true; }
+                    if (file.lastModified && Date.now() - file.lastModified > FRESH_MS) { upload.status = 'error'; upload.error = T.upload_not_fresh; upload.fatal = true; }
                     state.uploads.push(upload);
                     renderTile(upload);
                 });
@@ -712,11 +732,70 @@
             document.querySelectorAll('[data-upload-input]').forEach(function (input) {
                 input.addEventListener('change', function () { addFiles(input.dataset.uploadInput, input.files); input.value = ''; });
             });
-            document.querySelectorAll('.mv-uploads').forEach(function (box) {
-                box.addEventListener('dragover', function (e) { e.preventDefault(); box.classList.add('is-dragover'); });
-                box.addEventListener('dragleave', function () { box.classList.remove('is-dragover'); });
-                box.addEventListener('drop', function (e) { e.preventDefault(); box.classList.remove('is-dragover'); addFiles(box.dataset.kind, e.dataTransfer.files); });
-            });
+            // No drag-and-drop: photos must come from the camera, not from files.
+
+            // ---------- Location ----------
+            var geo = { status: 'pending', lat: null, lng: null, accuracy: null, at: 0 };
+
+            function metres(lat1, lng1, lat2, lng2) {
+                var rad = Math.PI / 180;
+                var a = Math.pow(Math.sin((lat2 - lat1) * rad / 2), 2) + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.pow(Math.sin((lng2 - lng1) * rad / 2), 2);
+                return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            }
+
+            // Mirrors VisitLocation::assess() on the server.
+            function locationCheck() {
+                if (geo.status === 'pending') { return { state: 'pending' }; }
+                if (geo.status !== 'ok') { return { state: 'off' }; }
+                var store = state.store_mode === 'search' ? state.store : null;
+                if (!store) { return { state: state.store_mode === 'typed' ? 'unmapped' : 'no_store' }; }
+                if (store.lat === null || store.lat === undefined) { return { state: 'unmapped' }; }
+                var distance = Math.round(metres(geo.lat, geo.lng, store.lat, store.lng));
+                var allowed = distance <= RADIUS_M + Math.min(geo.accuracy || 0, ACCURACY_ALLOWANCE_M);
+                return { state: allowed ? 'inside' : 'outside', distance: distance };
+            }
+
+            function renderLocation() {
+                var check = locationCheck();
+                var box = byId('mv-location');
+                var view = {
+                    pending: ['', 'ri-loader-4-line mv-spin', T.location_checking, ''],
+                    no_store: ['is-ok', 'ri-map-pin-line', T.location_found, T.location_pick_store],
+                    inside: ['is-ok', 'ri-map-pin-2-fill', T.location_ok.replace(':distance', check.distance), ''],
+                    outside: ['is-bad', 'ri-map-pin-range-line', T.location_outside_title, T.location_outside.replace(':distance', check.distance).replace(':radius', RADIUS_M)],
+                    unmapped: ['is-warn', 'ri-map-pin-line', T.location_found, T.location_unmapped],
+                    off: ['is-warn', 'ri-map-pin-off-line', T.location_off, T.location_off_hint],
+                }[check.state];
+                box.className = 'mv-location ' + view[0];
+                byId('mv-location-icon').className = view[1];
+                byId('mv-location-title').textContent = view[2];
+                byId('mv-location-detail').textContent = view[3];
+                byId('mv-location-retry').classList.toggle('d-none', ['outside', 'off'].indexOf(check.state) === -1);
+            }
+
+            function locate() {
+                return new Promise(function (resolve) {
+                    if (!navigator.geolocation || !window.isSecureContext) {
+                        geo = { status: 'unavailable', at: Date.now() };
+                        renderLocation();
+                        resolve();
+                        return;
+                    }
+                    geo.status = 'pending';
+                    renderLocation();
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        geo = { status: 'ok', lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy, at: Date.now() };
+                        renderLocation();
+                        resolve();
+                    }, function (error) {
+                        geo = { status: error.code === 1 ? 'denied' : 'unavailable', at: Date.now() };
+                        renderLocation();
+                        resolve();
+                    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
+                });
+            }
+
+            byId('mv-location-retry').addEventListener('click', function () { locate(); });
 
             function updateSubmitStatus() {
                 var busy = state.uploads.filter(function (u) { return u.status === 'queued' || u.status === 'uploading' || u.status === 'preparing'; }).length;
@@ -737,13 +816,30 @@
                 if (!done('after')) { errors.push([T.error_photo_after, 'mv-section-photos']); }
                 if (state.uploads.some(function (u) { return ['queued', 'uploading', 'preparing'].indexOf(u.status) !== -1; })) { errors.push([T.error_uploads_pending, 'mv-section-photos']); }
                 if (state.uploads.some(function (u) { return u.status === 'error'; })) { errors.push([T.error_uploads_failed, 'mv-section-photos']); }
+                var check = locationCheck();
+                if (check.state === 'outside') { errors.push([T.location_outside.replace(':distance', check.distance).replace(':radius', RADIUS_M), 'mv-section-visit']); }
                 return errors;
             }
 
             var submitting = false;
+            var checkingLocation = false;
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
-                if (submitting) { return; }
+                if (submitting || checkingLocation) { return; }
+
+                // Re-read the position if it's stale: the check must reflect
+                // where the merchandiser is when submitting.
+                if (geo.status !== 'pending' && Date.now() - geo.at > 2 * 60 * 1000) {
+                    checkingLocation = true;
+                    byId('mv-submit').disabled = true;
+                    locate().then(function () {
+                        checkingLocation = false;
+                        byId('mv-submit').disabled = false;
+                        form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
+                    });
+                    return;
+                }
+
                 var errors = validate();
                 var box = byId('mv-errors');
                 var list = byId('mv-error-list');
@@ -771,6 +867,7 @@
                     store_feedback: state.store_feedback,
                     needs_order: state.needs_order,
                     note: state.note.trim() || null,
+                    location: geo.status === 'ok' ? { lat: geo.lat, lng: geo.lng, accuracy: geo.accuracy } : null,
                     uploads: state.uploads.filter(function (u) { return u.status === 'done'; }).map(function (u) { return u.token; }),
                     // Echoed back if the server rejects the visit, so the form restores as it was.
                     uploads_meta: state.uploads.filter(function (u) { return u.status === 'done'; }).map(function (u) { return { id: u.id, token: u.token, name: u.name, type: u.type, kind: u.kind, size: u.size }; }),
@@ -807,6 +904,7 @@
             note.value = state.note;
             byId('mv-note-count').textContent = state.note.length;
             renderStore();
+            locate();
             renderLines();
             renderCatalog();
             renderItems();

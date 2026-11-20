@@ -12,6 +12,7 @@ use App\Models\Products\Product;
 use App\Models\User;
 use App\Services\Merchandising\MerchandisingOptions;
 use App\Services\Merchandising\VisitFiler;
+use App\Services\Merchandising\VisitLocation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,6 +43,11 @@ class VisitController extends Controller implements HasMiddleware
     {
         $user = $request->user();
 
+        // Opening the list clears the "new visits" badge in the sidebar.
+        if ($user->can('merchandising.view_all')) {
+            $user->forceFill(['merchandising_visits_seen_at' => now()])->saveQuietly();
+        }
+
         $visits = Visit::query()
             ->visibleTo($user)
             ->with(['store', 'user'])
@@ -50,6 +56,7 @@ class VisitController extends Controller implements HasMiddleware
             ->when($request->filled('date_to'), fn ($q) => $q->whereDate('visited_at', '<=', $request->input('date_to')))
             ->when($request->filled('user_id') && $user->can('merchandising.view_all'), fn ($q) => $q->where('user_id', $request->input('user_id')))
             ->when($request->filled('q'), fn ($q) => $q->whereHas('store', fn ($s) => $s->search($request->input('q'))))
+            ->when($request->input('location') === 'unverified', fn ($q) => $q->where(fn ($l) => $l->whereNull('location_status')->orWhere('location_status', '!=', VisitLocation::VERIFIED)))
             ->latest('visited_at')
             ->paginate(20)
             ->withQueryString();
@@ -79,7 +86,7 @@ class VisitController extends Controller implements HasMiddleware
      * The form posts one JSON "payload" field: a visit can carry hundreds of
      * product checks, which is past PHP's max_input_vars as separate fields.
      */
-    public function store(Request $request, VisitFiler $filer): RedirectResponse
+    public function store(Request $request, VisitFiler $filer, VisitLocation $locator): RedirectResponse
     {
         $user = $request->user();
         $payload = json_decode((string) $request->input('payload'), true);
@@ -108,16 +115,36 @@ class VisitController extends Controller implements HasMiddleware
         $stored = [];
 
         try {
-            $visit = DB::transaction(function () use ($data, $user, $uploads, $filer, &$stored) {
+            $visit = DB::transaction(function () use ($data, $user, $uploads, $filer, $locator, &$stored) {
+                $store = $this->resolveStore($data, $user);
+                $location = $data['location'] ?? null;
+                $check = $locator->assess($location, $store);
+
+                // Refused here as well as in the browser, so it can't be bypassed.
+                if (! $check['allowed']) {
+                    throw ValidationException::withMessages(['location' => __('merchandising.error_not_at_store', ['distance' => $check['distance']])]);
+                }
+
+                // A store typed in on site gets the merchandiser's position,
+                // so later visits to it can be checked too.
+                if ($location && ! $store->is_verified && $store->latitude === null) {
+                    $store->forceFill(['latitude' => $location['lat'], 'longitude' => $location['lng']])->save();
+                }
+
                 $visit = Visit::create([
                     'submission_key' => $data['submission_key'],
                     'user_id' => $user->id,
-                    'store_id' => $this->resolveStore($data, $user)->id,
+                    'store_id' => $store->id,
                     'visited_at' => $data['visited_at'],
                     'actions' => $data['actions'] ?? [],
                     'store_feedback' => $data['store_feedback'] ?? [],
                     'needs_order' => (bool) ($data['needs_order'] ?? false),
                     'note' => $data['note'] ?? null,
+                    'latitude' => $location['lat'] ?? null,
+                    'longitude' => $location['lng'] ?? null,
+                    'location_accuracy' => isset($location['accuracy']) ? (int) round($location['accuracy']) : null,
+                    'distance_m' => $check['distance'],
+                    'location_status' => $check['status'],
                 ]);
 
                 $divisions = Product::with('category:id,division')
@@ -192,7 +219,7 @@ class VisitController extends Controller implements HasMiddleware
             ->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', [$term.'%'])
             ->orderBy('name')
             ->limit(20)
-            ->get(['id', 'name', 'food_account_code', 'cleaning_account_code', 'city', 'region', 'address', 'type']);
+            ->get(['id', 'name', 'food_account_code', 'cleaning_account_code', 'city', 'region', 'address', 'type', 'latitude', 'longitude']);
 
         return response()->json($stores->map(fn (Store $s) => [
             'id' => $s->id,
@@ -200,6 +227,8 @@ class VisitController extends Controller implements HasMiddleware
             'codes' => $s->codes(),
             'place' => collect([$s->city, $s->region])->filter()->implode(', '),
             'address' => $s->address,
+            'lat' => $s->latitude !== null ? (float) $s->latitude : null,
+            'lng' => $s->longitude !== null ? (float) $s->longitude : null,
         ]));
     }
 
@@ -231,6 +260,10 @@ class VisitController extends Controller implements HasMiddleware
             'store_feedback.*' => [Rule::in(array_keys($this->options->lookup('merch_feedback')))],
             'needs_order' => ['nullable', 'boolean'],
             'note' => ['nullable', 'string', 'max:200'],
+            'location' => ['nullable', 'array'],
+            'location.lat' => ['required_with:location', 'numeric', 'between:-90,90'],
+            'location.lng' => ['required_with:location', 'numeric', 'between:-180,180'],
+            'location.accuracy' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'uploads' => ['required', 'array', 'min:2', 'max:200'],
             'uploads.*' => ['uuid'],
         ], [], [

@@ -15,6 +15,11 @@
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/lib/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/wowdash/css/style.css') }}">
         @include('partials.theme-color')
+        <style>
+            /* Count of new items on a sidebar link (e.g. new merchandising visits). */
+            .nav-count-badge { margin-inline-start: auto; min-width: 22px; height: 20px; padding: 0 7px; border-radius: 999px; background: #EF4444; color: #fff; font-size: 11px; font-weight: 700; line-height: 1; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+            .sidebar.active:not(:hover) .nav-count-badge { position: absolute; top: 4px; inset-inline-end: 8px; min-width: 18px; height: 16px; font-size: 10px; padding: 0 4px; }
+        </style>
         @stack('styles')
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])

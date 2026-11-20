@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable([
     'submission_key', 'user_id', 'store_id', 'visited_at', 'divisions', 'actions',
     'store_feedback', 'needs_order', 'note', 'folder_id',
+    'latitude', 'longitude', 'location_accuracy', 'distance_m', 'location_status',
 ])]
 class Visit extends Model
 {
@@ -29,6 +30,8 @@ class Visit extends Model
             'actions' => 'array',
             'store_feedback' => 'array',
             'needs_order' => 'boolean',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
         ];
     }
 
@@ -55,6 +58,22 @@ class Visit extends Model
     public function media(): HasMany
     {
         return $this->hasMany(Upload::class)->whereNotNull('file_entry_id')->orderBy('id');
+    }
+
+    public function mapUrl(): ?string
+    {
+        return $this->latitude !== null ? 'https://www.google.com/maps?q='.$this->latitude.','.$this->longitude : null;
+    }
+
+    /**
+     * Visits a reviewer hasn't seen yet: anyone else's, submitted since they
+     * last opened the visits list.
+     */
+    public static function unseenCountFor(User $user): int
+    {
+        return static::where('user_id', '!=', $user->id)
+            ->when($user->merchandising_visits_seen_at, fn ($q, $seen) => $q->where('created_at', '>', $seen))
+            ->count();
     }
 
     /**

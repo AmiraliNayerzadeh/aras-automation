@@ -201,3 +201,107 @@ test('only reviewers can delete a visit', function () {
 
     expect(Visit::count())->toBe(0);
 });
+
+// ---------------------------------------------------------------- location
+
+test('a visit within 100 m of the store is confirmed', function () {
+    $this->store->update(['latitude' => 40.1872, 'longitude' => 44.5152]);
+
+    ($this->submit)(($this->payload)(['location' => ['lat' => 40.1876, 'lng' => 44.5155, 'accuracy' => 12]]))->assertSessionHasNoErrors();
+
+    expect(Visit::first())
+        ->location_status->toBe('verified')
+        ->distance_m->toBeLessThan(100)
+        ->location_accuracy->toBe(12)
+        ->and(Visit::first()->mapUrl())->toContain('40.1876');
+});
+
+test('a visit far from the store is refused and nothing is saved', function () {
+    $this->store->update(['latitude' => 40.1872, 'longitude' => 44.5152]);
+
+    ($this->submit)(($this->payload)(['location' => ['lat' => 40.2000, 'lng' => 44.5152, 'accuracy' => 10]]))
+        ->assertSessionHasErrors('location');
+
+    expect(Visit::count())->toBe(0)
+        ->and(Upload::whereNull('visit_id')->count())->toBe(2);
+});
+
+test('poor accuracy forgives a little but never more than 50 m', function () {
+    $this->store->update(['latitude' => 40.1872, 'longitude' => 44.5152]);
+    // About 133 m north of the store.
+    $location = ['lat' => 40.1884, 'lng' => 44.5152];
+
+    ($this->submit)(($this->payload)(['location' => $location + ['accuracy' => 40]]))->assertSessionHasNoErrors();
+    ($this->submit)(($this->payload)(['location' => ['lat' => 40.1890, 'lng' => 44.5152, 'accuracy' => 900]]))->assertSessionHasErrors('location');
+
+    expect(Visit::count())->toBe(1);
+});
+
+test('without a location the visit is accepted but flagged', function () {
+    $this->store->update(['latitude' => 40.1872, 'longitude' => 44.5152]);
+
+    ($this->submit)(($this->payload)(['location' => null]))->assertSessionHasNoErrors();
+
+    expect(Visit::first())->location_status->toBe('no_location')->latitude->toBeNull();
+});
+
+test('a store without coordinates cannot be checked, so the visit is flagged', function () {
+    ($this->submit)(($this->payload)(['location' => ['lat' => 40.18, 'lng' => 44.51, 'accuracy' => 5]]))->assertSessionHasNoErrors();
+
+    expect(Visit::first()->location_status)->toBe('store_unmapped')
+        ->and($this->store->fresh()->latitude)->toBeNull();
+});
+
+test('a store typed in on site takes the merchandiser’s position', function () {
+    ($this->submit)(($this->payload)(['store_id' => null, 'store_name' => 'New corner shop', 'location' => ['lat' => 40.1, 'lng' => 44.5, 'accuracy' => 8]]));
+
+    $store = Store::where('name', 'New corner shop')->first();
+    expect((float) $store->latitude)->toBe(40.1)
+        ->and(Visit::first()->location_status)->toBe('store_unmapped');
+});
+
+test('impossible coordinates are refused', function () {
+    ($this->submit)(($this->payload)(['location' => ['lat' => 123, 'lng' => 44.5]]))->assertSessionHasErrors('location.lat');
+});
+
+test('store search returns coordinates for the in-form check', function () {
+    $this->store->update(['latitude' => 40.1872, 'longitude' => 44.5152]);
+
+    $this->actingAs($this->merchandiser)->getJson(route('merchandising.stores.search', ['q' => 'SAS']))
+        ->assertJsonPath('0.lat', 40.1872)->assertJsonPath('0.lng', 44.5152);
+});
+
+test('admins can list visits not confirmed at the store', function () {
+    $this->store->update(['latitude' => 40.1872, 'longitude' => 44.5152]);
+    ($this->submit)(($this->payload)(['location' => ['lat' => 40.1873, 'lng' => 44.5152]]));
+    ($this->submit)(($this->payload)(['location' => null, 'visited_at' => '2026-11-18T10:00']));
+
+    $this->actingAs($this->admin)->get(route('merchandising.visits.index', ['location' => 'unverified']))
+        ->assertOk()
+        ->assertViewHas('visits', fn ($visits) => $visits->total() === 1 && $visits->first()->location_status === 'no_location');
+});
+
+// ---------------------------------------------------------------- sidebar badge
+
+test('reviewers see a count of new visits until they open the list', function () {
+    ($this->submit)(($this->payload)());
+    ($this->submit)(($this->payload)());
+
+    $this->actingAs($this->admin)->get(route('dashboard'))->assertOk()->assertSee('<span class="nav-count-badge"', false);
+    expect(Visit::unseenCountFor($this->admin))->toBe(2);
+
+    $this->actingAs($this->admin)->get(route('merchandising.visits.index'))->assertOk();
+    $this->travel(1)->seconds();
+
+    expect(Visit::unseenCountFor($this->admin->fresh()))->toBe(0);
+    $this->actingAs($this->admin->fresh())->get(route('dashboard'))->assertDontSee('<span class="nav-count-badge"', false);
+
+    ($this->submit)(($this->payload)());
+    expect(Visit::unseenCountFor($this->admin->fresh()))->toBe(1);
+});
+
+test('merchandisers get no badge for their own visits', function () {
+    ($this->submit)(($this->payload)());
+
+    $this->actingAs($this->merchandiser)->get(route('dashboard'))->assertOk()->assertDontSee('<span class="nav-count-badge"', false);
+});

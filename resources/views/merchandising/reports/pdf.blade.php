@@ -157,7 +157,11 @@
                         </td>
                         <td class="right" style="width: 32%;">
                             <strong>{{ $visit->visited_at->format('D, j M Y · H:i') }}</strong><br>
-                            <span class="muted">{{ $visit->user?->name }}</span>
+                            <span class="muted">{{ $visit->user?->name }}</span><br>
+                            @php($located = $visit->location_status === \App\Services\Merchandising\VisitLocation::VERIFIED)
+                            <span class="pill" style="background: {{ $located ? '#DDF3E4' : '#FDE2E2' }}; color: {{ $located ? '#166534' : '#991B1B' }};">
+                                {{ __('merchandising.location_'.($visit->location_status ?? 'no_location')) }}@if ($visit->distance_m !== null) · {{ $visit->distance_m }} m @endif
+                            </span>
                         </td>
                     </tr>
                 </table>

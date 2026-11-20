@@ -38,7 +38,7 @@ class MerchandisingReport
         // Visit times are the company's wall-clock time, like "today" here.
         $this->from = Carbon::parse($request->input('date_from') ?: $this->options->now()->toDateString())->startOfDay();
         $this->to = $request->filled('date_to') ? Carbon::parse($request->input('date_to'))->endOfDay() : $this->from->copy()->endOfDay();
-        $this->filters = $request->only(['division', 'user_id', 'store_type', 'region', 'store_id']);
+        $this->filters = $request->only(['division', 'user_id', 'store_type', 'region', 'store_id', 'location']);
 
         $division = $this->filters['division'] ?? null;
 
@@ -50,6 +50,7 @@ class MerchandisingReport
             ->when($this->filters['store_type'] ?? null, fn ($q, $type) => $q->whereHas('store', fn ($s) => $s->where('type', $type)))
             ->when($this->filters['region'] ?? null, fn ($q, $region) => $q->whereHas('store', fn ($s) => $s->where('region', $region)))
             ->when($division, fn ($q) => $q->whereHas('items', fn ($i) => $i->where('division', $division)))
+            ->when(($this->filters['location'] ?? null) === 'unverified', fn ($q) => $q->where(fn ($l) => $l->whereNull('location_status')->orWhere('location_status', '!=', VisitLocation::VERIFIED)))
             ->orderBy('visited_at')
             ->get();
 
@@ -80,6 +81,8 @@ class MerchandisingReport
             'items_with_issues' => $this->items->filter(fn ($i) => ! empty($i->issues))->count(),
             'photos' => $this->visits->sum(fn (Visit $v) => $v->media->count()),
             'orders_needed' => $this->items->where('needs_order', true)->count(),
+            'location_verified' => $this->visits->where('location_status', VisitLocation::VERIFIED)->count(),
+            'location_verified_rate' => $this->visits->count() ? round($this->visits->where('location_status', VisitLocation::VERIFIED)->count() / $this->visits->count() * 100, 1) : null,
         ];
     }
 

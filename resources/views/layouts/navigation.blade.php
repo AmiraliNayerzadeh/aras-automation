@@ -154,6 +154,12 @@
             <x-nav-link :href="route('merchandising.visits.index')" :active="request()->routeIs('merchandising.visits.index', 'merchandising.visits.show')">
                 <i class="ri-map-pin-user-line menu-icon"></i>
                 <span>{{ __('merchandising.nav_visits') }}</span>
+                @can('merchandising.view_all')
+                    @php($newVisits = \App\Models\Merchandising\Visit::unseenCountFor(auth()->user()))
+                    @if ($newVisits > 0)
+                        <span class="nav-count-badge" title="{{ __('merchandising.new_visits', ['count' => $newVisits]) }}">{{ $newVisits > 99 ? '99+' : $newVisits }}</span>
+                    @endif
+                @endcan
             </x-nav-link>
         </li>
         @can('merchandising.view_all')
